@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Manage Courses | DMS</title>
+		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<style>
+			::-webkit-scrollbar {
+				width: 8px;
+			}
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+			::-webkit-scrollbar-thumb {
+				background: #888;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+			input.gridjs-input{
+				box-shadow: 0 0 0 1px #141414;
+			}
+			input.gridjs-input:focus {
+				border-color: #615FFF;
+				box-shadow: 0 0 0 3px #615FFF80;
+			}
+			.gridjs-search-input{
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="flex h-screen">
+			{% include 'navbar.html' %}
+			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+				<div class="w-full flex justify-between items-center">
+					<h1 class="text-3xl font-bold">Manage Courses</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-course">
+						<p>Add Course</p>
+					</div>
+				</div>
+				<div id="wrapper" class="w-full mt-8"></div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-course-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="course-model-heading" class="text-3xl font-bold">Add Course</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-course-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-course-form">
+					{%csrf_token%}
+					<div class="w-full">
+                              <div class="mb-4 flex items-center gap-4 w-full">
+                                   <div class="flex flex-col gap-2 w-1/2">
+                                        <label for="courseName" class="block font-semibold">Course Name</label>
+                                        <input type="text" name="courseName" id="courseName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                   </div>
+                                   <div class="flex flex-col gap-2 w-1/2">
+                                        <label for="courseDuration" class="block font-semibold">Course Duration (In Days)</label>
+                                        <input type="number" name="courseDuration" id="courseDuration" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                   </div>
+                              </div>
+                              <div class="mb-4 w-full">
+                                   <div class="flex flex-col gap-2 w-full">
+                                        <label for="courceDescription" class="block font-semibold">Course Description</label>
+                                        <textarea rows="5" name="courceDescription" id="courceDescription" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
+                                   </div>
+                              </div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+                                        <label for="courseFee" class="block font-semibold">Course Fee</label>
+                                        <input type="text" name="courseFee" id="courseFee" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                   </div>
+							<div class="flex flex-col gap-2 w-1/2">
+                                        <label for="courseBranch" class="block font-semibold">Branch</label>
+                                        <select name="courseBranch" id="courseBranch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                                             <option disabled selected>Select Branch</option>
+                                        </select>
+                                   </div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+                                        <label for="courceInstructor" class="block font-semibold">Instructor</label>
+                                        <select name="courceInstructor" id="courceInstructor" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                                             <option disabled selected>Select User</option>
+                                        </select>
+                                   </div>
+                                   <!-- <div class="flex flex-col gap-2 w-1/2">
+                                        <label for="courceVehicle" class="block font-semibold">Vehicle</label>
+                                        <select name="courceVehicle" id="courceVehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                                             <option disabled selected>Select Vehicle</option>
+                                        </select>
+                                   </div> -->
+						</div>
+					</div>
+					<div id="btns-container" class="flex justify-end">
+						<button id="add-course-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+							<p>Add</p>
+						</button>
+						<botton id="close-add-course-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+							<p>Cancel</p>
+						</botton>
+					</div>
+				</form>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-course-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="update-course-heading" class="text-2xl font-bold">Update Course</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-course-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<p id="update-course-message">Course details updated successfully.</p>
+				</div>
+				<div class="flex justify-end">
+					<botton id="close-update-course-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Close</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-course-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">Delete Course</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-course-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div id="delete-course-message-container" class="flex flex-col gap-2">
+					<p id="delete-course-message">Are you sure you want to delete this course?</p>
+					<p>This action cannot be undone.</p>
+				</div>
+				<div class="flex justify-end">
+					<button id="delete-course-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Delete</p>
+					</button>
+					<botton id="close-delete-course-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				fetch("http://127.0.0.1:8000/getBranchData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("courseBranch").innerHTML += data.map(branch => `<option value="${branch.id}">${branch.branchName}</option>`).join('');
+					}).catch(error => {
+						console.error('Error:', error);
+						document.getElementById("courseBranch").innerHTML = "<option disabled selected>No Branch Found</option>";
+					})
+
+				// fetch("http://127.0.0.1:8000/getVehicleData/")
+				// 	.then(response => response.json())
+				// 	.then(data => {
+				// 		document.getElementById("courceVehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.id}">${vehicle.vehicalName}</option>`).join('');
+				// 	}).catch(error => {
+				// 		console.error('Error:', error);
+				// 		document.getElementById("courceVehicle").innerHTML = "<option disabled selected>No Vehicle Found</option>";
+				// 	})
+
+					fetch("http://127.0.0.1:8000/getInstructorData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("courceInstructor").innerHTML += data.map(user => `<option value="${user.id}">${user.name}</option>`).join('');
+					}).catch(error => {
+						console.error('Error:', error);
+						document.getElementById("courceInstructor").innerHTML = "<option disabled selected>No Vehicle Found</option>";
+					})
+			})
+
+			document.getElementById('add-course').addEventListener('click', () => {
+				document.getElementById('add-course-modal').classList.remove('scale-0', 'opacity-0');
+				document.getElementById('add-course-modal').classList.add('scale-100', 'opacity-100');
+				document.getElementById("course-model-heading").innerText = "Add Course";
+				document.getElementById("btns-container").style.display = "flex";
+				document.getElementById("add-course-btn").innerText = "Add";
+				document.getElementById('add-course-modal').querySelector('form').reset();
+				document.getElementById('add-course-modal').querySelectorAll('input').forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+			});
+
+			document.getElementById('close-add-course-modal').addEventListener('click', () => {
+				document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-course-modal').addEventListener('click', () => {
+				document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-delete-course-modal').addEventListener('click', () => {
+				document.getElementById('delete-course-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-course-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-delete-course-btn').addEventListener('click', () => {
+				document.getElementById('delete-course-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-course-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-course-btn').addEventListener('click', () => {
+				document.getElementById('updated-course-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-course-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-course-modal').addEventListener('click', () => {
+				document.getElementById('updated-course-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-course-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById("add-course-form").addEventListener("submit", (e) => {
+				if (document.getElementById('add-course-btn').innerText === "Update") {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					// const profilePhotoInput = document.getElementById("profilePhoto");
+					
+					// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
+					// 	formData.delete("profilePhoto");
+					// } else if (profilePhotoInput.files.length > 0) {
+					// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
+					// }
+
+					fetch("/manage-course/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-course-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-course-message").innerText = "Course details updated successfully."
+							document.getElementById("update-course-heading").innerText = "Update Course"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-course-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-course-message").innerText = "Error updating course information."
+							document.getElementById("update-course-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-course-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-course-message").innerText = "Error updating course information."
+					});
+				} else {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					// const profilePhotoInput = document.getElementById("profilePhoto");
+					
+					// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
+					// 	formData.delete("profilePhoto");
+					// } else if (profilePhotoInput.files.length > 0) {
+					// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
+					// }
+
+					fetch("/manage-course/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-course-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-course-message").innerText = "Course details added successfully."
+							document.getElementById("update-course-heading").innerText = "Add Course"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-course-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-course-message").innerText = "Error adding course information."
+							document.getElementById("update-course-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-course-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-course-message").innerText = "Error adding course information."
+					});
+				}
+			})
+
+			document.getElementById('delete-course-btn').addEventListener('click', () => {
+				const courseId = document.getElementById('delete-course-btn').getAttribute('data-id');
+				fetch(`http://127.0.0.1:8000/manage-course/?courseId=${courseId}`, {
+						method: 'DELETE',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if (data.success) {
+							document.getElementById("delete-course-message-container").innerHTML = `<p>${data.success}</p>`;
+							document.getElementById("delete-course-btn").style.display = "none";
+							document.getElementById("close-delete-course-modal").innerText = "Close";
+						} else if (data.error) {
+							document.getElementById("delete-course-message-container").innerHTML = `<p>${data.error}</p>`;
+							document.getElementById("delete-course-btn").style.display = "none";
+							document.getElementById("close-delete-course-modal").innerText = "Close";
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			});
+
+			const courseGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [
+                         {
+						id: "id",
+						name: "ID",
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					"Course Name",
+                         {
+                              name: "Course Duration",
+                              formatter: (cell, row) => {
+                                   let days = parseInt(cell, 10);
+                                   let startDate = new Date(2000, 0, 1); // Fixed reference date
+                                   let endDate = new Date(startDate.getTime() + days * 24 * 60 * 60 * 1000); // Add days
+
+                                   let years = endDate.getFullYear() - startDate.getFullYear();
+                                   let months = endDate.getMonth() - startDate.getMonth();
+                                   let remainingDays = endDate.getDate() - startDate.getDate();
+
+                                   // Adjust negative days
+                                   if (remainingDays < 0) {
+                                        months -= 1;
+                                        let prevMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 0);
+                                        remainingDays += prevMonth.getDate();
+                                   }
+
+                                   // Adjust negative months
+                                   if (months < 0) {
+                                        years -= 1;
+                                        months += 12;
+                                   }
+
+                                   let formattedDuration = "";
+                                   if (years > 0) formattedDuration += `${years} years `;
+                                   if (months > 0) formattedDuration += `${months} months `;
+                                   if (remainingDays > 0) formattedDuration += `${remainingDays} days`;
+
+                                   return gridjs.html(formattedDuration.trim());
+                              }
+                         },
+					"Course Fee",
+					"Instructor",
+					"Branch",
+					{
+						name: "Action",
+						formatter: (cell, row) => {
+							let editBtn = gridjs.h('button', {
+								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+									</svg>
+								`,
+								onClick: () => {
+									fetchCourseData(`http://127.0.0.1:8000/getCourseData/?courseId=${row.cells[0].data}`, "Edit Course Details", true, false);
+									document.getElementById("add-course-btn").innerText = "Update";
+
+									document.getElementById("add-course-form").innerHTML += `<input type="hidden" name="courseId" id="courseId" value="${row.cells[0].data}">`;
+									document.getElementById('add-course-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('add-course-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							let deleteBtn = gridjs.h('button', {
+								className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+										<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+										<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+									</svg>
+								`,
+								onClick: () => {
+									courseId = row.cells[0].data;
+									document.getElementById("delete-course-btn").setAttribute("data-id", courseId);
+									document.getElementById("delete-course-message").innerHTML = `Are you sure you want to delete <b>${row.cells[1].data}</b>'s details?`;
+									document.getElementById('delete-course-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('delete-course-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							return gridjs.h('div', {
+								className: 'flex gap-4'
+							}, editBtn, deleteBtn);
+						},
+						width: '11%'
+					}
+				],
+				server: {
+					url: 'http://127.0.0.1:8000/getCourseData/',
+					then: data => data.map(course => [course.id, course.courseName, course.courseDuration, course.courseFee, course.courceInstructor, course.courseBranch])
+				},
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
+
+			courseGrid.render(document.getElementById("wrapper"))
+
+			document.querySelector(".gridjs-search-input").placeholder = "Search...";
+
+			courseGrid.on('cellClick', (...args) => {
+				console.log(args);
+				if (args[2]["id"] === "courseName" || args[2]["id"] === "courseDuration" || args[2]["id"] === "courseFee" || args[2]["id"] === "instructor" || args[2]["id"] === "vehicle" || args[2]["id"] === "branch") {
+					courseId = args[3]["_cells"][0]["data"];
+					fetchCourseData(`http://127.0.0.1:8000/getCourseData/?courseId=${courseId}`, "Course Details", false, true);
+					document.getElementById('add-course-modal').classList.remove('scale-0', 'opacity-0');
+					document.getElementById('add-course-modal').classList.add('scale-100', 'opacity-100');
+				}
+			});
+
+			function fetchCourseData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						document.getElementById("course-model-heading").innerText = headingText;
+						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
+						document.getElementById("courseName").value = data.courseName || "No Data Found";
+						document.getElementById("courseDuration").value = data.courseDuration || "No Data Found";
+						document.getElementById("courceDescription").value = data.courceDescription || "No Data Found";
+						document.getElementById("courseFee").value = data.courseFee || "No Data Found";
+						document.getElementById("courseBranch").value = data.courseBranchId || "No Data Found";
+						document.getElementById("courceInstructor").value = data.courceInstructorId || "No Data Found";
+						// document.getElementById("courceVehicle").value = data.courceVehicleId || "No Data Found";
+						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
+					});
+			}
+
+			function makeInputReadOnly() {
+				document.getElementById('add-course-modal').querySelectorAll('input').forEach(input => {
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
+				document.getElementById('add-course-modal').querySelectorAll("textarea").forEach(input => {
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
+				document.getElementById('add-course-modal').querySelectorAll("select").forEach(input => {
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
+			}
+
+			function makeInputEditable() {
+				document.getElementById('add-course-modal').querySelectorAll('input').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				document.getElementById('add-course-modal').querySelectorAll("textarea").forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				document.getElementById('add-course-modal').querySelectorAll("select").forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+			}
+		</script>
+	</body>
+</html>

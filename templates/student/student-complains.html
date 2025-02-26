@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manage Complains | DMS</title>
+	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+	<style>
+		::-webkit-scrollbar {
+			width: 8px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: #f1f1f1;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: #888;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			background: #555;
+		}
+
+		input.gridjs-input {
+			box-shadow: 0 0 0 1px #141414;
+		}
+
+		input.gridjs-input:focus {
+			border-color: #615FFF;
+			box-shadow: 0 0 0 3px #615FFF80;
+		}
+
+		.gridjs-search-input {
+			width: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<section class="flex h-screen">
+		<div
+			class="fixed top-0 left-0 flex flex-col bg-clip-border bg-[#141414] text-white min-h-screen h-screen min-w-[18rem] w-full max-w-[18rem] p-4 shadow-xl shadow-blue-gray-900/5 z-10">
+			<div class="mb-2 p-4">
+				<h5
+					class="block antialiased tracking-normal font-sans text-xl font-semibold leading-snug text-white">
+					DMS</h5>
+				<!-- <img src="/static/images/IDEA-LOGO.png" alt="logo"> -->
+			</div>
+			<nav class="flex flex-col justify-between p-2 font-sans text-base font-normal text-white h-full">
+				<div class="flex flex-col gap-1">
+					<a href="/student/">
+						<div role="button" tabindex="0"
+							class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+							<div class="grid place-items-center mr-4">
+								<svg fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24">
+									<rect x="2" y="2" width="9" height="11" rx="2"></rect>
+									<rect x="13" y="2" width="9" height="7" rx="2"></rect>
+									<rect x="2" y="15" width="9" height="7" rx="2"></rect>
+									<rect x="13" y="11" width="9" height="11" rx="2"></rect>
+								</svg>
+							</div>
+							Dashboard
+						</div>
+					</a>
+					<a href="/student/manage-complain/">
+						<div role="button" tabindex="0"
+							class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+							<div class="grid place-items-center mr-4">
+								<svg fill="currentColor" class="w-5 h-5" viewBox="0 0 32 32">
+									<defs id="defs2" />
+									<g id="layer1" transform="translate(-108,-388)">
+										<path
+											d="m 115,408.01367 c -2.7527,0 -5,2.2473 -5,5 0,2.7527 2.2473,5 5,5 h 14 c 2.7527,0 5,-2.2473 5,-5 0,-2.7527 -2.2473,-5 -5,-5 z m 0,2 h 14 c 1.6793,0 3,1.32071 3,3 0,1.6793 -1.3207,3 -3,3 h -14 c -1.6793,0 -3,-1.3207 -3,-3 0,-1.67929 1.3207,-3 3,-3 z" />
+										<path
+											d="m 131,399.01367 a 1,1 0 0 0 -1,1 1,1 0 0 0 1,1 1,1 0 0 0 1,-1 1,1 0 0 0 -1,-1 z" />
+										<path
+											d="m 131,393.01367 a 1,1 0 0 0 -1,1 v 3 a 1,1 0 0 0 1,1 1,1 0 0 0 1,-1 v -3 a 1,1 0 0 0 -1,-1 z" />
+										<path
+											d="m 131,390.01367 c -2.63036,0 -4.9293,1.46542 -6.125,3.6211 -0.90021,-0.4054 -1.87895,-0.62123 -2.875,-0.6211 -3.85415,0 -7,3.14586 -7,7 0,3.85415 3.14585,7 7,7 a 1.000105,1.000105 0 0 0 0.002,0 c 2.57139,-0.007 4.90293,-1.42397 6.11524,-3.625 0.88031,0.40064 1.85579,0.625 2.88281,0.625 3.85414,0 7,-3.14585 7,-7 0,-3.85413 -3.14586,-7 -7,-7 z m 0,2 c 2.77327,0 5,2.22674 5,5 0,2.77327 -2.22673,5 -5,5 -0.98421,0 -1.89849,-0.28178 -2.66992,-0.76758 a 1.000005,1.000005 0 0 0 -0.2461,-0.16601 C 126.82049,400.17503 126,398.69579 126,397.01367 c 0,-0.5237 0.081,-1.02855 0.22852,-1.50195 a 1.000005,1.000005 0 0 0 0.10546,-0.30078 c 0.71945,-1.87506 2.52941,-3.19727 4.66602,-3.19727 z m -9,3 c 0.75319,-10e-5 1.49281,0.17045 2.16602,0.49414 -0.10719,0.48532 -0.16602,0.98922 -0.16602,1.50586 0,2.1085 0.94381,4.00364 2.42773,5.28906 -0.84495,1.64398 -2.53896,2.70503 -4.42773,2.71094 -2.77326,0 -5,-2.22673 -5,-5 0,-2.77326 2.22674,-5 5,-5 z" />
+									</g>
+								</svg>
+							</div>
+							Complains
+						</div>
+					</a>
+					<a href="/student/manage-course/">
+						<div role="button" tabindex="0"
+							class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+							<div class="grid place-items-center mr-4">
+								<svg fill="currentColor" class="w-5 h-5" viewBox="0 0 1920 1920">
+									<path d="M1750.21 0v1468.235h-225.882v338.824h169.412V1920H451.387c-82.447 0-161.506-36.141-214.701-99.388-43.934-51.953-67.652-116.33-67.652-182.965V282.353C169.034 126.494 295.528 0 451.387 0H1750.21Zm-338.823 1468.235H463.81c-89.223 0-166.136 59.86-179.576 140.047-1.242 9.036-2.259 18.07-2.259 27.106v2.26c0 40.658 13.553 77.928 40.659 109.552 32.753 38.4 79.059 59.859 128.753 59.859h960v-112.941H409.599v-112.942h1001.788v-112.94Zm225.882-1355.294H451.387c-92.725 0-169.412 75.67-169.412 169.412v1132.8c50.824-37.27 113.958-59.859 181.835-59.859h1173.46V112.941ZM1354.882 903.53v112.942H564.294V903.529h790.588Zm56.47-564.705v451.764H507.825V338.824h903.529Zm-112.94 112.94H620.765v225.883h677.647V451.765Z"
+										fill-rule="evenodd" />
+								</svg>
+							</div>
+							Course
+						</div>
+					</a>
+				</div>
+				<div class="flex flex-col gap-1">
+					{% if user.is_authenticated %}
+					<div role="button" tabindex="0"
+						class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+						<div class="grid place-items-center mr-4">
+							{% if profilepic != '' %}
+							<img src="{{ profilepic }}" class="w-5 h-5 rounded-full" alt="Profile Picture">
+							{% else %}
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+								class="bi bi-person-circle" viewBox="0 0 16 16">
+								<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+								<path fill-rule="evenodd"
+									d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+							</svg>
+							{%endif%}
+						</div>
+						{{ user.username }}
+					</div>
+					<a href="/signout/">
+						<div role="button" tabindex="0"
+							class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+							<div class="grid place-items-center mr-4">
+								<svg fill="currentColor" class="w-5 h-5" viewBox="0 0 16 16">
+									<path d="M7.5 1v7h1V1z" />
+									<path
+										d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812" />
+								</svg>
+							</div>
+							Logout
+						</div>
+					</a>
+					{% endif %}
+				</div>
+			</nav>
+		</div>
+		<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+			<div class="w-full flex justify-between items-center">
+				<h1 class="text-3xl font-bold">Manage Complains</h1>
+				<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-complain">
+					<p>Add Complain</p>
+				</div>
+			</div>
+			<div id="wrapper" class="w-full mt-8"></div>
+		</div>
+	</section>
+	<section
+		class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300"
+		id="add-complain-modal">
+		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+			<div class="flex justify-between items-center">
+				<h1 id="complain-model-heading" class="text-3xl font-bold">Add Complain</h1>
+				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer"
+					id="close-complain-modal">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+						class="bi bi-x-lg" viewBox="0 0 16 16">
+						<path
+							d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+					</svg>
+				</div>
+			</div>
+			<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2"
+				enctype="multipart/form-data" id="add-complain-form">
+				{%csrf_token%}
+				<div class="w-full">
+					<div class="mb-4 flex items-center gap-4 w-full">
+						<div class="flex flex-col gap-2 w-1/2">
+							<label for="complain" class="block font-semibold">Complain</label>
+							<input type="text" name="complain" id="complain" autocomplete="off" required
+								class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div>
+						<div class="flex flex-col gap-2 w-1/2">
+							<label for="complainfor" class="block font-semibold">Complain For</label>
+							<input type="text" name="complainfor" id="complainfor" autocomplete="off" required
+								class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div>
+					</div>
+					<div class="mb-4 w-full">
+						<div class="flex flex-col gap-2 w-full">
+							<label for="complainDescription" class="block font-semibold">Complain
+								Description</label>
+							<textarea rows="5" name="complainDescription" id="complainDescription"
+								autocomplete="off" required
+								class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
+						</div>
+					</div>
+				</div>
+				<div id="btns-container" class="flex justify-end">
+					<button id="add-complain-btn"
+						class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Add</p>
+					</button>
+					<botton id="close-add-complain-modal"
+						class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</form>
+		</div>
+	</section>
+	<section
+		class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300"
+		id="resolved-complain-modal">
+		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+			<div class="flex justify-between items-center">
+				<h1 id="resolved-complain-heading" class="text-2xl font-bold">Resolve Complain</h1>
+				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer"
+					id="close-resolved-complain-btn">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+						class="bi bi-x-lg" viewBox="0 0 16 16">
+						<path
+							d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+					</svg>
+				</div>
+			</div>
+			<div class="flex flex-col gap-2">
+				<p id="resolved-complain-message">Complain resolved successfully.</p>
+			</div>
+			<div class="flex justify-end">
+				<botton id="close-resolve-complain-modal"
+					class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+					<p>Close</p>
+				</botton>
+			</div>
+		</div>
+	</section>
+	<section
+		class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300"
+		id="view-complain-modal">
+		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+			<div class="flex justify-between items-center">
+				<h1 class="text-3xl font-bold">Complain Details</h1>
+				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer"
+					id="close-view-complain-modal">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+						class="bi bi-x-lg" viewBox="0 0 16 16">
+						<path
+							d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+					</svg>
+				</div>
+			</div>
+			<div class="flex flex-col gap-6">
+				<div class="w-full flex items-center justify-center">
+					<p class="text-3xl font-semibold">This is a complain title</p>
+				</div>
+				<div class="w-full flex items-center justify-between">
+					<div>
+						<span class="text-sm text-indigo-600">Complain From</span>
+						<p class="text-xl font-semibold">Shubham Bhogayata</p>
+					</div>
+					<div>
+						<span class="text-sm text-indigo-600">Complain For</span>
+						<p class="text-xl font-semibold">Shubham Bhogayata</p>
+					</div>
+				</div>
+				<div class="w-full text-justify flex flex-col gap-4 max-h-[300px] overflow-y-auto">
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis nesciunt earum sunt eos
+						tenetur eum in illo esse eius molestias harum, facere est mollitia aut vero dolorum!
+						Velit, facere pariatur.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis
+						nesciunt earum sunt eos tenetur eum in illo esse eius molestias harum, facere est mollitia
+						aut vero dolorum! Velit, facere pariatur.Lorem ipsum dolor, sit amet consectetur
+						adipisicing elit. Nobis nesciunt earum sunt eos tenetur eum in illo esse eius molestias
+						harum, facere est mollitia aut vero dolorum! Velit, facere pariatur.Lorem ipsum dolor, sit
+						amet consectetur adipisicing elit. Nobis nesciunt earum sunt eos tenetur eum in illo esse
+						eius molestias harum, facere est mollitia aut vero dolorum! Velit, facere pariatur.Lorem
+						ipsum dolor, sit amet consectetur adipisicing elit. Nobis nesciunt earum sunt eos tenetur
+						eum in illo esse eius molestias harum, facere est mollitia aut vero dolorum! Velit, facere
+						pariatur.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis nesciunt earum
+						sunt eos tenetur eum in illo esse eius molestias harum, facere est mollitia aut vero
+						dolorum! Velit, facere pariatur.Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+						Nobis nesciunt earum sunt eos tenetur eum in illo esse eius molestias harum, facere est
+						mollitia aut vero dolorum! Velit, facere pariatur.</p>
+				</div>
+			</div>
+			<div id="btns-container" class="flex justify-end">
+				<button id="resolve-complain-btn"
+					class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+					<p>Resolve</p>
+				</button>
+				<botton id="close-view-complain-modal"
+					class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+					<p>Cancel</p>
+				</botton>
+			</div>
+		</div>
+	</section>
+	<!-- <section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-complain-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">Delete Vehicle</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-complain-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div id="delete-complain-message-container" class="flex flex-col gap-2">
+					<p id="delete-complain-message">Are you sure you want to delete this vehicle?</p>
+					<p>This action cannot be undone.</p>
+				</div>
+				<div class="flex justify-end">
+					<button id="delete-complain-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Delete</p>
+					</button>
+					<botton id="close-delete-complain-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</div>
+		</section> -->
+	<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+	<script>
+		document.getElementById('add-complain').addEventListener('click', () => {
+			document.getElementById('add-complain-modal').classList.remove('scale-0', 'opacity-0');
+			document.getElementById('add-complain-modal').classList.add('scale-100', 'opacity-100');
+			document.getElementById("complain-model-heading").innerText = "Add Complain";
+			document.getElementById("btns-container").style.display = "flex";
+			document.getElementById("add-complain-btn").innerText = "Add";
+			document.getElementById('add-complain-modal').querySelector('form').reset();
+			document.getElementById('add-complain-modal').querySelectorAll('input').forEach(input => {
+				input.removeAttribute('readonly');
+				input.removeAttribute('disabled');
+				input.setAttribute('required', true);
+				input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+			});
+		});
+
+		document.getElementById('close-add-complain-modal').addEventListener('click', () => {
+			document.getElementById('add-complain-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('add-complain-modal').classList.add('scale-0', 'opacity-0');
+		});
+
+		document.getElementById('close-complain-modal').addEventListener('click', () => {
+			document.getElementById('add-complain-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('add-complain-modal').classList.add('scale-0', 'opacity-0');
+		});
+
+		// document.getElementById('close-delete-complain-modal').addEventListener('click', () => {
+		// 	document.getElementById('delete-complain-modal').classList.remove('scale-100', 'opacity-100');
+		// 	document.getElementById('delete-complain-modal').classList.add('scale-0', 'opacity-0');
+		// 	window.location.reload()
+		// });
+
+		// document.getElementById('close-delete-complain-btn').addEventListener('click', () => {
+		// 	document.getElementById('delete-complain-modal').classList.remove('scale-100', 'opacity-100');
+		// 	document.getElementById('delete-complain-modal').classList.add('scale-0', 'opacity-0');
+		// 	window.location.reload()
+		// });
+
+		document.getElementById('close-resolved-complain-btn').addEventListener('click', () => {
+			document.getElementById('resolved-complain-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('resolved-complain-modal').classList.add('scale-0', 'opacity-0');
+			window.location.reload()
+		});
+
+		document.getElementById('close-resolve-complain-modal').addEventListener('click', () => {
+			document.getElementById('resolved-complain-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('resolved-complain-modal').classList.add('scale-0', 'opacity-0');
+			window.location.reload()
+		});
+
+		document.getElementById('close-view-complain-modal').addEventListener('click', () => {
+			document.getElementById('view-complain-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('view-complain-modal').classList.add('scale-0', 'opacity-0');
+			// window.location.reload()
+		});
+
+		document.getElementById('close-view-complain-modal').addEventListener('click', () => {
+			document.getElementById('view-complain-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('view-complain-modal').classList.add('scale-0', 'opacity-0');
+			// window.location.reload()
+		});
+
+		document.getElementById('resolve-complain-btn').addEventListener('click', () => {
+			document.getElementById('view-complain-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('view-complain-modal').classList.add('scale-0', 'opacity-0');
+			document.getElementById('resolved-complain-modal').classList.add('scale-100', 'opacity-100');
+			document.getElementById('resolved-complain-modal').classList.remove('scale-0', 'opacity-0');
+			// window.location.reload()
+		});
+
+		// document.getElementById("add-complain-form").addEventListener("submit", (e) => {
+		// 	if (document.getElementById('add-complain-btn').innerText === "Update") {
+		// 		e.preventDefault();
+		// 		const form = e.target; // Get the form element
+		// 		const formData = new FormData(form); // Correctly create FormData
+
+		// 		// const profilePhotoInput = document.getElementById("profilePhoto");
+
+		// 		// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
+		// 		// 	formData.delete("profilePhoto");
+		// 		// } else if (profilePhotoInput.files.length > 0) {
+		// 		// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
+		// 		// }
+
+		// 		fetch("/manage-vehicle/", {
+		// 			method: "POST", // Change to PUT if updating
+		// 			body: formData
+		// 		})
+		// 		.then(response => response.json())
+		// 		.then(data => {
+		// 			console.log("Success:", data);
+		// 			if (data.success) {
+		// 				document.getElementById('add-complain-modal').classList.remove('scale-100', 'opacity-100');
+		// 				document.getElementById('add-complain-modal').classList.add('scale-0', 'opacity-0');
+		// 				document.getElementById("resolved-complain-modal").classList.remove('scale-0', 'opacity-0');
+		// 				document.getElementById("resolved-complain-modal").classList.add('scale-100', 'opacity-100');
+		// 				document.getElementById("resolved-complain-message").innerText = "Vehicle details updated successfully."
+		// 				document.getElementById("resolved-complain-heading").innerText = "Update Vehicle"
+		// 			} else if (data.error) {
+		// 				console.error("Error:", data.error);
+		// 				document.getElementById('add-complain-modal').classList.remove('scale-100', 'opacity-100');
+		// 				document.getElementById('add-complain-modal').classList.add('scale-0', 'opacity-0');
+		// 				document.getElementById("resolved-complain-modal").classList.remove('scale-0', 'opacity-0');
+		// 				document.getElementById("resolved-complain-modal").classList.add('scale-100', 'opacity-100');
+		// 				document.getElementById("resolved-complain-message").innerText = "Error updating vehicle information."
+		// 				document.getElementById("resolved-complain-heading").innerText = "Error"
+		// 			}
+		// 		})
+		// 		.catch(error => {
+		// 			console.error("Error:", error);
+		// 			document.getElementById('add-complain-modal').classList.remove('scale-100', 'opacity-100');
+		// 			document.getElementById('add-complain-modal').classList.add('scale-0', 'opacity-0');
+		// 			document.getElementById("resolved-complain-modal").classList.remove('scale-0', 'opacity-0');
+		// 			document.getElementById("resolved-complain-modal").classList.add('scale-100', 'opacity-100');
+		// 			document.getElementById("resolved-complain-message").innerText = "Error updating vehicle information."
+		// 		});
+		// 	} else {
+		// 		e.preventDefault();
+		// 		const form = e.target; // Get the form element
+		// 		const formData = new FormData(form); // Correctly create FormData
+
+		// 		// const profilePhotoInput = document.getElementById("profilePhoto");
+
+		// 		// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
+		// 		// 	formData.delete("profilePhoto");
+		// 		// } else if (profilePhotoInput.files.length > 0) {
+		// 		// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
+		// 		// }
+
+		// 		fetch("/manage-vehicle/", {
+		// 			method: "POST", // Change to PUT if updating
+		// 			body: formData
+		// 		})
+		// 		.then(response => response.json())
+		// 		.then(data => {
+		// 			console.log("Success:", data);
+		// 			if (data.success) {
+		// 				document.getElementById('add-complain-modal').classList.remove('scale-100', 'opacity-100');
+		// 				document.getElementById('add-complain-modal').classList.add('scale-0', 'opacity-0');
+		// 				document.getElementById("resolved-complain-modal").classList.remove('scale-0', 'opacity-0');
+		// 				document.getElementById("resolved-complain-modal").classList.add('scale-100', 'opacity-100');
+		// 				document.getElementById("resolved-complain-message").innerText = "Vehicle details added successfully."
+		// 				document.getElementById("resolved-complain-heading").innerText = "Add Vehicle"
+		// 			} else if (data.error) {
+		// 				console.error("Error:", data.error);
+		// 				document.getElementById('add-complain-modal').classList.remove('scale-100', 'opacity-100');
+		// 				document.getElementById('add-complain-modal').classList.add('scale-0', 'opacity-0');
+		// 				document.getElementById("resolved-complain-modal").classList.remove('scale-0', 'opacity-0');
+		// 				document.getElementById("resolved-complain-modal").classList.add('scale-100', 'opacity-100');
+		// 				document.getElementById("resolved-complain-message").innerText = "Error adding vehicle information."
+		// 				document.getElementById("resolved-complain-heading").innerText = "Error"
+		// 			}
+		// 		})
+		// 		.catch(error => {
+		// 			console.error("Error:", error);
+		// 			document.getElementById('add-complain-modal').classList.remove('scale-100', 'opacity-100');
+		// 			document.getElementById('add-complain-modal').classList.add('scale-0', 'opacity-0');
+		// 			document.getElementById("resolved-complain-modal").classList.remove('scale-0', 'opacity-0');
+		// 			document.getElementById("resolved-complain-modal").classList.add('scale-100', 'opacity-100');
+		// 			document.getElementById("resolved-complain-message").innerText = "Error adding vehicle information."
+		// 		});
+		// 	}
+		// })
+
+		// document.getElementById('delete-complain-btn').addEventListener('click', () => {
+		// 	const vehicleId = document.getElementById('delete-complain-btn').getAttribute('data-id');
+		// 	fetch(`http://127.0.0.1:8000/manage-vehicle/?vehicleId=${vehicleId}`, {
+		// 			method: 'DELETE',
+		// 			headers: {
+		// 				'Content-Type': 'application/json'
+		// 			}
+		// 		})
+		// 		.then(response => response.json())
+		// 		.then(data => {
+		// 			console.log(data);
+		// 			if (data.success) {
+		// 				document.getElementById("delete-complain-message-container").innerHTML = `<p>${data.success}</p>`;
+		// 				document.getElementById("delete-complain-btn").style.display = "none";
+		// 				document.getElementById("close-delete-complain-modal").innerText = "Close";
+		// 			} else if (data.error) {
+		// 				document.getElementById("delete-complain-message-container").innerHTML = `<p>${data.error}</p>`;
+		// 				document.getElementById("delete-complain-btn").style.display = "none";
+		// 				document.getElementById("close-delete-complain-modal").innerText = "Close";
+		// 			}
+		// 		})
+		// 		.catch(error => {
+		// 			console.error('Error:', error);
+		// 		});
+		// });
+
+		const complainGrid = new gridjs.Grid({
+			search: true,
+			pagination: {
+				limit: 5,
+				summary: false
+			},
+			sort: true,
+			fixedHeader: true,
+			columns: [
+				{
+					id: "id",
+					name: "ID",
+					width: '5%',
+					formatter: (cell, row) => {
+						cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+						return gridjs.html(cell);
+					},
+					hidden: true
+				},
+				"Date",
+				"Complain",
+				"Complain From",
+				"Complain For",
+				// {
+				// 	name: "Action",
+				// 	formatter: (cell, row) => {
+				// 		// let editBtn = gridjs.h('button', {
+				// 		// 	className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+				// 		// 	innerHTML: `
+				// 		// 		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+				// 		// 		<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+				// 		// 		<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+				// 		// 		</svg>
+				// 		// 	`,
+				// 		// 	onClick: () => {
+				// 		// 		fetchVehicleData(`http://127.0.0.1:8000/getVehicleData/?vehicleId=${row.cells[0].data}`, "Edit Vehicle Details", true, false);
+				// 		// 		document.getElementById("add-complain-btn").innerText = "Update";
+
+				// 		// 		// document.getElementById("add-complain-form").innerHTML += `<input type="hidden" name="instructorId" id="instructorId" value="${row.cells[0].data}">`;
+				// 		// 		document.getElementById('add-complain-modal').classList.remove('scale-0', 'opacity-0');
+				// 		// 		document.getElementById('add-complain-modal').classList.add('scale-100', 'opacity-100');
+				// 		// 	}
+				// 		// }, '');
+				// 		let deleteBtn = gridjs.h('button', {
+				// 			className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+				// 			innerHTML: `
+				// 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+				// 					<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+				// 					<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+				// 				</svg>
+				// 			`,
+				// 			onClick: () => {
+				// 				vehicleId = row.cells[0].data;
+				// 				document.getElementById("delete-complain-btn").setAttribute("data-id", vehicleId);
+				// 				document.getElementById("delete-complain-message").innerHTML = `Are you sure you want to delete <b>${row.cells[2].data}</b>'s details?`;
+				// 				document.getElementById('delete-complain-modal').classList.remove('scale-0', 'opacity-0');
+				// 				document.getElementById('delete-complain-modal').classList.add('scale-100', 'opacity-100');
+				// 			}
+				// 		}, '');
+				// 		return gridjs.h('div', {
+				// 			className: 'flex gap-4'
+				// 		}, deleteBtn);
+				// 		// return gridjs.h('div', {
+				// 		// 	className: 'flex gap-4'
+				// 		// }, editBtn, deleteBtn);
+				// 	},
+				// 	width: '11%'
+				// }
+			],
+			// server: {
+			// 	url: 'http://127.0.0.1:8000/getVehicleData/',
+			// 	then: data => data.map(vehicle => [vehicle.id, vehicle.vehicalName, vehicle.vehicleNo, vehicle.insuranceValidity, vehicle.pollutionValidity, vehicle.fitnessValidity])
+			// },
+			data: [
+				["1", "14/02/2025", "Disiplin", "Shubham", "Shubham"]
+			],
+			className: {
+				th: '!bg-black !text-white',
+				sort: '!bg-black !text-white',
+				search: '!float-right !w-[25%]',
+			}
+		})
+
+		complainGrid.render(document.getElementById("wrapper"))
+
+		document.querySelector(".gridjs-search-input").placeholder = "Search...";
+
+		complainGrid.on('cellClick', (...args) => {
+			console.log(args);
+			if (args[2]["id"] === "complain") {
+				instructorId = args[3]["_cells"][0]["data"];
+				fetchVehicleData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Vehicle Details", false, true);
+				document.getElementById('view-complain-modal').classList.remove('scale-0', 'opacity-0');
+				document.getElementById('view-complain-modal').classList.add('scale-100', 'opacity-100');
+			}
+		});
+
+		function fetchVehicleData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
+			fetch(apiUrl)
+				.then(response => response.json())
+				.then(data => {
+					console.log(data);
+					document.getElementById("complain-model-heading").innerText = headingText;
+					document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
+					document.getElementById("vehicleName").value = data.vehicalName || "No Data Found";
+					document.getElementById("vehicleNo").value = data.vehicleNo || "No Data Found";
+					document.getElementById("insuranceValidity").value = data.insuranceValidity || "No Data Found";
+					document.getElementById("pollutionValidity").value = data.pollutionValidity || "No Data Found";
+					document.getElementById("fitnessValidity").value = data.fitnessValidity || "No Data Found";
+					isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
+				});
+		}
+
+		function makeInputReadOnly() {
+			document.getElementById('add-complain-modal').querySelectorAll('input').forEach(input => {
+				input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				input.setAttribute('readonly', true);
+				input.setAttribute('disabled', true);
+				input.removeAttribute('required');
+			})
+		}
+
+		function makeInputEditable() {
+			document.getElementById('add-complain-modal').querySelectorAll('input').forEach(input => {
+				input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				input.removeAttribute('readonly');
+				input.removeAttribute('disabled');
+				input.setAttribute('required', true);
+			})
+		}
+	</script>
+</body>
+
+</html>

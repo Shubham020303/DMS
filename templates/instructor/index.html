@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Dashboard | DMS</title>
+	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+	<style>
+		::-webkit-scrollbar {
+			width: 8px;
+		}
+		::-webkit-scrollbar-track {
+			background: #f1f1f1;
+		}
+		::-webkit-scrollbar-thumb {
+			background: #888;
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: #555;
+		}
+		input.gridjs-input{
+			/* box-shadow: 0 0 0 1px #141414; */
+		}
+		input.gridjs-input:focus {
+			border-color: #615FFF;
+			box-shadow: 0 0 0 3px #615FFF80;
+		}
+		.gridjs-search-input{
+			width: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<section class="flex min-h-screen bg-indigo-50">
+
+          <div class="fixed top-0 left-0 flex flex-col bg-clip-border bg-[#141414] text-white min-h-screen h-screen min-w-[18rem] w-full max-w-[18rem] p-4 shadow-xl shadow-blue-gray-900/5 z-10">
+               <div class="mb-2 p-4">
+                    <h5 class="block antialiased tracking-normal font-sans text-xl font-semibold leading-snug text-white">DMS</h5>
+                    <!-- <img src="/static/images/IDEA-LOGO.png" alt="logo"> -->
+               </div>
+               <nav class="flex flex-col justify-between p-2 font-sans text-base font-normal text-white h-full">
+                    <div class="flex flex-col gap-1">
+                         <a href="/instructor/">
+                              <div role="button" tabindex="0" class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+                                   <div class="grid place-items-center mr-4">
+                                        <svg fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24">
+                                             <rect x="2" y="2" width="9" height="11" rx="2"></rect>
+                                             <rect x="13" y="2" width="9" height="7" rx="2"></rect>
+                                             <rect x="2" y="15" width="9" height="7" rx="2"></rect>
+                                             <rect x="13" y="11" width="9" height="11" rx="2"></rect>
+                                        </svg>
+                                   </div>
+                                   Dashboard
+                              </div>
+                         </a>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                         {% if user.is_authenticated %}
+                         <div role="button" tabindex="0" class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+                              <div class="grid place-items-center mr-4">
+                                   {% if profilepic != '' %}
+                                   <img src="{{ profilepic }}" class="w-5 h-5 rounded-full" alt="Profile Picture">
+                                   {% else %}
+                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                                   </svg>
+                                   {%endif%}
+                              </div>
+                              {{ user.username }}
+                         </div>
+                         <a href="/signout/">
+                              <div role="button" tabindex="0" class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+                                   <div class="grid place-items-center mr-4">
+                                        <svg fill="currentColor" class="w-5 h-5" viewBox="0 0 16 16">
+                                             <path d="M7.5 1v7h1V1z"/>
+                                             <path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812"/>
+                                        </svg>
+                                   </div>
+                                   Logout
+                              </div>
+                         </a>
+                         {% endif %}
+                    </div>
+               </nav>
+          </div>
+		<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+			<div class="w-full flex items-center justify-between">
+				<h1 class="text-3xl font-bold">Dashboard</h1>
+				<div class="relative">
+					<div id="notificationBtn"
+						class="bg-white p-3 rounded-full shadow cursor-pointer flex items-center justify-center">
+						<svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-indigo-400">
+							<path d="M6.502 6.975a5.525 5.525 0 0 1 10.995 0l.287 2.866c.018.175.026.262.037.348a8 8 0 0 0 1.19 3.325l.192.291.861 1.292c.787 1.18 1.18 1.769 1.008 2.244-.033.09-.078.175-.135.252-.3.407-1.009.407-2.426.407H5.489c-1.417 0-2.126 0-2.426-.407a1 1 0 0 1-.134-.252c-.173-.475.22-1.065 1.006-2.244l.862-1.292.192-.291a8 8 0 0 0 1.19-3.325c.01-.086.02-.173.037-.348l.286-2.866Z"
+								fill="currentColor"></path>
+							<path d="M10.068 20.63c.114.106.365.2.715.267.349.067.777.103 1.217.103.44 0 .868-.036 1.217-.103.35-.067.6-.161.715-.268"
+								stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+						</svg>
+					</div>
+					<div id="notificationModal"
+						class="w-full min-w-[450px] max-w-[450px] absolute top-14 right-0 scale-y-0 opacity-0 origin-top bg-white rounded-lg shadowCustom overflow-hidden transition-all duration-300">
+						<div
+							class="flex items-start gap-2 text-sm text-indigo-700 px-4 border-[#141414] last-of-type:border-none cursor-pointer hover:bg-indigo-50 transition-all duration-300 scale-100 py-2 border-b">
+							<p>10 students registered</p>
+						</div>
+						<div
+							class="flex items-start gap-2 text-sm text-indigo-700 px-4 border-[#141414] last-of-type:border-none cursor-pointer hover:bg-indigo-50 transition-all duration-300 scale-100 py-2 border-b">
+							<p>10 students registered</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
+				<div>
+					<p class="text-3xl font-semibold">Students</p>
+				</div>
+				<div id="student-table" class="w-full"></div>
+			</div>
+			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
+				<div class="flex items-center justify-between">
+					<p class="text-3xl font-semibold">Complains</p>
+				</div>
+				<div id="complain-table" class="w-full"></div>
+			</div>
+			<!-- <div class="w-full grid grid-cols-1 lg:grid-cols-4 lg:grid-rows-3 gap-3 mt-10">
+				<div
+					class="bg-indigo-500 h-40 rounded-xl col-span-2 lg:col-span-1 flex flex-col items-center justify-center gap-3 shadow-[3px_8px_20px_-10px_#00000015]">
+					<p class="text-white text-sm font-semibold">Sales: Aug 2027</p>
+					<p class="text-white font-bold text-2xl">$5.73K</p>
+					<p class="text-white text-xs ">Jul 2027: $10.35K</p>
+				</div>
+				<div
+					class="bg-indigo-500 h-40 rounded-xl col-span-2 lg:col-span-1 flex flex-col items-center justify-center gap-3 shadow-[3px_8px_20px_-10px_#00000015]">
+					<p class="text-white text-sm font-semibold">Average Order Value : Aug 2027</p>
+					<p class="text-white font-bold text-2xl">$34</p>
+					<p class="text-white text-xs ">Jul 2027: $0.23K</p>
+				</div>
+				<div
+					class="bg-white h-full rounded-xl col-span-2 row-span-2 flex flex-col items-center justify-center gap-3 shadow-[3px_8px_20px_-10px_#00000015] p-3">
+					<p class="text-indigo-500 text-sm font-semibold">Attendance</p>
+					<canvas id="myChart"></canvas>
+				</div>
+				<div
+					class="bg-white h-full rounded-xl col-span-2 row-span-2 shadow-[3px_8px_20px_-10px_#00000015] p-6">
+					<div class="flex items-center justify-between">
+						<p class="text-sm text-indigo-800 font-bold">Staging Orders</p>
+					</div>
+					<div class="grid grid-cols-3 gap-4 mt-8">
+						<div
+							class="w-full h-28 bg-indigo-50 rounded-lg shadow-inner flex flex-col items-center justify-center">
+							<p class="text-2xl text-indigo-900 font-bold">18</p>
+							<p class="text-xs text-indigo-900 font-bold mt-3">Payment</p>
+						</div>
+						<div
+							class="w-full h-28 bg-indigo-50 rounded-lg shadow-inner flex flex-col items-center justify-center">
+							<p class="text-2xl text-indigo-900 font-bold">12</p>
+							<p class="text-xs text-indigo-900 font-bold mt-3">In work</p>
+						</div>
+						<div
+							class="w-full h-28 bg-indigo-50 rounded-lg shadow-inner flex flex-col items-center justify-center">
+							<p class="text-2xl text-indigo-900 font-bold">32</p>
+							<p class="text-xs text-indigo-900 font-bold mt-3">Delivery</p>
+						</div>
+						<div
+							class="w-full h-28 bg-indigo-50 rounded-lg shadow-inner flex flex-col items-center justify-center">
+							<p class="text-2xl text-indigo-900 font-bold">32</p>
+							<p class="text-xs text-indigo-900 font-bold mt-3">Delivered</p>
+						</div>
+						<div
+							class="w-full h-28 bg-indigo-50 rounded-lg shadow-inner flex flex-col items-center justify-center">
+							<p class="text-2xl text-indigo-900 font-bold">4</p>
+							<p class="text-xs text-indigo-900 font-bold mt-3">Failed</p>
+						</div>
+						<div
+							class="w-full h-28 bg-indigo-50 rounded-lg shadow-inner flex flex-col items-center justify-center">
+							<p class="text-2xl text-indigo-900 font-bold">11</p>
+							<p class="text-xs text-indigo-900 font-bold mt-3">Return</p>
+						</div>
+					</div>
+				</div>
+				<div
+					class="bg-indigo-500 h-40 rounded-xl col-span-2 lg:col-span-1 flex flex-col items-center justify-center gap-3 shadow-[3px_8px_20px_-10px_#00000015]">
+					<p class="text-white text-sm font-semibold">Total Profit: Aug 2027</p>
+					<p class="text-white font-bold text-2xl">$1.2K</p>
+					<p class="text-white text-xs ">Jul 2027: $0.8K</p>
+				</div>
+				<div
+					class="bg-indigo-500 h-40 rounded-xl col-span-2 lg:col-span-1 flex flex-col items-center justify-center gap-3 shadow-[3px_8px_20px_-10px_#00000015]">
+					<p class="text-white text-sm font-semibold">Cutomers: Aug 2027</p>
+					<p class="text-white font-bold text-2xl">144</p>
+					<p class="text-white text-xs ">Jul 2027: 121</p>
+				</div>
+			</div> -->
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script>
+			// const ctx = document.getElementById('myChart');
+
+			// new Chart(ctx, {
+			// 	type: 'bar',
+			// 	data: {
+			// 		labels: ["January", "February", "March", "April", "March", "May", "June"],
+			// 		datasets: [
+			// 			{
+			// 				label: "Attandance",
+			// 				data: [10, 20, 50, 30, 32, 20, 25],
+			// 				backgroundColor: "#E0E7FF",
+			// 				borderColor: "#615FFF",
+			// 				borderWidth: 1,
+			// 			},
+			// 		],
+			// 	},
+			// 	options: {
+			// 		scales: {
+			// 			y: {
+			// 				beginAtZero: true
+			// 			}
+			// 		}
+			// 	}
+			// });
+
+			document.getElementById("notificationBtn").addEventListener("click", function () {
+				console.log("clicked");
+				document.getElementById("notificationModal").classList.toggle("scale-y-0")
+				document.getElementById("notificationModal").classList.toggle("opacity-0")
+				document.getElementById("notificationModal").classList.toggle("scale-y-100")
+				document.getElementById("notificationModal").classList.toggle("opacity-100")
+			})
+			
+			document.getElementById("notificationModal").addEventListener("mouseleave", function () {
+				setTimeout(() => {
+					document.getElementById("notificationModal").classList.toggle("scale-y-0")
+					document.getElementById("notificationModal").classList.toggle("opacity-0")
+					document.getElementById("notificationModal").classList.toggle("scale-y-100")
+					document.getElementById("notificationModal").classList.toggle("opacity-100")
+				}, 1000);
+			})
+
+			const studentGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [
+					"Student Name",
+					"Course",
+					"Slot",
+					"Phone Number",
+                         {
+						name: "Action",
+						formatter: (cell, row) => {
+							let editBtn = gridjs.h('button', {
+								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<p>Take Attendance</p>
+								`,
+								// onClick: () => {
+								// 	fetchInstructorData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${row.cells[0].data}`, "Edit Instructor Details", true, false);
+								// 	document.getElementById("password-container").style.display = "none";
+								// 	document.getElementById("cnfpassword").setAttribute("readonly", true);
+								// 	document.getElementById("password").setAttribute("readonly", true);
+								// 	document.getElementById("cnfpassword").style.display = "none";
+								// 	document.getElementById("password").style.display = "none";
+								// 	document.getElementById("cnfpassword").removeAttribute("required");
+								// 	document.getElementById("password").removeAttribute("required");
+								// 	document.getElementById("dlPic").removeAttribute("required");
+								// 	document.getElementById("add-instructor-btn").innerText = "Update";
+
+								// 	document.getElementById("add-instructor-form").innerHTML += `<input type="hidden" name="instructorId" id="instructorId" value="${row.cells[0].data}">`;
+								// 	document.getElementById('add-instructor-modal').classList.remove('scale-0', 'opacity-0');
+								// 	document.getElementById('add-instructor-modal').classList.add('scale-100', 'opacity-100');
+								// }
+							}, '');
+							// let deleteBtn = gridjs.h('button', {
+							// 	className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+							// 	innerHTML: `
+							// 		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+							// 			<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+							// 			<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+							// 		</svg>
+							// 	`,
+							// 	onClick: () => {
+							// 		instructorId = row.cells[0].data;
+							// 		document.getElementById("delete-instructor-btn").setAttribute("data-id", instructorId);
+							// 		document.getElementById("delete-instructor-message").innerHTML = `Are you sure you want to delete <b>${row.cells[2].data}</b>'s details?`;
+							// 		document.getElementById('delete-instructor-modal').classList.remove('scale-0', 'opacity-0');
+							// 		document.getElementById('delete-instructor-modal').classList.add('scale-100', 'opacity-100');
+							// 	}
+							// }, '');
+							return gridjs.h('div', {
+								className: 'flex gap-4'
+							}, editBtn);
+							// return gridjs.h('div', {
+							// 	className: 'flex gap-4'
+							// }, editBtn, deleteBtn);
+						},
+						width: '17%'
+					}
+				],
+				// server: {
+				// 	url: 'http://127.0.0.1:8000/getInstructorData/',
+				// 	then: data => data.map(instructor => [instructor.name, instructor.phone])
+				// },
+				data:[ 
+					["Shubham", "course 1", "6:30 pm", "12347890"],
+					["Shubham", "course 1", "6:30 pm", "12347890"],
+					["Shubham", "course 1", "6:30 pm", "12347890"],
+					["Shubham", "course 1", "6:30 pm", "12347890"],
+					["Shubham", "course 1", "6:30 pm", "12347890"],
+				],
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
+
+               const complainGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [
+                         {
+						id: "id",
+						name: "ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					"Date",
+					"Complain",
+					"Complain From",
+					"Complain For",
+				],
+				// server: {
+				// 	url: 'http://127.0.0.1:8000/getInstructorData/',
+				// 	then: data => data.map(instructor => [instructor.name, instructor.phone])
+				// },
+				data:[ 
+                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
+                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
+                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
+                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
+                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
+				],
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
+
+			studentGrid.render(document.getElementById("student-table"))
+			complainGrid.render(document.getElementById("complain-table"))
+		</script>
+          <script>
+               document.addEventListener('DOMContentLoaded', function() {
+                    const links = [...document.querySelectorAll('a')];
+          
+                    links.forEach(link => {
+                         if (link.href === window.location.href) {
+                              link.querySelector('div').classList.add('bg-indigo-500', 'bg-opacity-80', 'text-white');
+                         }
+                    });
+               });
+          </script>
+	</section>
+</body>
+
+</html>

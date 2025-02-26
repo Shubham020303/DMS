@@ -1,0 +1,590 @@
+from django.shortcuts import render,redirect
+from django.http import HttpResponse,JsonResponse
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
+from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot)
+from django.core.paginator import Paginator
+# Create your views here.
+
+
+
+def index(request):
+    #get image of instructor 
+    # user = UserProfile.objects.get(user=request.user)
+
+    context = {
+        # 'user': request.user,
+        # 'profilepic':user.profilePic.url if user.profilePic else '',
+    }
+    return render(request, 'index.html',context = context)
+def signin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('index')
+        else:
+            return render(request, 'signin.html', {'error': 'Invalid username or password'})
+    return render(request, 'signin.html')
+@login_required(login_url='signin')
+def signout(request):
+    logout(request)
+    return render(request, 'signin.html')
+
+def getInstructorData(request):
+    userid = request.GET.get('instructorId',None)
+    if userid:
+        instructor = Instructor.objects.filter(user=userid).first()
+        if instructor:
+            DlInfo = DLInfo.objects.filter(dlUser=instructor.user).first()
+            print("DLINFO",DLInfo)
+            data = {
+                'id': instructor.user.user.id,
+                'name': instructor.user.user.first_name,
+                'email': instructor.user.user.email,
+                'phone': instructor.user.phoneNo,
+                'branch': instructor.instructorBranch.branchName,
+                'vehicle': instructor.instructorVehicle.id,
+                'bloodGroup': instructor.user.bloodGroup,
+                'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
+                'dlNo': DlInfo.dlNo,
+                'dlIssueDate': DlInfo.dlIssueDate,
+                'dlExpiry': DlInfo.dlExpiry
+
+            }
+            return JsonResponse(data)
+        
+    else:
+        instructors = Instructor.objects.all()
+        data = []
+        for instructor in instructors:
+            data.append({
+                'id': instructor.user.id,
+                'name': instructor.user.user.first_name,
+                'email': instructor.user.user.email,
+                'phone': instructor.user.phoneNo,
+                'branch': instructor.instructorBranch.branchName,
+                'vehicle': instructor.instructorVehicle.vehicleName,
+                'bloodGroup': instructor.user.bloodGroup,
+                'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
+
+            })
+        return JsonResponse(data, safe=False)
+        
+    
+@csrf_exempt
+def manage_instructor(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('mobile')
+        branch = request.POST.get('branch')
+        vehicle = request.POST.get('vehicle')
+        password = request.POST.get('password')
+        profilepic = request.FILES.get('profilePhoto')
+        bloodGroup = request.POST.get('bloodGroup')
+        dlNo = request.POST.get('dlNo')
+        dlIssueDate = request.POST.get('dlIssueDate')
+        dlExpiry = request.POST.get('dlExpiry')
+        try:
+            if User.objects.filter(email=email).exists():
+                try:
+                    user = User.objects.get(email=email)
+                    user.first_name = name
+                    user.email = email
+                    user.save()
+                    userprofile = UserProfile.objects.get(user=user)
+                    userprofile.phoneNo = phone
+                    if profilepic:
+                        userprofile.profilePic = profilepic
+                    userprofile.bloodGroup = bloodGroup
+                    userprofile.save()
+                    instructor = Instructor.objects.get(user=userprofile)
+                    instructor.instructorBranch = Branch.objects.get(branchName=branch)
+                    instructor.instructorVehicle = Vehicle.objects.get(id=vehicle)
+                    instructor.save()
+                    dlinfo = DLInfo.objects.get(dlUser=userprofile)
+                    dlinfo.dlNo = dlNo
+                    dlinfo.dlIssueDate = dlIssueDate
+                    dlinfo.dlExpiry = dlExpiry
+                    dlinfo.save()
+                    return JsonResponse({'status': 'success'})
+                except Exception as e:
+                    return JsonResponse({'status': 'error', 'message': str(e)})
+            else: 
+                try:  
+                    newuser = User.objects.create_user(username=email, email=email, password=password, first_name=name)
+                    
+                    userprofile = UserProfile(user=newuser, phoneNo=phone, is_instructor=True, profilePic=profilepic ,bloodGroup=bloodGroup)
+                    newuser.save()
+                    userprofile.save()
+                    branch = Branch.objects.get(branchName=branch)
+                    vehicle = Vehicle.objects.get(id=vehicle)
+                    instructor = Instructor(user=userprofile, instructorBranch=branch, instructorVehicle=vehicle)
+                    instructor.save()
+                    dlinfo = DLInfo(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
+                    dlinfo.save()
+                    return JsonResponse({'status': 'success'})
+                except Exception as e:
+                    return JsonResponse({'status': 'error', 'message': str(e)})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'Main message': str(e)})
+    if request.method == 'DELETE':
+        try:
+            id = request.GET.get('instructorId')
+            userProf = UserProfile.objects.get(id=id)
+            user = User.objects.get(id=userProf.user.id)
+            
+            user.delete()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    return render(request, 'manage-instructor.html')
+
+
+
+def manage_student(request):
+    return render(request, 'manage-student.html')
+
+
+def getBranchAdminData(request):
+    users = UserProfile.objects.filter(is_branchAdmin=False)
+    data = []
+    for user in users:
+        data.append({
+            'id': user.id,
+            'name': user.user.first_name,
+        })
+    return JsonResponse(data, safe=False)
+
+
+def getBranchData(request):
+    branchid = request.GET.get('branchId',None)
+    if branchid:
+        branch = Branch.objects.filter(id=branchid).first()
+        
+        data = {
+                'id': branch.id,
+                'branchName': branch.branchName,
+                'branchAddress': branch.branchAddress,
+                'branchPhoneNo': branch.branchPhoneNo,
+                'branchEmail': branch.branchEmail,
+                'branchIncharge': branch.branchIncharge.user.first_name,
+                'branchInchargeId': branch.branchIncharge.id,
+            }
+        return JsonResponse(data)
+    else:
+            branches = Branch.objects.all()
+            data = []
+            for branch in branches:
+                data.append({
+                    'id': branch.id,
+                    'branchName': branch.branchName,
+                    'branchAddress': branch.branchAddress,
+                    'branchPhoneNo': branch.branchPhoneNo,
+                    'branchEmail': branch.branchEmail,
+                    'branchIncharge': branch.branchIncharge.user.first_name,
+                })
+            return JsonResponse(data, safe=False)
+def manage_branch(request):
+    if request.method == 'POST':
+        id = request.POST.get('branchId')
+        branchName = request.POST.get('branchName')
+        branchAddress = request.POST.get('branchAddress')
+        branchPhoneNo = request.POST.get('branchPhoneNo')
+        branchEmail = request.POST.get('branchEmail')
+        branchIncharge = request.POST.get('branchIncharge')
+
+        if Branch.objects.filter(id=id).exists():
+            branch = Branch.objects.get(id=id)
+            branch.branchName = branchName
+            branch.branchAddress = branchAddress
+            branch.branchEmail = branchEmail
+            branch.branchPhoneNo = branchPhoneNo
+            branch.branchIncharge = UserProfile.objects.get(id=branchIncharge)
+            branch.save()
+            return JsonResponse({'status': 'success', 'message': 'Branch updated successfully'})
+        else:
+            try:
+                user = UserProfile.objects.get(id=branchIncharge)
+                branch = Branch(branchName=branchName, branchAddress=branchAddress, branchPhoneNo=branchPhoneNo, branchEmail=branchEmail, branchIncharge=user)
+                user = UserProfile.objects.get(id=branchIncharge)
+                user.is_branchAdmin = True
+                user.save()
+                branch.save()
+                return JsonResponse({'status': 'success'})
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': str(e)})
+    if request.method == 'DELETE':
+        id = request.GET.get('id')
+        branch = Branch.objects.get(id=id)
+        branch.delete()
+        return JsonResponse({'status': 'success'})
+    
+    return render(request, 'manage-branch.html')
+
+
+def getVehicleData(request):
+    vehicalId = request.GET.get('vehicleId', None)
+    print(vehicalId)
+        # Fetch a single vehicle by ID if 'vehicalId' is provided
+    if vehicalId:
+        vehicle = Vehicle.objects.get(id=vehicalId)
+        vehicalData = {
+            'id': vehicle.id,
+            'vehicalName': vehicle.vehicleName,
+            'vehicleNo': vehicle.vehicleNo,
+            'vehicleType': vehicle.vehicleType,
+            'insuranceValidity': vehicle.insuranceValidity.strftime('%Y-%m-%d'),
+            'pollutionValidity': vehicle.pollutionValidity.strftime('%Y-%m-%d'),
+            'fitnessValidity': vehicle.fitnessValidity.strftime('%Y-%m-%d'),
+        }
+        print(vehicalData)
+        return JsonResponse(vehicalData)
+    else:
+        vehicle = Vehicle.objects.all()
+        vehicalData = []
+        for i in vehicle:
+            vehicalData.append({
+                'id': i.id,
+                'vehicalName': i.vehicleName,
+                'vehicleNo': i.vehicleNo,
+                'vehicleType': i.vehicleType,
+                'insuranceValidity': i.insuranceValidity.strftime('%Y-%m-%d'),
+                'pollutionValidity': i.pollutionValidity.strftime('%Y-%m-%d'),
+                'fitnessValidity': i.fitnessValidity.strftime('%Y-%m-%d'),
+            })
+        
+        return JsonResponse(vehicalData,safe=False)
+@csrf_exempt
+def manage_vehicle(request):
+    if request.method == 'POST':
+        vehicleNo = request.POST.get('vehicleNo')
+        vehicleName = request.POST.get('vehicleName')
+        vehicleType = request.POST.get('vehicleType')
+        insuranceValidity = request.POST.get('insuranceValidity')
+        pollutionValidity = request.POST.get('pollutionValidity')
+        fitnessValidity = request.POST.get('fitnessValidity')
+
+        # Check if vehicle exists and update, otherwise create a new one
+
+
+        if Vehicle.objects.filter(vehicleNo=vehicleNo).exists():
+            vehicle = Vehicle.objects.get(vehicleNo=vehicleNo)
+            vehicle.vehicleName = vehicleName
+            vehicleNo = vehicleNo
+            vehicle.vehicleType = vehicleType
+            vehicle.insuranceValidity = insuranceValidity
+            vehicle.pollutionValidity = pollutionValidity
+            vehicle.fitnessValidity = fitnessValidity
+            vehicle.save()
+            return JsonResponse({'success': 'Vehicle updated successfully'})
+
+        else:
+            try:
+                vehicle = Vehicle.objects.create(vehicleNo=vehicleNo,vehicleName=vehicleName,vehicleType=vehicleType,insuranceValidity=insuranceValidity,pollutionValidity=pollutionValidity,fitnessValidity=fitnessValidity)
+                vehicle.save()
+                return JsonResponse({'success': 'Vehicle Added successfully'})
+                
+            except Exception as e:
+                print(e)
+                return JsonResponse({'error': 'Error creating vehicle'}, status=400)
+
+    if request.method == 'DELETE':
+        try:
+            id = request.GET.get('vehicleId')
+            vehicle = Vehicle.objects.get(id=id)
+            vehicle.delete()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    return render(request, 'manage-vehicle.html')
+ 
+
+def manage_slot(request):
+    return render(request, 'manage-slot.html')
+
+
+def getCourseData(request):
+    courseId = request.GET.get('courseId', None)
+    if courseId:
+        course = Cource.objects.get(id=courseId)
+        courseData = {
+            'id': course.id,
+            'courseName': course.courceName,
+            'courseDuration': course.courceDuration,
+            'courceDescription': course.courceDescription,
+            'courseFee': course.courceFee,
+            'courceInstructor': course.courceInstructor.user.user.first_name,
+            'courceInstructorId': course.courceInstructor.id,
+            'courceVehicle': course.courceInstructor.instructorVehicle.vehicleName,
+            'courceVehicleId': course.courceInstructor.instructorVehicle.id,
+            'courseBranch': course.Branch.branchName,
+            'courseBranchId': course.Branch.id
+        }
+        return JsonResponse(courseData)
+    else:
+        course = Cource.objects.all()
+        courseData = []
+        for i in course:
+            courseData.append({
+                'id': i.id,
+                'courseName': i.courceName,
+                'courseDuration': i.courceDuration,
+                'courseFee': i.courceFee,
+                'courceInstructor': i.courceInstructor.user.user.first_name,
+                'courceVehicle': i.courceInstructor.instructorVehicle.vehicleName,
+                'courseBranch': i.Branch.branchName
+            })
+        
+        return JsonResponse(courseData,safe=False)
+@csrf_exempt
+def manage_course(request):
+    if request.method == 'POST':
+        courceId = request.POST.get('courseId',None)
+        courseName = request.POST.get('courseName')
+        courseDuration = request.POST.get('courseDuration')
+        courceDescription = request.POST.get('courceDescription')
+        courseFee = request.POST.get('courseFee')
+        courceInstructor = request.POST.get('courceInstructor')
+        courseBranch = request.POST.get('courseBranch')
+        print(courceId,courceInstructor,courseBranch)
+        if Cource.objects.filter(id=courceId).exists():
+            try:
+                course = Cource.objects.get(id=courceId)
+                course.courceName = courseName
+                course.courceDuration = courseDuration
+                course.courceDescription = courceDescription
+                course.courceFee = courseFee
+                try:
+                    course.courceInstructor = Instructor.objects.get(id=courceInstructor)
+                except Instructor.DoesNotExist:
+                    return JsonResponse({'error': 'Instructor not found'}, status=404)
+                course.Branch = Branch.objects.filter(id=courseBranch).first()
+                
+                course.save()
+                return JsonResponse({'success': 'Course updated successfully'})
+            except Exception as e:
+                print(e)
+                return JsonResponse({'error': 'Error updating course'}, status=400)
+        else:
+            try:
+                course = Cource.objects.create(
+                    courceName=courseName,
+                    courceDuration=courseDuration,
+                    courceDescription=courceDescription,
+                    courceFee=courseFee,
+                    courceInstructor=Instructor.objects.filter(id=courceInstructor).first(),
+                    Branch=Branch.objects.filter(id=courseBranch).first()
+                )
+                course.save()
+                return JsonResponse({'success': 'Course Create  successfully'})
+            except Exception as e:
+                print(e)
+                return JsonResponse({'error': 'Error creating course'}, status=400)
+
+    if request.method == 'DELETE':
+            courseId = request.GET.get('courseId')
+            if courseId:
+                try:
+                    course = Cource.objects.get(id=courseId)
+                    course.delete()
+
+                    return JsonResponse({'success': 'Course deleted successfully'})
+                except Cource.DoesNotExist:
+                    return JsonResponse({'error': 'Course not found'}, status=404)
+            else:
+                return JsonResponse({'error': 'No course ID provided'}, status=400)
+
+    return render(request, 'manage-course.html')
+
+
+def getComplainData(request):
+    complainId = request.GET.get('complainId', None)
+    if complainId:
+        complain = Complain.objects.get(id=complainId)
+        complainData = {
+            'id': complain.id,
+            'complainName': complain.compalainTitle,
+            'complainDescription': complain.complainDescription,
+            'complainDate': complain.complainDate,
+            'complainStatus': complain.complainResolved,
+            'complainBranch': complain.complainBranch.branchName,
+            'complainFrom': complain.compalainForm.user.user.first_name,
+            'complainFor': complain.compalainFor.user.first_name
+        }
+        return JsonResponse(complainData)
+    else:
+        complain = Complain.objects.all()
+        complainData = []
+        for i in complain:
+            complainData.append({
+            'id': i.id,
+            'complainName': i.compalainTitle,
+            'complainDescription': i.complainDescription,
+            'complainDate': i.complainDate,
+            'complainStatus': i.complainResolved,
+            'complainBranch': i.complainBranch.branchName,
+            'complainFrom': i.compalainForm.user.user.first_name,
+            'complainFor': i.compalainFor.user.first_name
+            })
+        
+        return JsonResponse(complainData,safe=False)
+@csrf_exempt
+def manage_complain(request):
+    if request.method == 'POST':
+        complainId = request.POST.get('complainId',None)
+        if complainId:
+            complain = Complain.objects.get(id=complainId)
+            complain.complainResolved = True
+            complain.save()
+            return JsonResponse({'success': 'Complain Resolved successfully'})
+        else:
+            return JsonResponse({'error': 'No complain ID provided'}, status=400)
+    return render(request, 'manage-complain.html')
+
+
+# def DeleteALlComplain(request):
+#     complain = Complain.objects.all()
+#     complain.delete()
+#     return JsonResponse({'status': 'success'})
+
+def getcourceContentData(request):
+    courceContentId = request.GET.get('courceContentId', None)
+    if courceContentId:
+        courceContent = CourceContent.objects.get(id=courceContentId)
+        courceContentData = {
+            'id': courceContent.id,
+            'courceContentDescription': courceContent.contentDescription,
+            'courcecontentFile': courceContent.contentFile.url if courceContent.contentFile else '',
+            'courceContentVideo': courceContent.contentVideo.url if courceContent.contentVideo else '',
+    }
+        return JsonResponse(courceContentData)
+    else:
+        courceContent = CourceContent.objects.all()
+        courceContentData = []
+        for i in courceContent:
+            courceContentData.append({
+            'id': i.id,
+            'courceContentDescription': i.contentDescription,
+            'courcecontentFile': i.contentFile.url if i.contentFile else '',
+            'courceContentVideo': i.contentVideo.url if i.contentVideo else '',
+            })
+        
+        return JsonResponse(courceContentData,safe=False)
+    
+@csrf_exempt
+def manageCourseContent(request):
+    if request.method == 'POST':
+        courceContentId = request.POST.get('courceContentId',None)
+        courcedesc = request.POST.get('courseContentDescription')
+        courcefile = request.FILES.get('courseContentFile',None)
+        courcevideo = request.FILES.get('courseContentVideo',None)
+        try:
+            if courceContentId:
+                try:
+                    courceContent = CourceContent.objects.get(id=courceContentId)
+                    courceContent.contentDescription = courcedesc
+                    if courcefile:
+                        courceContent.contentFile = courcefile
+                    if courcevideo:
+                        courceContent.contentVideo = courcevideo
+                    courceContent.save()
+                    return JsonResponse({'success': 'CourceContent updated successfully'})
+                except Exception as e:
+                    return JsonResponse({'error': 'CourceContent not updated'}, status=404)
+            else:
+                try:
+                    courceContent = CourceContent(contentDescription=courcedesc,contentFile=courcefile,contentVideo=courcevideo)
+                    courceContent.save()
+                    return JsonResponse({'success': 'CourceContent added successfully'})
+                except Exception as e:
+                    return JsonResponse({'error': 'CourceContent not added'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    if request.method == 'DELETE':
+       courceContentId = request.GET.get('courceContentId', None)
+       if courceContentId:
+           courceContent = CourceContent.objects.get(id=courceContentId)
+           courceContent.delete()
+           return JsonResponse({'success': 'CourceContent deleted successfully'})
+       else:
+           return JsonResponse({'error': 'No courceContent ID provided'}, status=400)     
+    return render(request, 'manage-coursecontent.html')
+
+
+def getSlotsData(request):
+    slotsId = request.GET.get('slotId', None)
+    if slotsId:
+        slots = Slot.objects.get(id=slotsId)
+        slotsData = {
+            'id': slots.id,
+            'slotName': slots.slotName,
+            'slotStartTime': slots.slotStart,
+            'slotEndTime': slots.slotEnd,
+            'slotBranch': slots.slotBranch.branchName,
+        }
+        return JsonResponse(slotsData)
+    else:
+        slots = Slot.objects.all()
+        slotsData = []
+        for i in slots:
+            slotsData.append({
+            'id': i.id,
+            'slotName': i.slotName,
+            'slotStartTime': i.slotStart,
+            'slotEndTime': i.slotEnd,
+            'slotBranch': i.slotBranch.branchName,
+            })
+        
+        return JsonResponse(slotsData,safe=False)
+@csrf_exempt
+def manageSlots(request):
+    if request.method == 'POST':
+        slotsId = request.POST.get('slotId',None)
+        slotname = request.POST.get('slotName')
+        slotstart = request.POST.get('slotStartTime')
+        slotend = request.POST.get('slotEndTime')
+        slotbranch = request.POST.get('slotBranch')
+        try:
+            if slotsId:
+                try:
+                    slots = Slot.objects.get(id=slotsId)
+                    slots.slotName = slotname
+                    slots.slotStart = slotstart
+                    slots.slotEnd = slotend
+                    slots.slotBranch = Branch.objects.get(branchName=slotbranch)
+                    slots.save()
+                    return JsonResponse({'success': 'Slot updated successfully'})
+                except Exception as e:
+                    return JsonResponse({'error': 'Slot not updated'}, status=404)
+            else:
+                try:
+                    slots = Slot(slotName=slotname,slotStart=slotstart,slotEnd=slotend,slotBranch=Branch.objects.get(branchName=slotbranch))
+                    slots.save()
+                    return JsonResponse({'success': 'Slot added successfully'})
+                except Exception as e:
+                    return JsonResponse({'error': 'Slot not added'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
+    if request.method == 'DELETE':
+        slotsId = request.GET.get('slotId', None)
+        try:
+            if slotsId:
+                slots = Slot.objects.get(id=slotsId)
+                slots.delete()
+                return JsonResponse({'success': 'Slot deleted successfully'})
+            else:
+                return JsonResponse({'error': 'No slot ID provided'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return render(request, 'manage-slots.html')
