@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.index, name='index/'),
     path('getInstructorData/', views.getInstructorData, name='getInstructorData/'),
     path('manage-instructor/', views.manage_instructor, name='manage-instructor/'),
+    path('getStudentData/', views.getStudentData, name='getStudentData/'),
     path('manage-student/', views.manage_student, name='manage-student/'),
     path('getBranchData/', views.getBranchData, name='getBranchData/'),
     path('getBranchAdminData/', views.getBranchAdminData, name='getBranchAdminData/'),

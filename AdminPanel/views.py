@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-
+from datetime import datetime
 from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot)
 from django.core.paginator import Paginator
 # Create your views here.
@@ -150,13 +150,169 @@ def manage_instructor(request):
     return render(request, 'manage-instructor.html')
 
 
+def getStudentData(request):
+    studentid = request.GET.get('studentId',None)
+    if studentid:
+        student = Student.objects.filter(id=studentid).first()
 
+        data = {
+                'id': student.id,
+                'name': student.user.user.first_name,
+                'email': student.user.user.email,
+                'phone': student.user.phoneNo,
+                'dob': student.dob,
+                'applicationNo': student.applicationNo,
+                'address': student.address,
+                'branch': student.Branch.branchName,
+                'bloodGroup': student.user.bloodGroup,
+                'profilePic': student.user.profilePic.url if student.user.profilePic else '',
+                'gender': student.gender,
+                'dlNo': student.Dlinfo.dlNo,
+                'dlIssueDate': student.Dlinfo.dlIssueDate,
+                'dlExpiry': student.Dlinfo.dlExpiry,
+                'cource': student.cource.courceName,
+                'courceId': student.cource.id,
+                'instructor': student.instructor.user.user.first_name,
+                'instructorId': student.instructor.user.id,
+                'slot': student.slot.slotName,
+                'slotId': student.slot.id,
+                'startDate': student.courceEnrollDate,
+                'endDate': student.courceEndDate,
+                'status': 'Active' if student.courceEndDate > datetime.today().date() else 'Inactive'
+            }
+        return JsonResponse(data)
+    else:
+        students = Student.objects.all()
+        data = []
+        for student in students:
+            data.append({
+                'id': student.id,
+                'name': student.user.user.first_name,
+                'email': student.user.user.email,
+                'phone': student.user.phoneNo,
+                'applicationNo': student.applicationNo,
+                'dob': student.dob,
+                'address': student.address,
+                'branch': student.Branch.branchName,
+                'bloodGroup': student.user.bloodGroup,
+                'profilePic': student.user.profilePic.url if student.user.profilePic else '',
+                'gender': student.gender,
+                'dlNo': student.Dlinfo.dlNo,
+                'dlIssueDate': student.Dlinfo.dlIssueDate,
+                'dlExpiry': student.Dlinfo.dlExpiry,
+                'cource': student.cource.courceName,
+                'instructor': student.instructor.user.user.first_name,
+                'slot': student.slot.slotName,
+                'startDate': student.courceEnrollDate,
+                'endDate': student.courceEndDate,
+                'status': 'Active' if student.courceEndDate > datetime.today().date() else 'Inactive'
+                
+            })
+        return JsonResponse(data, safe=False)
+    
+@csrf_exempt
 def manage_student(request):
+    if request.method == 'POST':
+        id = request.POST.get('studentId')
+        name = request.POST.get('studentName')
+        email = request.POST.get('studentEmail')
+        dob = request.POST.get('dob')
+        applicationNo = request.POST.get('applicationNo')
+        address = request.POST.get('address')
+        phone = request.POST.get('phone')
+        branch = request.POST.get('branch')
+        bloodGroup = request.POST.get('bloodGroup')
+        profilepic = request.FILES.get('profilePic',None)
+        gender = request.POST.get('studentGender')
+        dlNo = request.POST.get('dlNo')
+        dlIssueDate = request.POST.get('dlIssueDate')
+        dlExpiry = request.POST.get('dlExpiry')
+        cource = request.POST.get('studentCourse')
+        instructor = request.POST.get('studentInstructor')
+        slot = request.POST.get('studentSlot')
+        password = request.POST.get('cnfpassword',None)
+        startDate = request.POST.get('courseStartDate')
+        endDate = request.POST.get('courseEndDate')
+
+        try:
+            if Student.objects.filter(id=id).exists():
+                student = Student.objects.get(id=id)
+                student.user.user.first_name = name
+                student.user.user.email = email
+                student.user.user.username = email
+                student.user.user.save()
+                student.user.phoneNo = phone
+                student.user.bloodGroup = bloodGroup
+                if profilepic:
+                    student.user.profilePic = profilepic
+                
+                student.user.save()
+                student.Dlinfo.dlNo = dlNo
+                student.Dlinfo.dlIssueDate = dlIssueDate
+                student.Dlinfo.dlExpiry = dlExpiry
+                student.Dlinfo.save()
+                student.cource = Cource.objects.get(id=cource)
+                student.instructor = Instructor.objects.get(user_id=instructor)
+                student.Branch = Branch.objects.get(branchName=branch)
+                student.slot = Slot.objects.get(id=slot)
+                student.dob = dob
+                student.address = address
+                student.applicationNo = applicationNo
+                student.gender = gender
+                student.courceEnrollDate = startDate
+                student.courceEndDate = endDate
+                student.save()
+                return JsonResponse({'status': 'success'})
+            else:
+                newuser = None
+                userprofile = None
+                Dlinfo = None
+                try:
+                    if User.objects.filter(email=email).exists():
+                        newuser = User.objects.get(email=email)    
+                    else:
+                        newuser = User.objects.create_user(username=email, email=email, password=password, first_name=name)
+                    userprofile = UserProfile(user=newuser, phoneNo=phone, is_student=True, profilePic=profilepic ,bloodGroup=bloodGroup)
+                    userprofile.save()
+                    branch = Branch.objects.get(branchName=branch)
+                    cource = Cource.objects.get(id=cource)
+                    instructor = Instructor.objects.get(user_id=instructor)
+                    slot = Slot.objects.get(id=slot)
+                    Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
+                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot, Dlinfo=Dlinfo,courceEnrollDate=startDate,courceEndDate = endDate)
+                    
+                    student.save()
+                except Exception as e:
+                    if newuser:
+                        if userprofile:
+                            userprofile.delete()
+                        if Dlinfo:
+                            Dlinfo.delete()
+                        newuser.delete()
+                    return JsonResponse({'status': 'error', 'message': str(e)})
+                return JsonResponse({'status': 'success'})
+        except Exception as e:
+                
+                return JsonResponse({'status': 'error', 'message': str(e)})
+    if request.method == 'DELETE':
+        try:
+            id = request.GET.get('studentId')
+            student = Student.objects.get(id=id)
+            userProf = UserProfile.objects.get(id=student.user.id)
+            user = User.objects.get(id=userProf.user.id)
+            userProf.delete()
+            student.delete()
+            user.delete()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+
     return render(request, 'manage-student.html')
 
 
 def getBranchAdminData(request):
-    users = UserProfile.objects.filter(is_branchAdmin=False)
+    users = UserProfile.objects.filter(is_branchAdmin=True,is_student=False)
     data = []
     for user in users:
         data.append({
@@ -513,9 +669,10 @@ def manageCourseContent(request):
     if request.method == 'DELETE':
        courceContentId = request.GET.get('courceContentId', None)
        if courceContentId:
-           courceContent = CourceContent.objects.get(id=courceContentId)
-           courceContent.delete()
-           return JsonResponse({'success': 'CourceContent deleted successfully'})
+            courceContent = CourceContent.objects.get(id=courceContentId)
+
+            courceContent.delete()
+            return JsonResponse({'success': 'CourceContent deleted successfully'})
        else:
            return JsonResponse({'error': 'No courceContent ID provided'}, status=400)     
     return render(request, 'manage-coursecontent.html')

@@ -91,13 +91,15 @@ class Student(models.Model):
     dob = models.DateField()
     address = models.TextField()
     gender = models.CharField(max_length=10)
-    email = models.EmailField()
     
     Dlinfo = models.OneToOneField(DLInfo, on_delete=models.CASCADE)
     cource = models.ForeignKey(Cource, on_delete=models.CASCADE)
     instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE,null=True,blank=True,related_name='slot')
     Branch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
+    courceEnrollDate = models.DateField(null=True,blank=True)
+    courceEndDate = models.DateField(null=True,blank=True)
+    courceStatus = models.BooleanField(default=False)
     def __str__(self):
         return self.user.user.first_name
 

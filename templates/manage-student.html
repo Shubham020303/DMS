@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Manage Students | DMS</title>
+		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<style>
+			::-webkit-scrollbar {
+				width: 8px;
+			}
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+			::-webkit-scrollbar-thumb {
+				background: #888;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+			input.gridjs-input{
+				box-shadow: 0 0 0 1px #141414;
+			}
+			input.gridjs-input:focus {
+				border-color: #615FFF;
+				box-shadow: 0 0 0 3px #615FFF80;
+			}
+			.gridjs-search-input{
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="flex h-screen">
+			{% include 'navbar.html' %}
+			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+				<div class="w-full flex justify-between items-center">
+					<h1 class="text-3xl font-bold">Manage Students</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-student">
+						<p>Add Student</p>
+					</div>
+				</div>
+				<div id="wrapper" class="w-full mt-8"></div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-student-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 h-[600px] flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="student-model-heading" class="text-3xl font-bold">Add Student</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-student-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-student-form">
+					{%csrf_token%}
+					<div class="w-full">
+						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
+							<div class="flex flex-col items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="studentName" class="block font-semibold">Student Name</label>
+									<input type="text" name="studentName" id="studentName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="studentEmail" class="block font-semibold">Student Email</label>
+									<input type="email" name="studentEmail" id="studentEmail" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="branch" class="block font-semibold">Branch</label>
+									<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+										<option disabled selected>Select Branch</option>
+									</select>
+								</div>
+							</div>
+							<div class="flex justify-center w-full h-full">
+								<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="image-upload">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+									</svg>
+									<p class="whitespace-nowrap">Add Student Image</p>
+									<img id="student-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
+									<input type="file" name="profilePic" id="profilePic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*" required>
+								</div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="phone" class="block font-semibold">Phone</label>
+								<input type="text" name="phone" id="phone" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="bloodGroup" class="block font-semibold">Blood Group</label>
+								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dob" class="block font-semibold">Date of Birth</label>
+								<input type="date" name="dob" id="dob" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="applicationNo" class="block font-semibold">Application Number</label>
+								<input type="text" name="applicationNo" id="applicationNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="address" class="block font-semibold">Address</label>
+								<textarea 
+                                             rows="5"
+                                             name="address"
+                                             id="address"
+                                             autocomplete="off"
+                                             required
+                                             class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
+							</div>
+						</div>
+                              <div id="password-container" class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="password" class="block font-semibold">Password</label>
+								<input type="password" name="password" id="password" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="cnfpassword" class="block font-semibold">Confirm Password</label>
+								<input type="text" name="cnfpassword" id="cnfpassword" autocomplete="email" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentCourse" class="block font-semibold">Cource</label>
+								<select name="studentCourse" id="studentCourse" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Cource</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentGender" class="block font-semibold">Gender</label>
+								<select name="studentGender" id="studentGender" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Gender</option>
+									<option value="Male">Male</option>
+									<option value="Female">Female</option>
+								</select>
+							</div>
+                              </div>
+                              <div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentInstructor" class="block font-semibold">Instructor</label>
+								<select name="studentInstructor" id="studentInstructor" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Instructor</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentSlot" class="block font-semibold">Slot</label>
+								<select name="studentSlot" id="studentSlot" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Slot</option>
+								</select>
+							</div>
+						</div>
+                              <div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="courseStartDate" class="block font-semibold">Course Start Date</label>
+								<input type="date" name="courseStartDate" id="courseStartDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="courseEndDate" class="block font-semibold">Course End Date</label>
+								<input type="date" name="courseEndDate" id="courseEndDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="my-6 flex items-center gap-4 w-full">
+							<h1 class="text-xl font-bold">Driving License Information</h1>
+						</div>
+						<div class="mb-4 flex flex-col gap-2 w-full">
+							<label for="dlNo" class="block font-semibold">DL number</label>
+							<input type="text" name="dlNo" id="dlNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div>
+						<!-- h-[230px] -->
+						<div class="mb-4 flex items-start gap-4 w-full">
+							<!-- <div class="flex justify-center w-full h-full hidden">
+								<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="dl-image-upload">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+									</svg>
+									<p class="whitespace-nowrap">Add Driving License Image</p>
+									<img id="driving-license-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden" alt="">
+									<input type="file" name="dlPic" id="dlPic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*">
+								</div>
+							</div> -->
+							<div class="flex items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="dlIssueDate" class="block font-semibold">Issue Date</label>
+									<input type="date" name="dlIssueDate" id="dlIssueDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="dlExpiry" class="block font-semibold">Expiration Date</label>
+									<input type="date" name="dlExpiry" id="dlExpiry" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="btns-container" class="flex justify-end">
+						<button id="add-student-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+							<p>Add</p>
+						</button>
+						<botton id="close-add-student-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+							<p>Cancel</p>
+						</botton>
+					</div>
+				</form>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-student-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="update-student-heading" class="text-2xl font-bold">Update Student</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-student-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<p id="update-student-message">Student details updated successfully.</p>
+				</div>
+				<div class="flex justify-end">
+					<botton id="close-update-student-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Close</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-student-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">Delete Student</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-student-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div id="delete-student-message-container" class="flex flex-col gap-2">
+					<p id="delete-student-message">Are you sure you want to delete this student?</p>
+					<p>This action cannot be undone.</p>
+				</div>
+				<div class="flex justify-end">
+					<button id="delete-student-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Delete</p>
+					</button>
+					<botton id="close-delete-student-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="view-student-modal">
+			<div class="bg-white p-8 rounded-lg min-w-[300px] w-[600px] max-w-1/2 h-[270px] flex gap-5 relative">
+				<div class="absolute -top-4 -right-4 bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-view-student-btn">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+						<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+					</svg>
+				</div>
+				<div class="w-[35%] h-full rounded-md overflow-hidden bg-black">
+					<img id="instructor-view-image" src="https://images.pexels.com/photos/30550052/pexels-photo-30550052/free-photo-of-wind-turbines-in-foggy-a-pobra-do-caraminal.jpeg?auto=compress&cs=tinysrgb&w=1080&lazy=load" alt="" class="w-full h-full object-cover bg-black">
+				</div>
+				<div class="h-full w-[65%] flex flex-col justify-between">
+					<div>
+						<span class="text-sm text-indigo-600">Name</span>
+						<p id="instructor-name" class="text-xl font-semibold">Shubham Bhogayata</p>
+					</div>
+					<div>
+						<span class="text-sm text-indigo-600">Email</span>
+						<p id="instructor-email" class="text-xl font-semibold">shubham@gmail.com</p>
+					</div>
+					<div class="flex items-center justify-between">
+						<div>
+							<span class="text-sm text-indigo-600">Phone Number</span>
+							<p id="instructor-phone" class="text-xl font-semibold">1234567890</p>
+						</div>
+						<div>
+							<span class="text-sm text-indigo-600">Blood Group</span>
+							<p id="instructor-bg" class="text-xl font-semibold text-right uppercase">ab</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				fetch("http://127.0.0.1:8000/getBranchData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+					})
+				
+				fetch("http://127.0.0.1:8000/getCourseData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}">${course.courseName}</option>`).join('');
+					})
+				
+                    fetch("http://127.0.0.1:8000/getInstructorData/")
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("studentInstructor").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
+                         })
+               
+                    fetch("http://127.0.0.1:8000/getSlotsData/")
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
+                         })
+			})
+
+			const imageUpload = document.getElementById('image-upload');
+			const image = document.getElementById('profilePic');
+			// const dlImageUpload = document.getElementById('dl-image-upload');
+			// const dlImage = document.getElementById('dlPic');
+
+			image.addEventListener('change', () => {
+				const file = image.files[0];
+				const reader = new FileReader();
+
+				reader.onload = () => {
+					imageUpload.querySelector('img').src = reader.result;
+					imageUpload.querySelector('img').classList.remove('hidden');
+				}
+
+				reader.readAsDataURL(file);
+			});
+
+			// dlImage.addEventListener('change', () => {
+			// 	const file = dlImage.files[0];
+			// 	const reader = new FileReader();
+
+			// 	reader.onload = () => {
+			// 		dlImageUpload.querySelector('img').src = reader.result;
+			// 		dlImageUpload.querySelector('img').classList.remove('hidden');
+			// 	}
+
+			// 	reader.readAsDataURL(file);
+			// });
+
+			document.getElementById('add-student').addEventListener('click', () => {
+				document.getElementById('add-student-modal').classList.remove('scale-0', 'opacity-0');
+				document.getElementById('add-student-modal').classList.add('scale-100', 'opacity-100');
+				document.getElementById("student-model-heading").innerText = "Add Student";
+				document.getElementById("btns-container").style.display = "flex";
+				document.getElementById("add-student-btn").innerText = "Add";
+				document.getElementById('add-student-modal').querySelector('form').reset();
+				document.getElementById('student-image').classList.add('hidden');
+				// document.getElementById('driving-license-image').classList.add('hidden');
+				document.getElementById("password-container").style.display = "flex";
+				document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+				document.getElementById("add-student-modal").querySelectorAll('select').forEach(select => select.removeAttribute('disabled'));
+				document.getElementById("cnfpassword").removeAttribute("readonly");
+				document.getElementById("password").removeAttribute("readonly");
+				document.getElementById("cnfpassword").setAttribute("required", true);
+				document.getElementById("password").setAttribute("required", true);
+				// document.getElementById("dlPic").removeAttribute("required");
+				document.getElementById("cnfpassword").style.display = "block";
+				document.getElementById("password").style.display = "block";
+			});
+
+			document.getElementById('close-add-student-modal').addEventListener('click', () => {
+				document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-student-modal').addEventListener('click', () => {
+				document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-delete-student-modal').addEventListener('click', () => {
+				document.getElementById('delete-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-student-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-delete-student-btn').addEventListener('click', () => {
+				document.getElementById('delete-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-student-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-student-btn').addEventListener('click', () => {
+				document.getElementById('updated-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-student-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-student-modal').addEventListener('click', () => {
+				document.getElementById('updated-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-student-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-view-student-btn').addEventListener('click', () => {
+				document.getElementById('view-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('view-student-modal').classList.add('scale-0', 'opacity-0');
+				// window.location.reload()
+			});
+
+               document.getElementById("dob").addEventListener("input", () => {
+                    const dob = new Date(document.getElementById("dob").value);
+                    const today = new Date();
+                    const age = today.getFullYear() - dob.getFullYear();
+                    if (age < 18) {
+                         document.getElementById("dob").value = "";
+                         alert("Age should be greater than 18 years.");
+                         document.getElementById("dob").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+                         document.getElementById("dob").classList.add("focus:outline-2", "focus:-outline-offset-2", "focus:outline-red-600");
+                         document.getElementById("dob").classList.remove("bg-white");
+                         document.getElementById("dob").classList.add("bg-red-100");
+                    } else {
+                         document.getElementById("dob").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-red-600");
+                         document.getElementById("dob").classList.add("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+                         document.getElementById("dob").classList.remove("bg-red-100");
+                         document.getElementById("dob").classList.add("bg-white");
+                    }
+               });
+
+			document.getElementById("add-student-form").addEventListener("submit", (e) => {
+				if (document.getElementById('add-student-btn').innerText === "Update") {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					const profilePicInput = document.getElementById("profilePic");
+					
+					if (profilePicInput.files[0].name === profilePicInput.getAttribute("data-name")) {
+						formData.delete("profilePic");
+					} else if (profilePicInput.files.length > 0) {
+						formData.append("profilePic", profilePicInput.files[0]);
+					}
+
+					fetch("/manage-student/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.status === "success") {
+							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-student-message").innerText = "Student details updated successfully."
+							document.getElementById("update-student-heading").innerText = "Update Student"
+						} else if (data.status === "error") {
+							console.error("Error:", data.message);
+							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-student-message").innerText = data.message;
+							document.getElementById("update-student-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-student-message").innerText = "Error updating student information."
+					});
+				} else {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					// const profilePicInput = document.getElementById("profilePic");
+					
+					// if (profilePicInput.files[0].name === profilePicInput.getAttribute("data-name")) {
+					// 	formData.delete("profilePic");
+					// } else if (profilePicInput.files.length > 0) {
+					// 	formData.append("profilePic", profilePicInput.files[0]);
+					// }
+
+					fetch("/manage-student/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.status === "success") {
+							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-student-message").innerText = "Student details added successfully."
+							document.getElementById("update-student-heading").innerText = "Add Student"
+						} else if (data.status === "error") {
+							console.error("Error:", data.message);
+							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-student-message").innerText = data.message;
+							document.getElementById("update-student-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-student-message").innerText = "Error adding student information."
+					});
+				}
+			})
+
+			document.getElementById('delete-student-btn').addEventListener('click', () => {
+				const studentId = document.getElementById('delete-student-btn').getAttribute('data-id');
+				fetch(`http://127.0.0.1:8000/manage-student/?studentId=${studentId}`, {
+						method: 'DELETE',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if (data.status === "success") {
+							document.getElementById("delete-student-message-container").innerHTML = `<p>Deleted successfully</p>`;
+							document.getElementById("delete-student-btn").style.display = "none";
+							document.getElementById("close-delete-student-modal").innerText = "Close";
+						} else if (data.status === "error") {
+							document.getElementById("delete-student-message-container").innerHTML = `<p>${data.message}</p>`;
+							document.getElementById("delete-student-btn").style.display = "none";
+							document.getElementById("close-delete-student-modal").innerText = "Close";
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			});
+
+			const studentGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [{
+						id: "id",
+						name: "ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					{
+						// profile pic
+						id: "profilePic",
+						name: "",
+						formatter: (cell, row) => {
+							cell = `<img src="${cell}" class="w-10 h-10 rounded-full object-cover" alt="">`;
+							return gridjs.html(cell);
+						},
+						width: '7%'
+					},
+					"Name",
+					"Email",
+					"Phone Number",
+					"Branch",
+                         {
+                              name: "Status",
+                              formatter: (cell, row) => {
+                                   let status = row.cells[6].data;
+                                   let statusColor = status === "Active" ? "bg-green-600" : "bg-red-600";
+                                   cell = `<span class="px-3 py-1 text-white rounded-full ${statusColor}">${status}</span>`;
+                                   return gridjs.html(cell);
+                              }
+                         },
+					{
+						name: "Action",
+						formatter: (cell, row) => {
+							let editBtn = gridjs.h('button', {
+								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+									</svg>
+								`,
+								onClick: () => {
+									fetchStudentData(`http://127.0.0.1:8000/getStudentData/?studentId=${row.cells[0].data}`, "Edit Student Details", true, false);
+									document.getElementById("password-container").style.display = "none";
+									document.getElementById("cnfpassword").setAttribute("readonly", true);
+									document.getElementById("password").setAttribute("readonly", true);
+									document.getElementById("cnfpassword").style.display = "none";
+									document.getElementById("password").style.display = "none";
+									document.getElementById("cnfpassword").removeAttribute("required");
+									document.getElementById("password").removeAttribute("required");
+									// document.getElementById("dlPic").removeAttribute("required");
+									document.getElementById("add-student-btn").innerText = "Update";
+
+									document.getElementById("add-student-form").innerHTML += `<input type="hidden" name="studentId" id="studentId" value="${row.cells[0].data}">`;
+									document.getElementById('add-student-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('add-student-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							let deleteBtn = gridjs.h('button', {
+								className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+										<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+										<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+									</svg>
+								`,
+								onClick: () => {
+									studentId = row.cells[0].data;
+									document.getElementById("delete-student-btn").setAttribute("data-id", studentId);
+									document.getElementById("delete-student-message").innerHTML = `Are you sure you want to delete <b>${row.cells[2].data}</b>'s details?`;
+									document.getElementById('delete-student-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('delete-student-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							return gridjs.h('div', {
+								className: 'flex gap-4'
+							}, editBtn, deleteBtn);
+						},
+						width: '11%'
+					}
+				],
+				server: {
+					url: 'http://127.0.0.1:8000/getStudentData/',
+					then: data => data.map(student => [student.id, student.profilePic, student.name, student.email, student.phone, student.branch, student.status])
+				},
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
+
+			studentGrid.render(document.getElementById("wrapper"))
+
+			document.querySelector(".gridjs-search-input").placeholder = "Search...";
+
+			studentGrid.on('cellClick', (...args) => {
+				console.log(args);
+				if (args[2]["id"] === "name") {
+					studentId = args[3]["_cells"][0]["data"];
+					fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+
+							document.getElementById("instructor-view-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("instructor-name").innerText = data.name || "No Data Found";
+							document.getElementById("instructor-email").innerText = data.email || "No Data Found";
+							document.getElementById("instructor-phone").innerText = data.phone || "No Data Found";
+							document.getElementById("instructor-bg").innerText = data.bloodGroup || "No Data Found";
+						})
+					// fetchStudentData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
+					document.getElementById('view-student-modal').classList.remove('scale-0', 'opacity-0');
+					document.getElementById('view-student-modal').classList.add('scale-100', 'opacity-100');
+				}
+			});
+
+			function fetchStudentData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						document.getElementById("student-model-heading").innerText = headingText;
+						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
+						document.getElementById("studentName").value = data.name || "No Data Found";
+						document.getElementById("studentEmail").value = data.email || "No Data Found";
+						document.getElementById("branch").value = data.branch || "No Data Found";
+						document.getElementById("phone").value = data.phone || "No Data Found";
+						document.getElementById("bloodGroup").value = data.bloodGroup || "No Data Found";
+						document.getElementById("studentCourse").value = data.courceId || "No Data Found";
+						document.getElementById("studentGender").value = data.gender || "No Data Found";
+						document.getElementById("studentInstructor").value = data.instructorId || "No Data Found";
+						document.getElementById("studentSlot").value = data.slotId || "No Data Found";
+						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
+						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
+						document.getElementById("dlExpiry").value = data.dlExpiry || "No Data Found";
+						document.getElementById("courseStartDate").value = data.startDate || "No Data Found";
+						document.getElementById("courseEndDate").value = data.endDate || "No Data Found";
+						document.getElementById("dob").value = data.dob || "No Data Found";
+						document.getElementById("applicationNo").value = data.applicationNo || "No Data Found";
+						document.getElementById("address").value = data.address || "No Data Found";
+						document.getElementById("student-image").classList.remove('hidden');
+						// add file to the profilePic input
+						if (data.profilePic === null || data.profilePic?.trim() === "") {
+							document.getElementById("student-image").src = "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+						} else {
+							document.getElementById("student-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("profilePic").setAttribute("data-name", data.profilePic)
+							const instructorProfilePic = document.getElementById("profilePic");
+							const fileName = data.profilePic;
+							const file = new File([], fileName, {
+								type: "image/*"
+							});
+							const dataTransfer = new DataTransfer();
+							dataTransfer.items.add(file);
+							instructorProfilePic.files = dataTransfer.files;
+							instructorProfilePic.setAttribute("data-name", data.profilePic)
+						}
+
+						const imageUpload = document.getElementById('image-upload');
+						const image = document.getElementById('profilePic');
+
+						image.addEventListener('change', () => {
+							const file = image.files[0];
+							const reader = new FileReader();
+
+							reader.onload = () => {
+								imageUpload.querySelector('img').src = reader.result;
+								imageUpload.querySelector('img').classList.remove('hidden');
+							}
+
+							reader.readAsDataURL(file);
+						});
+						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
+					});
+			}
+
+			function makeInputReadOnly() {
+				document.getElementById("password-container").style.display = "none";
+
+                    document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
+                         input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+                         input.setAttribute('readonly', true);
+                         input.setAttribute('disabled', true);
+                         input.removeAttribute('required');
+                    })
+
+                    document.getElementById("add-student-modal").querySelectorAll('select').forEach(select => select.setAttribute('disabled', true));
+			}
+
+			function makeInputEditable() {
+				document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				document.getElementById("add-student-modal").querySelectorAll('select').forEach(select => select.removeAttribute('disabled'));
+				document.getElementById("cnfpassword").setAttribute("readonly", true);
+				document.getElementById("password").setAttribute("readonly", true);
+				document.getElementById("cnfpassword").removeAttribute("required");
+				document.getElementById("password").removeAttribute("required");
+				// document.getElementById("dlPic").removeAttribute("required");
+			}
+		</script>
+	</body>
+</html>
