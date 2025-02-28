@@ -106,13 +106,21 @@ class Student(models.Model):
 
 
 class Attendance(models.Model):
+    roles = (
+        ('Present', 'Present'),
+        ('Absent', 'Absent'),
+        ('Leave', 'Leave'),
+    )
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     date = models.DateField()
-    present = models.BooleanField(default=False)
-    timeIn = models.TimeField(default=time(0, 0))
-    timeOut = models.TimeField(default=time(0, 0))
-    qr_code_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-  
+    status = models.CharField(max_length=10,choices=roles,null=True,blank=True)
+    timeIn = models.TimeField(null=True,blank=True)
+    timeOut = models.TimeField(null=True,blank=True)
+    qr_code_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
+    
+
+    def __str__(self):
+        return self.student.user.user.first_name + ' - ' + str(self.date)
     
     
 

@@ -23,7 +23,8 @@ urlpatterns = [
     path('manage-coursecontent/', views.manageCourseContent, name='manage-coursecontent/'),
     path('getSlotsData/',views.getSlotsData,name='getSlotsData/'),
     path('manage-slots/', views.manageSlots, name='manage-slots/'),
-
+    path('manage-attendance/', views.manageAttendance, name='manage-attendance/'),
+    path('getAttendanceData/', views.getAttendanceData, name='getAttendanceData/'),
     # path('DeleteALlComplain/', views.DeleteALlComplain, name='DeleteALlComplain/'),
     
     # path('getVehicleData/', views.getVehicleData, name='getVehicleData/'),

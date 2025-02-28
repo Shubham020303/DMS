@@ -17,9 +17,10 @@ def index(request):
     # user = UserProfile.objects.get(user=request.user)
 
     context = {
-        # 'user': request.user,
-        # 'profilepic':user.profilePic.url if user.profilePic else '',
+    #     'user': request.user,
+    #     'profilepic':user.profilePic.url if user.profilePic else '',
     }
+    
     return render(request, 'index.html',context = context)
 def signin(request):
     if request.method == 'POST':
@@ -745,3 +746,162 @@ def manageSlots(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     return render(request, 'manage-slots.html')
+
+
+def getAttendanceData(request):
+    attendanceId = request.GET.get('attendanceId', None)
+    VehicleName = request.GET.get('vehicleName', None)
+    branch = request.GET.get('branchName', None)
+    if attendanceId:
+        try:
+            attendance = Attendance.objects.get(id=attendanceId)
+            time1 = attendance.timeIn
+            time2 = attendance.timeOut
+            date = attendance.date
+
+            date1 = datetime.combine(date, time1)
+            date2 = datetime.combine(date, time2)
+            diff = date2 - date1
+
+            attendanceData = {
+                'id': attendance.id,
+                'student': attendance.student.user.user.first_name,
+                'studentId': attendance.student.id,
+                'vehicle': attendance.student.instructor.instructorVehicle.vehicleName,
+                'branch': attendance.student.Branch.branchName,
+                'date': attendance.date,
+                'inTime': attendance.timeIn,
+                'outTime': attendance.timeOut,
+                'totalTime': diff.total_seconds() / 60,
+                'status': attendance.status,
+            }
+            return JsonResponse(attendanceData)
+        except Attendance.DoesNotExist:
+            return JsonResponse({'error': 'Attendance not found'}, status=404)
+    elif VehicleName:
+        try:
+            if branch:
+                attendance = Attendance.objects.filter(student__instructor__instructorVehicle__vehicleName=VehicleName,student__Branch__branchName=branch)
+            else:
+                attendance = Attendance.objects.filter(student__instructor__instructorVehicle__vehicleName=VehicleName)
+            
+            attendanceData = []
+            for i in attendance:
+                time1 = i.timeIn
+                time2 = i.timeOut
+                date = i.date
+
+                date1 = datetime.combine(date, time1)
+                date2 = datetime.combine(date, time2)
+                diff = date2 - date1
+                attendanceData.append({
+                'id': i.id,
+                'student': i.student.user.user.first_name,
+                'date': i.date,
+                'vehicle': i.student.instructor.instructorVehicle.vehicleName,
+                'branch': i.student.Branch.branchName,
+                'inTime': i.timeIn,
+                'outTime': i.timeOut,
+                'totalTime': diff.total_seconds() / 60,
+                'status': i.status,
+                })
+            return JsonResponse(attendanceData,safe=False)
+        except Attendance.DoesNotExist:
+            return JsonResponse({'error': 'Attendance not found'}, status=404)
+    elif branch:
+        attendance = Attendance.objects.filter(student__Branch__branchName=branch)
+        attendanceData = []
+        for i in attendance:
+            time1 = i.timeIn
+            time2 = i.timeOut
+            date = i.date
+
+            date1 = datetime.combine(date, time1)
+            date2 = datetime.combine(date, time2)
+            diff = date2 - date1
+            attendanceData.append({
+            'id': i.id,
+            'student': i.student.user.user.first_name,
+            'date': i.date,
+            'vehicle': i.student.instructor.instructorVehicle.vehicleName,
+            'branch': i.student.Branch.branchName,
+            'inTime': i.timeIn,
+            'outTime': i.timeOut,
+            'totalTime': diff.total_seconds() / 60,
+            'status': i.status,
+            })
+        
+        return JsonResponse(attendanceData,safe=False)
+    else:
+        attendance = Attendance.objects.all()
+        attendanceData = []
+        for i in attendance:
+            time1 = i.timeIn
+            time2 = i.timeOut
+            date = i.date
+
+            date1 = datetime.combine(date, time1)
+            date2 = datetime.combine(date, time2)
+            diff = date2 - date1
+            attendanceData.append({
+            'id': i.id,
+            'student': i.student.user.user.first_name,
+            'date': i.date,
+            'vehicle': i.student.instructor.instructorVehicle.vehicleName,
+            'branch': i.student.Branch.branchName,
+            'inTime': i.timeIn,
+            'outTime': i.timeOut,
+            'totalTime': diff.total_seconds() / 60, 
+            'status': i.status,
+            
+            })
+        
+        return JsonResponse(attendanceData,safe=False)
+@csrf_exempt
+def manageAttendance(request):
+    if request.method == 'POST':
+        attendanceId = request.POST.get('attendanceId',None)
+        student = request.POST.get('studentName')
+        date = request.POST.get('attendanceDate')
+        inTime = request.POST.get('inTime')
+        outTime = request.POST.get('outTime')
+        status = request.POST.get('attendanceStatus')
+
+        try:
+            if attendanceId:
+                try:
+                    attendance = Attendance.objects.get(id=attendanceId)
+                    attendance.student = Student.objects.get(id=student)
+                    attendance.date = date
+                    attendance.timeIn = inTime
+                    attendance.timeOut = outTime
+                    attendance.status = status
+                    attendance.save()
+                    return JsonResponse({'success': 'Attendance updated successfully'})
+                except Exception as e:
+                    return JsonResponse({'error': 'Attendance not updated'}, status=404)
+            else:
+                try:
+                    attendance = Attendance(student=Student.objects.get(id=student),date=date,timeIn=inTime,timeOut=outTime,status=status)
+                    attendance.save()
+                    return JsonResponse({'success': 'Attendance added successfully'})
+                except Exception as e:
+                    return JsonResponse({'error': 'Attendance not added'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
+    if request.method == 'DELETE':
+        attendanceId = request.GET.get('attendanceId', None)
+        try:
+            if attendanceId:
+                attendance = Attendance.objects.get(id=attendanceId)
+                attendance.delete()
+                return JsonResponse({'success': 'Attendance deleted successfully'})
+            else:
+                return JsonResponse({'error': 'No attendance ID provided'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return render(request, 'manage-attendance.html')
+
+
