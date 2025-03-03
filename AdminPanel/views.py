@@ -10,18 +10,78 @@ from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,
 from django.core.paginator import Paginator
 # Create your views here.
 
+def getPaymentData(request):
 
+    students = Student.objects.filter(amountPending__gt=0)
+    data = []
+    for student in students:
+        data.append({
+            'name': student.user.user.first_name,
+            'courseName': student.cource.courceName,
+            'amountPending': student.amountPending,
+            'amountPaid': student.amountPaid,
+            'TotalAmount': student.cource.courceFee,
+            'paymentDueDate': student.paymentDueDate
+        })
+    return JsonResponse(data, safe=False)
+def getSlotWiseData(request):
+
+    slots = Slot.objects.all()
+    today = datetime.today().date()
+    morning_slots = []
+    evening_slots = []
+    for slot in slots:
+            
+        try:
+            student = Student.objects.get(slot=slot, courceEnrollDate__lte=today, courceEndDate__gte=today)
+            student_name = student.user.user.first_name
+        except Student.DoesNotExist:
+            student_name = None
+        slot_data = {
+            'slotName': slot.slotName,
+            'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
+            'studentName': student_name,
+            'branch': student.Branch.branchName if student_name else None,
+            'vehicle': student.instructor.instructorVehicle.vehicleName if student_name else None
+        }
+        if slot.slotStart < datetime.strptime('12:00', '%H:%M').time():
+            morning_slots.append(slot_data)
+        else:
+            evening_slots.append(slot_data)
+        
+        key = lambda x: x['slotTime']
+        morning_slots.sort(key=key)
+        evening_slots.sort(key=key)
+        data = {
+            'morning': morning_slots,
+            'evening': evening_slots
+        }   
+    return JsonResponse(data, safe=False)
+
+def getEearningData(request):
+    branches = Branch.objects.all()
+    data = []
+    for branch in branches:
+        students = Student.objects.filter(Branch=branch)
+        
+        total_amount_paid = 0
+        total_amount_remaining = 0
+        for student in students:
+            total_amount_paid += student.amountPaid
+            total_amount_remaining += student.amountPending
+        total_earning = total_amount_paid + total_amount_remaining
+        data.append({
+            'branch': branch.branchName,
+            'branchInCharge': branch.branchIncharge.user.first_name,
+            'totalEarning': total_earning,
+            'totalAmountPaid': total_amount_paid,
+            'totalAmountRemaining': total_amount_remaining
+        })
+    return JsonResponse(data, safe=False)
 
 def index(request):
-    #get image of instructor 
-    # user = UserProfile.objects.get(user=request.user)
-
-    context = {
-    #     'user': request.user,
-    #     'profilepic':user.profilePic.url if user.profilePic else '',
-    }
     
-    return render(request, 'index.html',context = context)
+    return render(request, 'index.html')
 def signin(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -179,6 +239,10 @@ def getStudentData(request):
                 'slotId': student.slot.id,
                 'startDate': student.courceEnrollDate,
                 'endDate': student.courceEndDate,
+                'totalAmount': student.cource.courceFee,
+                'paymentReceived': student.amountPaid,
+                'paymentDue': student.amountPending,
+                'paymentDueDate': student.paymentDueDate,
                 'status': 'Active' if student.courceEndDate > datetime.today().date() else 'Inactive'
             }
         return JsonResponse(data)
@@ -234,6 +298,9 @@ def manage_student(request):
         password = request.POST.get('cnfpassword',None)
         startDate = request.POST.get('courseStartDate')
         endDate = request.POST.get('courseEndDate')
+        paymentRecieved = request.POST.get('paymentReceived')
+        paymentDue = request.POST.get('paymentDue')
+        paymentDueDate = request.POST.get('paymentDueDate')
 
         try:
             if Student.objects.filter(id=id).exists():
@@ -262,6 +329,9 @@ def manage_student(request):
                 student.gender = gender
                 student.courceEnrollDate = startDate
                 student.courceEndDate = endDate
+                student.amountPaid = paymentRecieved
+                student.amountPending = paymentDue
+                student.paymentDueDate = paymentDueDate
                 student.save()
                 return JsonResponse({'status': 'success'})
             else:
@@ -280,7 +350,7 @@ def manage_student(request):
                     instructor = Instructor.objects.get(user_id=instructor)
                     slot = Slot.objects.get(id=slot)
                     Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
-                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot, Dlinfo=Dlinfo,courceEnrollDate=startDate,courceEndDate = endDate)
+                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot, Dlinfo=Dlinfo,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate)
                     
                     student.save()
                 except Exception as e:
@@ -748,43 +818,17 @@ def manageSlots(request):
     return render(request, 'manage-slots.html')
 
 
+
 def getAttendanceData(request):
     attendanceId = request.GET.get('attendanceId', None)
     VehicleName = request.GET.get('vehicleName', None)
     branch = request.GET.get('branchName', None)
-    if attendanceId:
+    id = request.GET.get('studentId', None)
+    # startDate = request.GET.get('startDate', None)
+    # endDate = request.GET.get('endDate', None)
+    if id:
         try:
-            attendance = Attendance.objects.get(id=attendanceId)
-            time1 = attendance.timeIn
-            time2 = attendance.timeOut
-            date = attendance.date
-
-            date1 = datetime.combine(date, time1)
-            date2 = datetime.combine(date, time2)
-            diff = date2 - date1
-
-            attendanceData = {
-                'id': attendance.id,
-                'student': attendance.student.user.user.first_name,
-                'studentId': attendance.student.id,
-                'vehicle': attendance.student.instructor.instructorVehicle.vehicleName,
-                'branch': attendance.student.Branch.branchName,
-                'date': attendance.date,
-                'inTime': attendance.timeIn,
-                'outTime': attendance.timeOut,
-                'totalTime': diff.total_seconds() / 60,
-                'status': attendance.status,
-            }
-            return JsonResponse(attendanceData)
-        except Attendance.DoesNotExist:
-            return JsonResponse({'error': 'Attendance not found'}, status=404)
-    elif VehicleName:
-        try:
-            if branch:
-                attendance = Attendance.objects.filter(student__instructor__instructorVehicle__vehicleName=VehicleName,student__Branch__branchName=branch)
-            else:
-                attendance = Attendance.objects.filter(student__instructor__instructorVehicle__vehicleName=VehicleName)
-            
+            attendance = Attendance.objects.filter(student__id=id)
             attendanceData = []
             for i in attendance:
                 time1 = i.timeIn
@@ -794,69 +838,52 @@ def getAttendanceData(request):
                 date1 = datetime.combine(date, time1)
                 date2 = datetime.combine(date, time2)
                 diff = date2 - date1
-                attendanceData.append({
-                'id': i.id,
-                'student': i.student.user.user.first_name,
-                'date': i.date,
-                'vehicle': i.student.instructor.instructorVehicle.vehicleName,
-                'branch': i.student.Branch.branchName,
-                'inTime': i.timeIn,
-                'outTime': i.timeOut,
-                'totalTime': diff.total_seconds() / 60,
-                'status': i.status,
-                })
+                data = {
+                    'id': i.id,
+                    'student': i.student.user.user.first_name,
+                    'studentId': i.student.id,
+                    'date': i.date,
+                    'timeIn': i.timeIn,
+                    'timeOut': i.timeOut,
+                    'totalTime': int(diff.total_seconds() / 60),
+                    'status': i.status,
+                    'duration': diff,
+                }
+                
+                attendanceData.append(data)
+            data = lambda x: x['date']
+            attendanceData.sort(key=data)
             return JsonResponse(attendanceData,safe=False)
         except Attendance.DoesNotExist:
             return JsonResponse({'error': 'Attendance not found'}, status=404)
-    elif branch:
-        attendance = Attendance.objects.filter(student__Branch__branchName=branch)
-        attendanceData = []
-        for i in attendance:
-            time1 = i.timeIn
-            time2 = i.timeOut
-            date = i.date
-
-            date1 = datetime.combine(date, time1)
-            date2 = datetime.combine(date, time2)
-            diff = date2 - date1
-            attendanceData.append({
-            'id': i.id,
-            'student': i.student.user.user.first_name,
-            'date': i.date,
-            'vehicle': i.student.instructor.instructorVehicle.vehicleName,
-            'branch': i.student.Branch.branchName,
-            'inTime': i.timeIn,
-            'outTime': i.timeOut,
-            'totalTime': diff.total_seconds() / 60,
-            'status': i.status,
-            })
-        
-        return JsonResponse(attendanceData,safe=False)
+    
     else:
-        attendance = Attendance.objects.all()
-        attendanceData = []
-        for i in attendance:
-            time1 = i.timeIn
-            time2 = i.timeOut
-            date = i.date
-
-            date1 = datetime.combine(date, time1)
-            date2 = datetime.combine(date, time2)
-            diff = date2 - date1
-            attendanceData.append({
-            'id': i.id,
-            'student': i.student.user.user.first_name,
-            'date': i.date,
-            'vehicle': i.student.instructor.instructorVehicle.vehicleName,
-            'branch': i.student.Branch.branchName,
-            'inTime': i.timeIn,
-            'outTime': i.timeOut,
-            'totalTime': diff.total_seconds() / 60, 
-            'status': i.status,
+        try:
             
-            })
-        
-        return JsonResponse(attendanceData,safe=False)
+
+            student = Student.objects.all()
+            student = student.filter(id__in=Attendance.objects.all().values_list('student', flat=True))
+            if VehicleName:
+                student = student.filter(instructor__instructorVehicle__vehicleName=VehicleName)
+            if branch:
+                student = student.filter(Branch__branchName=branch)
+            # student  = student.filter(student = Attendance.objects.all())
+            studentData = []
+            for i in student:
+                data = {
+                    'id': i.id,
+                    'student': i.user.user.first_name,
+                    'studentId': i.id,
+                    'courceName': i.cource.courceName,
+                    'startDate': i.courceEnrollDate,
+                    'endDate': i.courceEndDate,
+                    'status': 'Active' if i.courceEndDate > datetime.today().date() else 'Inactive',
+                    'duration': i.cource.courceDuration,
+                }
+                studentData.append(data)
+            return JsonResponse(studentData,safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
 @csrf_exempt
 def manageAttendance(request):
     if request.method == 'POST':
@@ -891,10 +918,10 @@ def manageAttendance(request):
             return JsonResponse({'error': str(e)}, status=400)
         
     if request.method == 'DELETE':
-        attendanceId = request.GET.get('attendanceId', None)
+        studentId = request.GET.get('studentId', None)
         try:
-            if attendanceId:
-                attendance = Attendance.objects.get(id=attendanceId)
+            if studentId:
+                attendance = Attendance.objects.filter(student = studentId)
                 attendance.delete()
                 return JsonResponse({'success': 'Attendance deleted successfully'})
             else:

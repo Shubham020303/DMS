@@ -39,23 +39,46 @@
                          <div class="flex items-end gap-4">
                               <h1 class="text-3xl font-bold">Manage Attendance</h1>
                          </div>
-					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-attendance">
-						<p>Add Attendance</p>
+					<div class="flex items-center gap-4">
+						<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-attendance">
+							<p>Add Attendance</p>
+						</div>
+						<!-- <div id="export-to-excel" class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer flex items-center gap-2">
+							<p>Export Attendance</p>
+							<svg fill="currentColor" class="w-4 h-4 text-white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<polyline id="primary" points="17 3 21 3 21 7" style="fill: none; stroke: rgb(255, 255, 255); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></polyline>
+								<line id="primary-2" data-name="primary" x1="11" y1="13" x2="21" y2="3" style="fill: none; stroke: rgb(255, 255, 255); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></line>
+								<path id="primary-3" data-name="primary" d="M19,13.89V20a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V6A1,1,0,0,1,4,5h6.11" style="fill: none; stroke: rgb(255, 255, 255); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+							</svg>
+						</div> -->
 					</div>
 				</div>
-                    <div class="flex items-center justify-end gap-4 my-8">
-                         <div class="flex flex-col gap-2 w-[200px]">
-                              <label for="vehicle" class="block font-semibold">Vehicle</label>
-                              <select name="vehicle" id="vehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-                                   <option disabled selected value="">Select Vehicle</option>
-                              </select>
-                         </div>
-                         <div class="flex flex-col gap-2 w-[200px]">
-                              <label for="branch" class="block font-semibold">Branch</label>
-                              <select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-                                   <option disabled selected value="">Select Branch</option>
-                              </select>
-                         </div>
+                    <div class="flex items-center justify-between gap-4 my-8">
+					<div class="flex items-center gap-4">
+						<div class="flex flex-col gap-2 w-[200px]">
+							<label for="vehicle" class="block font-semibold">Vehicle</label>
+							<select name="vehicle" id="vehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<option disabled selected value="">Select Vehicle</option>
+							</select>
+						</div>
+						<div class="flex flex-col gap-2 w-[200px]">
+							<label for="branch" class="block font-semibold">Branch</label>
+							<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<option disabled selected value="">Select Branch</option>
+							</select>
+						</div>
+						<!-- <div class="flex flex-col gap-2 w-[200px]">
+							<label for="startDate" class="block font-semibold">Start Date</label>
+							<input type="date" name="startDate" id="startDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div>
+						<div class="flex flex-col gap-2 w-[200px]">
+							<label for="endDate" class="block font-semibold">End Date</label>
+							<input type="date" name="endDate" id="endDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div> -->
+					</div>
+					<div id="clear-filters" class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer flex items-center gap-2">
+						<p>Clear Filter</p>
+					</div>
                     </div>
 				<div id="wrapper" class="w-full"></div>
 			</div>
@@ -163,38 +186,69 @@
 			</div>
 		</section>
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="view-attendance-modal">
-			<div class="bg-white p-8 rounded-lg min-w-[300px] w-[600px] max-w-1/2 h-[270px] flex gap-5 relative">
-				<div class="absolute -top-4 -right-4 bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-view-attendance-btn">
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-						<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-					</svg>
-				</div>
-				<div class="w-[35%] h-full rounded-md overflow-hidden bg-black">
-					<img id="instructor-view-image" src="https://images.pexels.com/photos/30550052/pexels-photo-30550052/free-photo-of-wind-turbines-in-foggy-a-pobra-do-caraminal.jpeg?auto=compress&cs=tinysrgb&w=1080&lazy=load" alt="" class="w-full h-full object-cover bg-black">
-				</div>
-				<div class="h-full w-[65%] flex flex-col justify-between">
-					<div>
-						<span class="text-sm text-indigo-600">Name</span>
-						<p id="instructor-name" class="text-xl font-semibold">Shubham Bhogayata</p>
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-5 relative">
+				<div class="flex gap-2 items-center justify-between w-full">
+					<h1 class="text-2xl font-bold">Attendance</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-view-attendance-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
 					</div>
-					<div>
-						<span class="text-sm text-indigo-600">Email</span>
-						<p id="instructor-email" class="text-xl font-semibold">shubham@gmail.com</p>
+				</div>
+				<div class="flex flex-col gap-1">
+					<h3 id="view-attendance-name" class="font-semibold">Shubham Bhogayata</h3>
+				</div>
+				<!-- Calendar Component Start -->
+				<div class="border rounded-lg">
+					<!-- Calendar Navigation -->
+					<div class="flex justify-between items-center p-4 bg-gray-50 border-b rounded-t-lg">
+						<button id="prev-month" class="p-2 hover:bg-gray-200 rounded-full">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+								<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+							</svg>
+						</button>
+						<h2 id="calendar-month-year" class="text-lg font-medium"></h2>
+						<button id="next-month" class="p-2 hover:bg-gray-200 rounded-full">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+								<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+							</svg>
+						</button>
 					</div>
-					<div class="flex items-center justify-between">
-						<div>
-							<span class="text-sm text-indigo-600">Phone Number</span>
-							<p id="instructor-phone" class="text-xl font-semibold">1234567890</p>
+					
+					<!-- Calendar Header (Days of Week) -->
+					<div class="grid grid-cols-7 text-center py-2 border-b bg-gray-50">
+						<div class="text-sm font-medium text-gray-500">Sun</div>
+						<div class="text-sm font-medium text-gray-500">Mon</div>
+						<div class="text-sm font-medium text-gray-500">Tue</div>
+						<div class="text-sm font-medium text-gray-500">Wed</div>
+						<div class="text-sm font-medium text-gray-500">Thu</div>
+						<div class="text-sm font-medium text-gray-500">Fri</div>
+						<div class="text-sm font-medium text-gray-500">Sat</div>
+					</div>
+					
+					<!-- Calendar Days Grid -->
+					<div id="calendar-days" class="grid grid-cols-7"></div>
+					
+					<!-- Legend -->
+					<div class="flex justify-center gap-4 p-3 border-t bg-gray-50 rounded-b-lg">
+						<div class="flex items-center gap-1">
+							<div class="w-3 h-3 bg-green-500 rounded-full"></div>
+							<span class="text-xs">Present</span>
 						</div>
-						<div>
-							<span class="text-sm text-indigo-600">Blood Group</span>
-							<p id="instructor-bg" class="text-xl font-semibold text-right uppercase">ab</p>
+						<div class="flex items-center gap-1">
+							<div class="w-3 h-3 bg-red-500 rounded-full"></div>
+							<span class="text-xs">Absent</span>
+						</div>
+						<div class="flex items-center gap-1">
+							<div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+							<span class="text-xs">Leave</span>
 						</div>
 					</div>
 				</div>
 			</div>
 		</section>
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
 		<script>
 			document.addEventListener('DOMContentLoaded', () => {
 				fetch("http://127.0.0.1:8000/getStudentData/")
@@ -359,8 +413,8 @@
 			})
 
 			document.getElementById('delete-attendance-btn').addEventListener('click', () => {
-				const attendanceId = document.getElementById('delete-attendance-btn').getAttribute('data-id');
-				fetch(`http://127.0.0.1:8000/manage-attendance/?attendanceId=${attendanceId}`, {
+				const studentId = document.getElementById('delete-attendance-btn').getAttribute('data-id');
+				fetch(`http://127.0.0.1:8000/manage-attendance/?studentId=${studentId}`, {
 						method: 'DELETE',
 						headers: {
 							'Content-Type': 'application/json'
@@ -392,7 +446,8 @@
 				},
 				sort: true,
 				fixedHeader: true,
-				columns: [{
+				columns: [
+					{
 						id: "id",
 						name: "ID",
 						width: '5%',
@@ -402,44 +457,55 @@
 						},
 						hidden: true
 					},
+					{
+						id: "studentId",
+						name: "Student ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
 					"Name",
-					"Date",
-					"In Time",
-                         "Out Time",
-                         {
-                              name: "Total Time",
-                              formatter: (cell, row) => {
-                                   if (cell === "No Data Found") {
-                                        return gridjs.html(cell);
-                                   }
-                                   let hours = Math.floor(cell / 60);
-                                   let minutes = cell % 60;
-                                   let formattedTime = hours > 0 
-                                        ? `${hours} hours ${minutes} minutes` 
-                                        : `${minutes} minutes`;
-                                   return gridjs.html(formattedTime);
-                              }
-                         },
-                         {
-                              name: "Status",
-                              formatter: (cell, row) => {
-                                   if (cell !== "No Data Found") {
-                                        let statusClass = 
-                                             cell === "Present" ? "bg-green-600" :
-                                             cell === "Absent" ? "bg-red-600" :
-                                             "bg-yellow-500"; // For "On Leave"
+					"Course",
+					"Course Start Date",
+					"Course End Date",
+                         // "Out Time",
+                         // {
+                         //      name: "Total Time",
+                         //      formatter: (cell, row) => {
+                         //           if (cell === "No Data Found") {
+                         //                return gridjs.html(cell);
+                         //           }
+                         //           let hours = Math.floor(cell / 60);
+                         //           let minutes = cell % 60;
+                         //           let formattedTime = hours > 0 
+                         //                ? `${hours} hours ${minutes} minutes` 
+                         //                : `${minutes} minutes`;
+                         //           return gridjs.html(formattedTime);
+                         //      }
+                         // },
+                         // {
+                         //      name: "Status",
+                         //      formatter: (cell, row) => {
+                         //           if (cell !== "No Data Found") {
+                         //                let statusClass = 
+                         //                     cell === "Present" ? "bg-green-600" :
+                         //                     cell === "Absent" ? "bg-red-600" :
+                         //                     "bg-yellow-500"; // For "On Leave"
      
-                                        let displayText = 
-                                             cell === "Present" ? "Present" :
-                                             cell === "Absent" ? "Absent" :
-                                             "On Leave";
+                         //                let displayText = 
+                         //                     cell === "Present" ? "Present" :
+                         //                     cell === "Absent" ? "Absent" :
+                         //                     "On Leave";
      
-                                        return gridjs.html(`<span class="text-white px-4 py-1 rounded-full ${statusClass}">${displayText}</span>`);
-                                   } else {
-                                        return gridjs.html(cell);
-                                   }
-                              }
-                         },
+                         //                return gridjs.html(`<span class="text-white px-4 py-1 rounded-full ${statusClass}">${displayText}</span>`);
+                         //           } else {
+                         //                return gridjs.html(cell);
+                         //           }
+                         //      }
+                         // },
 					{
 						name: "Action",
 						formatter: (cell, row) => {
@@ -449,18 +515,54 @@
 							let editBtn = gridjs.h('button', {
 								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
 								innerHTML: `
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+										<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+										<path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
 									</svg>
 								`,
 								onClick: () => {
-									fetchAttendanceData(`http://127.0.0.1:8000/getAttendanceData/?attendanceId=${row.cells[0].data}`, "Edit Attendance Details", true, false);
-									document.getElementById("add-attendance-btn").innerText = "Update";
+									// fetchAttendanceData(`http://127.0.0.1:8000/getAttendanceData/?attendanceId=${row.cells[0].data}`, "Edit Attendance Details", true, false);
+									// Get the Grid.js data from the server
+									fetch("http://127.0.0.1:8000/getAttendanceData/?studentId=" + row.cells[1].data)
+									.then(response => response.json())
+									.then(data => {
+										// Define column headers
+										let headers = ["SR No.", "Name", "Date", "In Time", "Out Time", "Total Time", "Status"];
 
-									document.getElementById("add-attendance-form").innerHTML += `<input type="hidden" name="attendanceId" id="attendanceId" value="${row.cells[0].data}">`;
-									document.getElementById('add-attendance-modal').classList.remove('scale-0', 'opacity-0');
-									document.getElementById('add-attendance-modal').classList.add('scale-100', 'opacity-100');
+										function formatTotalTime(minutes) {
+											if (!minutes || isNaN(minutes)) return "No Data Found"; 
+											let hours = Math.floor(minutes / 60);
+											let remainingMinutes = minutes % 60;
+											return hours > 0 
+												? `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minutes${remainingMinutes > 1 ? 's' : ''}` 
+												: `${remainingMinutes} minutes${remainingMinutes > 1 ? 's' : ''}`;
+										}
+										
+										// Format data for Excel
+										let formattedData = data.map((row, index) => [
+											index + 1,
+											row.student,
+											row.date,
+											row.timeIn,
+											row.timeOut,
+											formatTotalTime(row.totalTime), // Convert total time
+											row.status
+										]);
+
+										// Add headers as the first row
+										formattedData.unshift(headers);
+
+										// Create a worksheet
+										let ws = XLSX.utils.aoa_to_sheet(formattedData);
+
+										// Create a workbook and append the worksheet
+										let wb = XLSX.utils.book_new();
+										XLSX.utils.book_append_sheet(wb, ws, `Attendance Data`);
+
+										// Save as an Excel file
+										XLSX.writeFile(wb, "attendance_data.xlsx");
+									})
+									.catch(error => console.error("Error exporting data:", error));
 								}
 							}, '');
 							let deleteBtn = gridjs.h('button', {
@@ -472,9 +574,9 @@
 									</svg>
 								`,
 								onClick: () => {
-									attendanceId = row.cells[0].data;
-									document.getElementById("delete-attendance-btn").setAttribute("data-id", attendanceId);
-									document.getElementById("delete-attendance-message").innerHTML = `Are you sure you want to delete <b>${row.cells[1].data}</b>'s <b>${row.cells[2].data}</b>'s attendance details?`;
+									studentId = row.cells[1].data;
+									document.getElementById("delete-attendance-btn").setAttribute("data-id", studentId);
+									document.getElementById("delete-attendance-message").innerHTML = `Are you sure you want to delete <b>${row.cells[2].data}</b>'s attendance details?`;
 									document.getElementById('delete-attendance-modal').classList.remove('scale-0', 'opacity-0');
 									document.getElementById('delete-attendance-modal').classList.add('scale-100', 'opacity-100');
 								}
@@ -488,7 +590,7 @@
 				],
 				server: {
 					url: 'http://127.0.0.1:8000/getAttendanceData/',
-					then: data => data.map(attendance => [attendance.id, attendance.student, attendance.date, attendance.inTime, attendance.outTime, attendance.totalTime, attendance.status])
+					then: data => data.map(attendance => [attendance.id, attendance.studentId, attendance.student, attendance.courceName, attendance.startDate, attendance.endDate])
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -499,76 +601,301 @@
 
 			attendanceGrid.render(document.getElementById("wrapper"))
 
-			document.querySelector(".gridjs-search-input").placeholder = "Search...";
+			document.querySelector(".gridjs-search-input").placeholder = "Search Student";
 
                const branchSelect = document.getElementById("branch");
                const vehicleSelect = document.getElementById("vehicle");
+               // const startDate = document.getElementById("startDate");
+               // const endDate = document.getElementById("endDate");
+			let apiURL = "http://127.0.0.1:8000/getAttendanceData/";
 
                function fetchFilteredAttendanceData() {
-                    const branchName = branchSelect.value;
-                    const vehicleName = vehicleSelect.value;
+				let url = new URL(apiURL);
+				let params = new URLSearchParams(url.search);
 
-                    let apiURL = "http://127.0.0.1:8000/getAttendanceData/";
-                    let queryParams = [];
+				const branchName = branchSelect.value;
+				const vehicleName = vehicleSelect.value;
+				// const attendanceStartDate = startDate.value;
+				// const attendanceEndDate = endDate.value;
 
-                    if (branchName) queryParams.push(`branchName=${encodeURIComponent(branchName)}`);
-                    if (vehicleName) queryParams.push(`vehicleName=${encodeURIComponent(vehicleName)}`);
+				// Update query parameters dynamically
+				if (branchName) params.set("branchName", branchName);
+				else params.delete("branchName");
 
-                    // Append query parameters only if they exist
-                    if (queryParams.length > 0) {
-                         apiURL += "?" + queryParams.join("&");
-                    }
+				if (vehicleName) params.set("vehicleName", vehicleName);
+				else params.delete("vehicleName");
 
-                    console.log(apiURL); // Debugging: Check the final API URL
+				// if (attendanceStartDate) params.set("startDate", attendanceStartDate);
+				// else params.delete("startDate");
 
-                    attendanceGrid.updateConfig({
-                         server: {
-                              url: apiURL,
-                              then: data => {
-                                   if (data.length === 0) {
-                                        document.querySelector(".gridjs-tbody").innerHTML = `
-                                             <tr class="gridjs-tr"><td role="alert" colspan="7" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
-                                        `
-                                        return [];
-                                   }
-                                   return data.map(attendance => [
-                                        attendance.id, 
-                                        attendance.student, 
-                                        attendance.date, 
-                                        attendance.inTime, 
-                                        attendance.outTime, 
-                                        attendance.totalTime, 
-                                        attendance.status
-                                   ]);
-                              }
-                         }
-                    }).forceRender();
-               }
+				// if (attendanceEndDate) params.set("endDate", attendanceEndDate);
+				// else params.delete("endDate");
+
+				let finalAPI = `${url.origin}${url.pathname}?${params.toString()}`;
+				
+				console.log(finalAPI); // Debugging: Check the final API URL
+
+				attendanceGrid.updateConfig({
+					server: {
+						url: finalAPI,
+						then: data => {
+							if (data.length === 0) {
+								document.querySelector(".gridjs-tbody").innerHTML = `
+								<tr class="gridjs-tr"><td role="alert" colspan="5" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
+								`;
+								return [];
+							}
+							return data.map(attendance => [
+								attendance.id,
+								attendance.studentId,
+								attendance.student, 
+								attendance.courceName, 
+								attendance.startDate, 
+								attendance.endDate,
+							]);
+						}
+					}
+				}).forceRender();
+			}
 
                // Attach event listeners
                branchSelect.addEventListener("change", fetchFilteredAttendanceData);
                vehicleSelect.addEventListener("change", fetchFilteredAttendanceData);
+			// startDate.addEventListener("change", fetchFilteredAttendanceData);
+			// endDate.addEventListener("change", fetchFilteredAttendanceData);
 
-			// attendanceGrid.on('cellClick', (...args) => {
-			// 	console.log(args);
-			// 	if (args[2]["id"] === "name") {
-			// 		attendanceId = args[3]["_cells"][0]["data"];
-			// 		fetch(`http://127.0.0.1:8000/getInstructorData/?attendanceId=${attendanceId}`)
-			// 			.then(response => response.json())
-			// 			.then(data => {
-			// 				console.log(data);
+			// document.getElementById("export-to-excel").addEventListener('click', () => {
+			// 	// Get the Grid.js data from the server
+			// 	fetch(apiURL)
+			// 	.then(response => response.json())
+			// 	.then(data => {
+			// 		// Define column headers
+			// 		let headers = ["ID", "Name", "Date", "In Time", "Out Time", "Total Time", "Status"];
 
-			// 				document.getElementById("instructor-view-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
-			// 				document.getElementById("instructor-name").innerText = data.name || "No Data Found";
-			// 				document.getElementById("instructor-email").innerText = data.email || "No Data Found";
-			// 				document.getElementById("instructor-phone").innerText = data.phone || "No Data Found";
-			// 				document.getElementById("instructor-bg").innerText = data.bloodGroup || "No Data Found";
-			// 			})
-			// 		// fetchAttendanceData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
-			// 		document.getElementById('view-attendance-modal').classList.remove('scale-0', 'opacity-0');
-			// 		document.getElementById('view-attendance-modal').classList.add('scale-100', 'opacity-100');
-			// 	}
-			// });
+			// 		function formatTotalTime(minutes) {
+			// 			if (!minutes || isNaN(minutes)) return "No Data Found"; 
+			// 			let hours = Math.floor(minutes / 60);
+			// 			let remainingMinutes = minutes % 60;
+			// 			return hours > 0 
+			// 				? `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minutes${remainingMinutes > 1 ? 's' : ''}` 
+			// 				: `${remainingMinutes} minutes${remainingMinutes > 1 ? 's' : ''}`;
+			// 		}
+					
+			// 		// Format data for Excel
+			// 		let formattedData = data.map(row => [
+			// 			row.id,
+			// 			row.student,
+			// 			row.date,
+			// 			row.inTime,
+			// 			row.outTime,
+			// 			formatTotalTime(row.totalTime), // Convert total time
+			// 			row.status
+			// 		]);
+
+			// 		// Add headers as the first row
+			// 		formattedData.unshift(headers);
+
+			// 		// Create a worksheet
+			// 		let ws = XLSX.utils.aoa_to_sheet(formattedData);
+
+			// 		// Create a workbook and append the worksheet
+			// 		let wb = XLSX.utils.book_new();
+			// 		XLSX.utils.book_append_sheet(wb, ws, "Attendance Data");
+
+			// 		// Save as an Excel file
+			// 		XLSX.writeFile(wb, "attendance_data.xlsx");
+			// 	})
+			// 	.catch(error => console.error("Error exporting data:", error));
+			// })
+
+			document.getElementById("clear-filters").addEventListener('click', () => {
+				branchSelect.value = "";
+				vehicleSelect.value = "";
+				// startDate.value = "";
+				// endDate.value = "";
+				apiURL = "http://127.0.0.1:8000/getAttendanceData/";
+				fetchFilteredAttendanceData();
+			})
+
+			attendanceGrid.on('cellClick', (...args) => {
+				console.log(args);
+				if (args[2]["id"] === "name") {
+					studentId = args[3]["_cells"][1]["data"];
+					fetch(`http://127.0.0.1:8000/getAttendanceData/?studentId=${studentId}`)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+
+							document.getElementById("view-attendance-name").innerText = data[0].student;
+
+							// Calendar state
+							let currentDate = new Date();
+							let currentMonth = currentDate.getMonth();
+							let currentYear = currentDate.getFullYear();
+							
+							// // Sample attendance data (can be replaced with actual data)
+							// // Format: YYYY-MM-DD: status (present, absent, late)
+							const attendanceData = {};
+
+							data.map(attendance => {
+								attendanceData[attendance.date] = {
+									status: attendance.status,
+									inTime: attendance.timeIn || 'N/A',
+									outTime: attendance.timeOut || 'N/A',
+									totalTime: attendance.totalTime || 'N/A'
+								};
+							});
+							
+							// Initialize calendar
+							renderCalendar();
+							
+							// Event listeners for navigation
+							document.getElementById('prev-month').addEventListener('click', function() {
+								currentMonth--;
+								if (currentMonth < 0) {
+									currentMonth = 11;
+									currentYear--;
+								}
+								renderCalendar();
+							});
+							
+							document.getElementById('next-month').addEventListener('click', function() {
+								currentMonth++;
+								if (currentMonth > 11) {
+									currentMonth = 0;
+									currentYear++;
+								}
+								renderCalendar();
+							});
+							
+							// Close modal event listener
+							document.getElementById('close-view-attendance-btn').addEventListener('click', function() {
+								document.getElementById('view-attendance-modal').classList.remove('scale-100', 'opacity-100');
+								document.getElementById('view-attendance-modal').classList.add('scale-0', 'opacity-0');
+							});
+							
+							// Function to render the calendar
+							function renderCalendar() {
+								const monthYearElement = document.getElementById('calendar-month-year');
+								const daysContainer = document.getElementById('calendar-days');
+								
+								// Update month and year display
+								const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
+												'August', 'September', 'October', 'November', 'December'];
+								monthYearElement.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+								
+								// Clear previous days
+								daysContainer.innerHTML = '';
+								
+								// Get first day of the month
+								const firstDay = new Date(currentYear, currentMonth, 1);
+								const startingDay = firstDay.getDay(); // 0 = Sunday
+								
+								// Get number of days in the month
+								const lastDay = new Date(currentYear, currentMonth + 1, 0);
+								const totalDays = lastDay.getDate();
+								
+								// Create empty cells for days before the first day of the month
+								for (let i = 0; i < startingDay; i++) {
+									const emptyCell = document.createElement('div');
+									emptyCell.className = 'h-12 border-l first:border-l-0 p-1 text-center text-gray-400';
+									daysContainer.appendChild(emptyCell);
+								}
+								
+								// Create cells for all days of the month
+								for (let day = 1; day <= totalDays; day++) {
+									const dayCell = document.createElement('div');
+									dayCell.className = 'h-12 border-t border-l last:border-r p-1 relative group cursor-pointer';	
+									
+									// Add right border to Saturday cells
+									// if ((day + startingDay) % 7 === 0) {
+									// 	dayCell.classList.add('border-r');
+									// }
+									// Add bottom border to last row cells
+									if (day > totalDays - 7) {
+										dayCell.classList.add('border-b');
+									}
+									
+									// Day number
+									const dayNumber = document.createElement('span');
+									dayNumber.className = 'text-sm';
+									dayNumber.textContent = day;
+									dayCell.appendChild(dayNumber);
+
+									const tooltip = document.createElement('div');
+									tooltip.className = 'absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-200 bg-black/80 text-white text-xs rounded p-2 -mt-16 left-1/2 bottom-full transform -translate-x-1/2 w-max';
+									tooltip.style.pointerEvents = 'none'; // Prevent tooltip from interfering with mouse events
+									
+									// Check attendance for this day
+									const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+									if (attendanceData[dateString]) {
+										const attendanceInfo = attendanceData[dateString];
+										const status = attendanceInfo.status;
+										
+										// Status indicator
+										const statusIndicator = document.createElement('div');
+										statusIndicator.className = 'absolute bottom-1 right-1 w-4 h-4 rounded-full';
+										
+										// Color based on status
+										if (status === 'Present') {
+											statusIndicator.classList.add('bg-green-500');
+										} else if (status === 'Absent') {
+											statusIndicator.classList.add('bg-red-500');
+										} else if (status === 'Leave') {
+											statusIndicator.classList.add('bg-yellow-500');
+										}
+										
+										dayCell.appendChild(statusIndicator);
+
+										let hours = Math.floor(attendanceInfo.totalTime / 60);
+										let minutes = attendanceInfo.totalTime % 60;
+										let formattedTime = hours > 0 
+											? `${hours} hours ${minutes} minutes` 
+											: `${minutes} minutes`;
+
+										tooltip.innerHTML = `
+											<div class="flex flex-col gap-1">
+												<div class="font-bold text-center text-white border-b border-gray-200 pb-1 mb-1">${dateString}</div>
+												<div class="flex justify-between gap-2">
+													<span class="font-semibold">Status:</span>
+													<span class="${status === 'Present' ? 'text-green-600' : status === 'Absent' ? 'text-red-600' : 'text-yellow-600'} font-medium">${attendanceInfo.status}</span>
+												</div>
+												<div class="flex justify-between gap-2">
+													<span class="font-semibold">In Time:</span>
+													<span>${attendanceInfo.inTime}</span>
+												</div>
+												<div class="flex justify-between gap-2">
+													<span class="font-semibold">Out Time:</span>
+													<span>${attendanceInfo.outTime}</span>
+												</div>
+												<div class="flex justify-between gap-2 border-t border-gray-200 pt-1 mt-1">
+													<span class="font-semibold">Total:&nbsp;</span>
+													<span class="font-medium">${formattedTime}</span>
+												</div>
+											</div>
+											<div class="absolute w-3 h-3 bg-white transform rotate-45 left-1/2 -ml-1.5 -bottom-1.5 border-r border-b border-gray-200"></div>
+										`;
+									} else {
+										// For days without attendance data
+										tooltip.innerHTML = `
+											<div class="flex flex-col gap-1">
+												<div class="font-bold text-center text-white border-b border-gray-200 pb-1 mb-1">${dateString}</div>
+												<div class="text-center text-gray-500 py-1">No attendance record</div>
+											</div>
+											<div class="absolute w-3 h-3 bg-white transform rotate-45 left-1/2 -ml-1.5 -bottom-1.5 border-r border-b border-gray-200"></div>
+										`;
+									}
+
+									dayCell.appendChild(tooltip);
+									daysContainer.appendChild(dayCell);
+								}
+							}
+						})
+					// fetchAttendanceData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
+					document.getElementById('view-attendance-modal').classList.remove('scale-0', 'opacity-0');
+					document.getElementById('view-attendance-modal').classList.add('scale-100', 'opacity-100');
+				}
+			});
 
 			function fetchAttendanceData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
 				fetch(apiUrl)

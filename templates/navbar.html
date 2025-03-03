@@ -1,7 +1,7 @@
 <div class="fixed top-0 left-0 flex flex-col bg-clip-border bg-[#141414] text-white min-h-screen h-screen min-w-[18rem] w-full max-w-[18rem] p-4 shadow-xl shadow-blue-gray-900/5 z-10">
-	<div class="mb-2 p-4">
-		<h5 class="block antialiased tracking-normal font-sans text-xl font-semibold leading-snug text-white">DMS</h5>
-		<!-- <img src="/static/images/IDEA-LOGO.png" alt="logo"> -->
+	<div class="mb-2 px-4">
+		<!-- <h5 class="block antialiased tracking-normal font-sans text-xl font-semibold leading-snug text-white">DMS</h5> -->
+		<img src="../static/images/IDEA-LOGO.png" class="w-[110px] h-[70px] object-contain" alt="logo">
 	</div>
 	<nav class="flex flex-col justify-between p-2 font-sans text-base font-normal text-white h-full">
 		<div class="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-1 pr-2 [&::-webkit-scrollbar]:w-2">
@@ -187,16 +187,13 @@
 			{% if user.is_authenticated %}
 			<div role="button" tabindex="0" class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
 				<div class="grid place-items-center mr-4">
-					{% if profilepic != '' %}
-					<img src="{{ profilepic }}" class="w-5 h-5 rounded-full" alt="Profile Picture">
-					{% else %}
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+					<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
 						<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
 						<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
 					</svg>
-					{%endif%}
 				</div>
 				{{ user.username }}
+				<!-- User -->
 			</div>
 			<a href="/signout/">
 				<div role="button" tabindex="0" class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">

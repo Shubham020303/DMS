@@ -130,9 +130,9 @@
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
-								<label for="studentCourse" class="block font-semibold">Cource</label>
+								<label for="studentCourse" class="block font-semibold">Course</label>
 								<select name="studentCourse" id="studentCourse" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-									<option disabled selected>Select Cource</option>
+									<option disabled selected>Select Course</option>
 								</select>
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
@@ -166,6 +166,26 @@
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="courseEndDate" class="block font-semibold">Course End Date</label>
 								<input type="date" name="courseEndDate" id="courseEndDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+                              <div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="totalAmount" class="block font-semibold">Total Amount</label>
+								<input type="text" name="totalAmount" id="totalAmount" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="paymentDueDate" class="block font-semibold">Payment Due Date</label>
+								<input type="date" name="paymentDueDate" id="paymentDueDate" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="paymentReceived" class="block font-semibold">Payment Received</label>
+								<input type="text" name="paymentReceived" id="paymentReceived" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="paymentDue" class="block font-semibold">Payment Due</label>
+								<input type="text" name="paymentDue" id="paymentDue" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
 						<div class="my-6 flex items-center gap-4 w-full">
@@ -299,7 +319,7 @@
 				fetch("http://127.0.0.1:8000/getCourseData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}">${course.courseName}</option>`).join('');
+						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}" data-fee="${course.courseFee}">${course.courseName}</option>`).join('');
 					})
 				
                     fetch("http://127.0.0.1:8000/getInstructorData/")
@@ -368,6 +388,10 @@
 				// document.getElementById("dlPic").removeAttribute("required");
 				document.getElementById("cnfpassword").style.display = "block";
 				document.getElementById("password").style.display = "block";
+				document.getElementById("totalAmount").setAttribute("readonly", true);
+				document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+				document.getElementById("paymentDue").setAttribute("readonly", true);
+				document.getElementById("paymentDue").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
 			});
 
 			document.getElementById('close-add-student-modal').addEventListener('click', () => {
@@ -428,6 +452,18 @@
                          document.getElementById("dob").classList.add("bg-white");
                     }
                });
+
+			document.getElementById("studentCourse").addEventListener("change", () => {
+				const selectedCourse = document.getElementById("studentCourse").value;
+				const courseFee = document.getElementById("studentCourse").querySelector(`option[value="${selectedCourse}"]`).getAttribute("data-fee");
+				document.getElementById("totalAmount").value = courseFee;
+			})
+
+			document.getElementById("paymentReceived").addEventListener("input", () => {
+				const totalAmount = document.getElementById("totalAmount").value;
+				const paymentReceived = document.getElementById("paymentReceived").value;
+				document.getElementById("paymentDue").value = totalAmount - paymentReceived;
+			})
 
 			document.getElementById("add-student-form").addEventListener("submit", (e) => {
 				if (document.getElementById('add-student-btn').innerText === "Update") {
@@ -610,6 +646,10 @@
 									document.getElementById("password").style.display = "none";
 									document.getElementById("cnfpassword").removeAttribute("required");
 									document.getElementById("password").removeAttribute("required");
+									document.getElementById("totalAmount").setAttribute("readonly", true);
+									document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+									document.getElementById("paymentDue").setAttribute("readonly", true);
+									document.getElementById("paymentDue").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
 									// document.getElementById("dlPic").removeAttribute("required");
 									document.getElementById("add-student-btn").innerText = "Update";
 
@@ -701,6 +741,10 @@
 						document.getElementById("dob").value = data.dob || "No Data Found";
 						document.getElementById("applicationNo").value = data.applicationNo || "No Data Found";
 						document.getElementById("address").value = data.address || "No Data Found";
+						document.getElementById("totalAmount").value = data.totalAmount || "No Data Found";
+						document.getElementById("paymentDueDate").value = data.paymentDueDate || "No Data Found";
+						document.getElementById("paymentReceived").value = data.paymentReceived || "No Data Found";
+						document.getElementById("paymentDue").value = data.paymentDue || "No Data Found";
 						document.getElementById("student-image").classList.remove('hidden');
 						// add file to the profilePic input
 						if (data.profilePic === null || data.profilePic?.trim() === "") {
@@ -733,6 +777,18 @@
 
 							reader.readAsDataURL(file);
 						});
+
+						document.getElementById("studentCourse").addEventListener("change", () => {
+							const selectedCourse = document.getElementById("studentCourse").value;
+							const courseFee = document.getElementById("studentCourse").querySelector(`option[value="${selectedCourse}"]`).getAttribute("data-fee");
+							document.getElementById("totalAmount").value = courseFee;
+						})
+
+						document.getElementById("paymentReceived").addEventListener("input", () => {
+							const totalAmount = document.getElementById("totalAmount").value;
+							const paymentReceived = document.getElementById("paymentReceived").value;
+							document.getElementById("paymentDue").value = totalAmount - paymentReceived;
+						})
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});
 			}
@@ -762,6 +818,10 @@
 				document.getElementById("password").setAttribute("readonly", true);
 				document.getElementById("cnfpassword").removeAttribute("required");
 				document.getElementById("password").removeAttribute("required");
+				document.getElementById("totalAmount").setAttribute("readonly", true);
+				document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+				document.getElementById("paymentDue").setAttribute("readonly", true);
+				document.getElementById("paymentDue").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
 				// document.getElementById("dlPic").removeAttribute("required");
 			}
 		</script>

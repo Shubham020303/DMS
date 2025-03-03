@@ -100,6 +100,10 @@ class Student(models.Model):
     courceEnrollDate = models.DateField(null=True,blank=True)
     courceEndDate = models.DateField(null=True,blank=True)
     courceStatus = models.BooleanField(default=False)
+    amountPaid = models.IntegerField(null=True,blank=True)
+    amountPending = models.IntegerField(null=True,blank=True)
+    paymentDueDate = models.DateField(null=True,blank=True)
+
     def __str__(self):
         return self.user.user.first_name
 
