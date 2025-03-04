@@ -119,6 +119,12 @@
 				</div>
 				<div id="student-table" class="w-full"></div>
 			</div>
+			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
+				<div>
+					<p class="text-3xl font-semibold">Payments Remaining</p>
+				</div>
+				<div id="payment-table" class="w-full"></div>
+			</div>
 			<!-- <div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
 				<div class="flex items-center justify-between">
 					<p class="text-3xl font-semibold">Complains</p>
@@ -195,6 +201,82 @@
 				</div>
 			</div> -->
 		</div>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-attendance-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="attendance-model-heading" class="text-3xl font-bold">Take Attendance</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-attendance-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-attendance-form">
+					{%csrf_token%}
+					<div class="w-full">
+						<div class="mb-4 flex items-start gap-4 w-full">
+							<div class="flex items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-1/2">
+                                             <label for="studentName" class="block font-semibold">Student</label>
+                                             <input type="text" name="studentName" id="studentName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                        </div>
+                                        <div class="flex flex-col gap-2 w-1/2">
+                                             <label for="attendanceDate" class="block font-semibold">Date</label>
+                                             <input type="date" name="attendanceDate" id="attendanceDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                        </div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/3">
+								<label for="inTime" class="block font-semibold">In Time</label>
+								<input type="time" name="inTime" id="inTime" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/3">
+								<label for="outTime" class="block font-semibold">Out Time</label>
+								<input type="time" name="outTime" id="outTime" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+                                   <div class="flex flex-col gap-2 w-1/3">
+								<label for="attendanceStatus" class="block font-semibold">Status</label>
+								<select name="attendanceStatus" id="attendanceStatus" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Status</option>
+									<option value="Present">Present</option>
+									<option value="Absent">Absent</option>
+									<option value="Leave">Leave</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div id="btns-container" class="flex justify-end">
+						<button id="add-attendance-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+							<p>Add</p>
+						</button>
+						<botton id="close-add-attendance-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+							<p>Cancel</p>
+						</botton>
+					</div>
+				</form>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-attendance-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="update-attendance-heading" class="text-2xl font-bold">Add Attendance</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-attendance-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<p id="update-attendance-message">Attendance details added successfully.</p>
+				</div>
+				<div class="flex justify-end">
+					<botton id="close-update-attendance-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Close</p>
+					</botton>
+				</div>
+			</div>
+		</section>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
@@ -240,6 +322,71 @@
 				}, 1000);
 			})
 
+			document.getElementById('close-add-attendance-modal').addEventListener('click', () => {
+				document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-attendance-modal').addEventListener('click', () => {
+				document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-update-attendance-btn').addEventListener('click', () => {
+				document.getElementById('updated-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-attendance-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-attendance-modal').addEventListener('click', () => {
+				document.getElementById('updated-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-attendance-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById("add-attendance-btn").addEventListener("click", function (e) {
+				e.preventDefault();
+				const form = document.getElementById("add-attendance-form");
+				let formData = new FormData(form); // Correctly create FormData
+
+				formData.set("studentName", document.getElementById("studentName").getAttribute("data-id"));
+				formData.set("attendanceDate", document.getElementById("attendanceDate").value);
+
+				fetch("/instructor/takeAttendance/", {
+					method: "POST", // Change to PUT if updating
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log("Success:", data);
+					if (data.success) {
+						document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-attendance-message").innerText = "Attendance details added successfully."
+						document.getElementById("update-attendance-heading").innerText = "Add Attendance"
+					} else if (data.error) {
+						console.error("Error:", data.error);
+						document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-attendance-message").innerText = data.error;
+						document.getElementById("update-attendance-heading").innerText = "Error"
+					}
+				})
+				.catch(error => {
+					console.error("Error:", error);
+					document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+					document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+					document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+					document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+					document.getElementById("update-attendance-message").innerText = "Error adding attendance information."
+					document.getElementById("update-attendance-heading").innerText = "Error"
+				});
+			})
+
 			const studentGrid = new gridjs.Grid({
 				search: true,
 				pagination: {
@@ -249,34 +396,56 @@
 				sort: true,
 				fixedHeader: true,
 				columns: [
+					{
+						id: "id",
+						name: "ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
 					"Student Name",
 					"Course",
 					"Slot",
 					"Phone Number",
                          {
-						name: "Action",
+						name: "Attendance",
 						formatter: (cell, row) => {
-							let editBtn = gridjs.h('button', {
+							if (cell == true) {
+								return gridjs.html(`
+									<div class="p-3 bg-indigo-600 text-white rounded-lg flex items-center justify-center">
+										<p>Already Taken</p>
+									</div>
+								`);
+							}
+							let attendanceBtn = gridjs.h('button', {
 								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
 								innerHTML: `
 									<p>Take Attendance</p>
 								`,
-								// onClick: () => {
-								// 	fetchInstructorData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${row.cells[0].data}`, "Edit Instructor Details", true, false);
-								// 	document.getElementById("password-container").style.display = "none";
-								// 	document.getElementById("cnfpassword").setAttribute("readonly", true);
-								// 	document.getElementById("password").setAttribute("readonly", true);
-								// 	document.getElementById("cnfpassword").style.display = "none";
-								// 	document.getElementById("password").style.display = "none";
-								// 	document.getElementById("cnfpassword").removeAttribute("required");
-								// 	document.getElementById("password").removeAttribute("required");
-								// 	document.getElementById("dlPic").removeAttribute("required");
-								// 	document.getElementById("add-instructor-btn").innerText = "Update";
-
-								// 	document.getElementById("add-instructor-form").innerHTML += `<input type="hidden" name="instructorId" id="instructorId" value="${row.cells[0].data}">`;
-								// 	document.getElementById('add-instructor-modal').classList.remove('scale-0', 'opacity-0');
-								// 	document.getElementById('add-instructor-modal').classList.add('scale-100', 'opacity-100');
-								// }
+								onClick: () => {
+									fetch("http://127.0.0.1:8000/instructor/getIndexData/?studentId=" + row.cells[0].data)
+										.then(response => response.json())
+										.then(data => {
+											document.getElementById("studentName").value = data["name"];
+											document.getElementById("studentName").setAttribute("data-id", data["id"]);
+											document.getElementById("studentName").setAttribute("readonly", true);
+											document.getElementById("studentName").setAttribute("disabled", true);
+											document.getElementById("studentName").removeAttribute("required");
+											document.getElementById("studentName").classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+											document.getElementById("attendanceDate").value = new Date().toISOString().split('T')[0];
+											document.getElementById("attendanceDate").setAttribute("readonly", true);
+											document.getElementById("attendanceDate").setAttribute("disabled", true);
+											document.getElementById("attendanceDate").removeAttribute("required");
+											document.getElementById("attendanceDate").classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+											document.getElementById("inTime").value = data["slot"].split('-')[0];
+											document.getElementById("outTime").value = data["slot"].split('-')[1];
+										});
+									document.getElementById('add-attendance-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('add-attendance-modal').classList.add('scale-100', 'opacity-100');
+								}
 							}, '');
 							// let deleteBtn = gridjs.h('button', {
 							// 	className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
@@ -296,7 +465,7 @@
 							// }, '');
 							return gridjs.h('div', {
 								className: 'flex gap-4'
-							}, editBtn);
+							}, attendanceBtn);
 							// return gridjs.h('div', {
 							// 	className: 'flex gap-4'
 							// }, editBtn, deleteBtn);
@@ -304,17 +473,10 @@
 						width: '17%'
 					}
 				],
-				// server: {
-				// 	url: 'http://127.0.0.1:8000/getInstructorData/',
-				// 	then: data => data.map(instructor => [instructor.name, instructor.phone])
-				// },
-				data:[ 
-					["Shubham", "course 1", "6:30 pm", "12347890"],
-					["Shubham", "course 1", "6:30 pm", "12347890"],
-					["Shubham", "course 1", "6:30 pm", "12347890"],
-					["Shubham", "course 1", "6:30 pm", "12347890"],
-					["Shubham", "course 1", "6:30 pm", "12347890"],
-				],
+				server: {
+					url: 'http://127.0.0.1:8000/instructor/getIndexData/',
+					then: data => data.map(student => [student.id, student.name, student.cource, student.slot, student.phone, student.attendanceTaken])
+				},
 				className: {
 					th: '!bg-black !text-white',
 					sort: '!bg-black !text-white',
@@ -322,7 +484,7 @@
 				}
 			})
 
-               const complainGrid = new gridjs.Grid({
+               const paymentGrid = new gridjs.Grid({
 				search: true,
 				pagination: {
 					limit: 5,
@@ -341,22 +503,17 @@
 						},
 						hidden: true
 					},
-					"Date",
-					"Complain",
-					"Complain From",
-					"Complain For",
+					"Student Name",
+					"Course",
+					"Phone",
+					"Amount Paid",
+					"Amount Pending",
+					"Due Date",
 				],
-				// server: {
-				// 	url: 'http://127.0.0.1:8000/getInstructorData/',
-				// 	then: data => data.map(instructor => [instructor.name, instructor.phone])
-				// },
-				data:[ 
-                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
-                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
-                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
-                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
-                         ["1","14/02/2025", "Disiplin", "Shubham", "Shubham"],
-				],
+				server: {
+					url: 'http://127.0.0.1:8000/instructor/getReamainingPaymentData/',
+					then: data => data.map(payment => [payment.id, payment.name, payment.cource, payment.phone, payment.paid, payment.pending, payment.dueDate])
+				},
 				className: {
 					th: '!bg-black !text-white',
 					sort: '!bg-black !text-white',
@@ -365,7 +522,7 @@
 			})
 
 			studentGrid.render(document.getElementById("student-table"))
-			// complainGrid.render(document.getElementById("complain-table"))
+			paymentGrid.render(document.getElementById("payment-table"))
 		</script>
           <script>
                document.addEventListener('DOMContentLoaded', function() {

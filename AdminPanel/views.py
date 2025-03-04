@@ -215,7 +215,6 @@ def getStudentData(request):
     studentid = request.GET.get('studentId',None)
     if studentid:
         student = Student.objects.filter(id=studentid).first()
-
         data = {
                 'id': student.id,
                 'name': student.user.user.first_name,
@@ -228,9 +227,6 @@ def getStudentData(request):
                 'bloodGroup': student.user.bloodGroup,
                 'profilePic': student.user.profilePic.url if student.user.profilePic else '',
                 'gender': student.gender,
-                'dlNo': student.Dlinfo.dlNo,
-                'dlIssueDate': student.Dlinfo.dlIssueDate,
-                'dlExpiry': student.Dlinfo.dlExpiry,
                 'cource': student.cource.courceName,
                 'courceId': student.cource.id,
                 'instructor': student.instructor.user.user.first_name,
@@ -262,9 +258,6 @@ def getStudentData(request):
                 'bloodGroup': student.user.bloodGroup,
                 'profilePic': student.user.profilePic.url if student.user.profilePic else '',
                 'gender': student.gender,
-                'dlNo': student.Dlinfo.dlNo,
-                'dlIssueDate': student.Dlinfo.dlIssueDate,
-                'dlExpiry': student.Dlinfo.dlExpiry,
                 'cource': student.cource.courceName,
                 'instructor': student.instructor.user.user.first_name,
                 'slot': student.slot.slotName,
@@ -315,10 +308,10 @@ def manage_student(request):
                     student.user.profilePic = profilepic
                 
                 student.user.save()
-                student.Dlinfo.dlNo = dlNo
-                student.Dlinfo.dlIssueDate = dlIssueDate
-                student.Dlinfo.dlExpiry = dlExpiry
-                student.Dlinfo.save()
+                # student.Dlinfo.dlNo = dlNo
+                # student.Dlinfo.dlIssueDate = dlIssueDate
+                # student.Dlinfo.dlExpiry = dlExpiry
+                # student.Dlinfo.save()
                 student.cource = Cource.objects.get(id=cource)
                 student.instructor = Instructor.objects.get(user_id=instructor)
                 student.Branch = Branch.objects.get(branchName=branch)
@@ -349,8 +342,8 @@ def manage_student(request):
                     cource = Cource.objects.get(id=cource)
                     instructor = Instructor.objects.get(user_id=instructor)
                     slot = Slot.objects.get(id=slot)
-                    Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
-                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot, Dlinfo=Dlinfo,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate)
+                    # Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
+                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate)
                     
                     student.save()
                 except Exception as e:
@@ -913,6 +906,9 @@ def manageAttendance(request):
                     attendance.save()
                     return JsonResponse({'success': 'Attendance added successfully'})
                 except Exception as e:
+                    if "UNIQUE constraint failed" in str(e): #check for unique constraint violation.
+                        return JsonResponse({'error': 'Attendance already Added'}, status=400)
+                    
                     return JsonResponse({'error': 'Attendance not added'}, status=404)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -930,5 +926,100 @@ def manageAttendance(request):
             return JsonResponse({'error': str(e)}, status=400)
 
     return render(request, 'manage-attendance.html')
+
+def getUserProfileData(request):
+    users = UserProfile.objects.all()
+    userData = []
+    for i in users:
+        data = {
+            'id': i.id,
+            'Name': i.user.first_name,
+        }
+        userData.append(data)
+    return JsonResponse(userData,safe=False)
+
+def getDlInfoData(request):
+    dlinfo = request.GET.get('dlId', None)
+    if dlinfo:
+        try:
+            dlinfo = DLInfo.objects.get(id=dlinfo)
+            data = {
+                'id': dlinfo.id,
+                'Name': dlinfo.dlUser.user.first_name,
+                'userID': dlinfo.dlUser.id,
+                'dlNo': dlinfo.dlNo,
+                'dlIssueDate': dlinfo.dlIssueDate,
+                'dlExpiry': dlinfo.dlExpiry,
+                'dlType': dlinfo.dlType,
+            }
+            return JsonResponse(data,safe=False)
+        except DLInfo.DoesNotExist:
+            return JsonResponse({'error': 'DlInfo not found'}, status=404)
+    
+    dlInfo = DLInfo.objects.all()
+    dlInfoData = []
+    for i in dlInfo:
+        data = {
+            'id': i.id,
+            'Name': i.dlUser.user.first_name,
+            # 'userID': i.dlUser.id,
+            'dlNo': i.dlNo,
+            'dlIssueDate': i.dlIssueDate,
+            'dlExpiry': i.dlExpiry,
+            'dlType': i.dlType,
+        }
+        dlInfoData.append(data)
+    return JsonResponse(dlInfoData,safe=False)
+
+
+@csrf_exempt
+def manageDlInfo(request):
+    if request.method == 'POST':
+        dlId = request.POST.get('dlId',None)
+        dlNo = request.POST.get('dlNo')
+        dlIssueDate = request.POST.get('dlIssueDate')
+        dlExpiry = request.POST.get('dlExpiryDate')
+        dlType = request.POST.get('dlType')
+        dlUser = request.POST.get('dlUser')
+
+        try:
+            if dlId:
+                try:
+                    dlinfo = DLInfo.objects.get(id=dlId)
+                    dlinfo.dlNo = dlNo 
+                    dlinfo.dlIssueDate = dlIssueDate
+                    dlinfo.dlExpiry = dlExpiry
+                    dlinfo.dlType = dlType
+                    dlinfo.dlUser = UserProfile.objects.get(id=dlUser)
+                    dlinfo.save()
+                    return JsonResponse({'success': 'DlInfo updated successfully'})
+                except Exception as e:
+                    return JsonResponse({'error': 'DlInfo not updated'}, status=404)
+            else:
+                try:
+                    dlUser = UserProfile.objects.get(id=dlUser)
+                    dlinfo = DLInfo(dlNo=dlNo,dlIssueDate=dlIssueDate,dlExpiry=dlExpiry,dlType=dlType,dlUser=dlUser)
+                    dlinfo.save()
+                    return JsonResponse({'success': 'DlInfo added successfully'})
+                except Exception as e:
+                    if "UNIQUE constraint failed" in str(e): #check for unique constraint violation.
+                        return JsonResponse({'error': 'DlInfo already Exists'}, status=400)
+                    return JsonResponse({'error': 'DlInfo not added'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
+    if request.method == 'DELETE':
+        dlId = request.GET.get('dlId', None)
+        try:
+            if dlId:
+                dlinfo = DLInfo.objects.get(id=dlId)
+                dlinfo.delete()
+                return JsonResponse({'success': 'DlInfo deleted successfully'})
+            else:
+                return JsonResponse({'error': 'No DlInfo ID provided'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
+    return render(request, 'manage-DlInfo.html')
 
 

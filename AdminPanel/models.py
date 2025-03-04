@@ -40,10 +40,16 @@ class Slot(models.Model):
 
 
 class DLInfo(models.Model):
+    choises = (
+        ('Learning License', 'Learning License'),
+        ('Driving License', 'Driving License'),
+    )
     dlNo = models.CharField(max_length=20)
     dlIssueDate = models.DateField()
     dlExpiry = models.DateField()
+    dlType = models.CharField(max_length=20,choices=choises,blank=True,null=True)
     dlUser = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return self.dlNo + ' - ' + self.dlUser.user.first_name
@@ -91,8 +97,6 @@ class Student(models.Model):
     dob = models.DateField()
     address = models.TextField()
     gender = models.CharField(max_length=10)
-    
-    Dlinfo = models.OneToOneField(DLInfo, on_delete=models.CASCADE)
     cource = models.ForeignKey(Cource, on_delete=models.CASCADE)
     instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE,null=True,blank=True,related_name='slot')
@@ -115,6 +119,8 @@ class Attendance(models.Model):
         ('Absent', 'Absent'),
         ('Leave', 'Leave'),
     )
+    class Meta:
+        unique_together = ('student', 'date')
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     date = models.DateField()
     status = models.CharField(max_length=10,choices=roles,null=True,blank=True)

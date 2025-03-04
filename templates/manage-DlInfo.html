@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Manage Licenses | DMS</title>
+		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<style>
+			::-webkit-scrollbar {
+				width: 8px;
+			}
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+			::-webkit-scrollbar-thumb {
+				background: #888;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+			input.gridjs-input{
+				box-shadow: 0 0 0 1px #141414;
+			}
+			input.gridjs-input:focus {
+				border-color: #615FFF;
+				box-shadow: 0 0 0 3px #615FFF80;
+			}
+			.gridjs-search-input{
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="flex h-screen">
+			{% include 'navbar.html' %}
+			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+				<div class="w-full flex justify-between items-center">
+					<h1 class="text-3xl font-bold">Manage Linceses</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-license">
+						<p>Add License</p>
+					</div>
+				</div>
+				<div id="wrapper" class="w-full mt-8"></div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-license-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="license-model-heading" class="text-3xl font-bold">Add License</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-license-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-license-form">
+					{%csrf_token%}
+					<div class="w-full">
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="dlUser" class="block font-semibold">Name</label>
+								<select name="dlUser" id="dlUser" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Person</option>
+								</select>
+							</div>
+						</div>
+						<div class="my-6 flex items-center gap-4 w-full">
+							<h1 class="text-xl font-bold">Driving License Information</h1>
+						</div>
+                              <div class="mb-4 flex items-center gap-4 w-full">
+                                   <div class="flex flex-col gap-2 w-1/2">
+                                        <label for="dlNo" class="block font-semibold">DL number</label>
+                                        <input type="text" name="dlNo" id="dlNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                   </div>
+                                   <div class="flex flex-col gap-2 w-1/2">
+								<label for="dlType" class="block font-semibold">License Type</label>
+								<select name="dlType" id="dlType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select License</option>
+									<option value="Learning License">Learning License</option>
+									<option value="Driving License">Driving License</option>
+								</select>
+							</div>
+                              </div>
+						<div class="mb-4 flex items-start gap-4 w-full">
+							<div class="flex items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="dlIssueDate" class="block font-semibold">Issue Date</label>
+									<input type="date" name="dlIssueDate" id="dlIssueDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="dlExpiryDate" class="block font-semibold">Expiration Date</label>
+									<input type="date" name="dlExpiryDate" id="dlExpiryDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="btns-container" class="flex justify-end">
+						<button id="add-license-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+							<p>Add</p>
+						</button>
+						<botton id="close-add-license-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+							<p>Cancel</p>
+						</botton>
+					</div>
+				</form>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-license-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="update-license-heading" class="text-2xl font-bold">Update Lincese</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-license-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<p id="update-license-message">License details updated successfully.</p>
+				</div>
+				<div class="flex justify-end">
+					<botton id="close-update-license-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Close</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-license-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">Delete Lincese</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-license-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div id="delete-license-message-container" class="flex flex-col gap-2">
+					<p id="delete-license-message">Are you sure you want to delete this license?</p>
+					<p>This action cannot be undone.</p>
+				</div>
+				<div class="flex justify-end">
+					<button id="delete-license-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Delete</p>
+					</button>
+					<botton id="close-delete-license-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="view-license-modal">
+			<div id="view-license-modal-box" class="bg-white p-8 rounded-lg min-w-[300px] w-[600px] max-w-1/2 h-[200px] flex gap-5 relative">
+				<div class="absolute -top-4 -right-4 bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-view-license-btn">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+						<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+					</svg>
+				</div>
+				<div class="h-full w-full flex flex-col justify-between">
+                         <div class="flex items-center justify-between">
+                              <div>
+                                   <span class="text-sm text-indigo-600">Name</span>
+                                   <p id="person-name" class="text-xl font-semibold">Shubham Bhogayata</p>
+                              </div>
+                              <div class="text-right">
+                                   <span class="text-sm text-indigo-600 text-right">DL Number</span>
+                                   <p id="person-dlNo" class="text-xl font-semibold text-right">shubham@gmail.com</p>
+                              </div>
+                         </div>
+					<div class="flex items-center justify-between">
+						<div>
+							<span class="text-sm text-indigo-600">DL Issue Date</span>
+							<p id="person-dlissuedate" class="text-xl font-semibold">1234567890</p>
+						</div>
+						<div class="text-right">
+							<span class="text-sm text-indigo-600">DL Expiry Date</span>
+							<p id="person-dlexpirydate" class="text-xl font-semibold text-right uppercase">ab</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				fetch("http://127.0.0.1:8000/getUserProfileData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("dlUser").innerHTML += data.map(user => `<option value="${user.id}">${user.Name}</option>`).join('');
+					})
+			})
+
+			document.getElementById('add-license').addEventListener('click', () => {
+				document.getElementById('add-license-modal').classList.remove('scale-0', 'opacity-0');
+				document.getElementById('add-license-modal').classList.add('scale-100', 'opacity-100');
+				document.getElementById("license-model-heading").innerText = "Add License";
+				document.getElementById("btns-container").style.display = "flex";
+				document.getElementById("add-license-btn").innerText = "Add";
+				document.getElementById('add-license-modal').querySelector('form').reset();
+				document.getElementById('add-license-modal').querySelectorAll('input').forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+                    document.getElementById('add-license-modal').querySelectorAll('select').forEach(select => {
+                         select.removeAttribute('readonly');
+                         select.removeAttribute('disabled');
+                         select.setAttribute('required', true);
+                         select.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+                    });
+                    // Ensure dlUserInput is accessible (enabled)
+                    let dlUserInput = document.getElementById("dlUser");
+                    if (dlUserInput) {
+                         dlUserInput.removeAttribute('disabled');
+                         dlUserInput.style.pointerEvents = "auto";
+                         dlUserInput.removeEventListener("focus", (event) => event.target.blur()); // Ensure it's focusable
+                    }
+			});
+
+			document.getElementById('close-add-license-modal').addEventListener('click', () => {
+				document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-license-modal').addEventListener('click', () => {
+				document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-delete-license-modal').addEventListener('click', () => {
+				document.getElementById('delete-license-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-license-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-delete-license-btn').addEventListener('click', () => {
+				document.getElementById('delete-license-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-license-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-license-btn').addEventListener('click', () => {
+				document.getElementById('updated-license-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-license-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-license-modal').addEventListener('click', () => {
+				document.getElementById('updated-license-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-license-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-view-license-btn').addEventListener('click', () => {
+				document.getElementById('view-license-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('view-license-modal').classList.add('scale-0', 'opacity-0');
+				// window.location.reload()
+			});
+
+			document.getElementById("add-license-form").addEventListener("submit", (e) => {
+				if (document.getElementById('add-license-btn').innerText === "Update") {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					fetch("/manage-DlInfo/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-license-message").innerText = "License details updated successfully."
+							document.getElementById("update-license-heading").innerText = "Update License"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-license-message").innerText = data.error;
+							document.getElementById("update-license-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-license-message").innerText = "Error updating license information."
+                              document.getElementById("update-license-heading").innerText = "Error"
+					});
+				} else {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					fetch("/manage-DlInfo/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-license-message").innerText = "License details added successfully."
+							document.getElementById("update-license-heading").innerText = "Add License"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-license-message").innerText = data.error;
+							document.getElementById("update-license-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-license-message").innerText = "Error adding license information."
+                              document.getElementById("update-license-heading").innerText = "Error"
+					});
+				}
+			})
+
+			document.getElementById('delete-license-btn').addEventListener('click', () => {
+				const dlId = document.getElementById('delete-license-btn').getAttribute('data-id');
+				fetch(`http://127.0.0.1:8000/manage-DlInfo/?dlId=${dlId}`, {
+						method: 'DELETE',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if (data.success) {
+							document.getElementById("delete-license-message-container").innerHTML = `<p>Deleted successfully</p>`;
+							document.getElementById("delete-license-btn").style.display = "none";
+							document.getElementById("close-delete-license-modal").innerText = "Close";
+						} else if (data.error) {
+							document.getElementById("delete-license-message-container").innerHTML = `<p>${data.error}</p>`;
+							document.getElementById("delete-license-btn").style.display = "none";
+							document.getElementById("close-delete-license-modal").innerText = "Close";
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			});
+
+			const licenseGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [{
+						id: "id",
+						name: "ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					"Name",
+					"DL Number",
+					"DL Issued Date",
+					"DL Expiry Date",
+					"DL Type",
+					{
+						name: "Action",
+						formatter: (cell, row) => {
+							let editBtn = gridjs.h('button', {
+								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+									</svg>
+								`,
+								onClick: () => {
+									fetchLicenseData(`http://127.0.0.1:8000/getDlInfoData/?dlId=${row.cells[0].data}`, "Edit License Details", true, false);
+                                             console.log("dlUser",document.getElementById("dlUser"));
+                                             
+                                             let dlUserInput = document.getElementById("dlUser");
+                                             if (dlUserInput) {
+                                                  dlUserInput.setAttribute('disabled', true);
+                                                  dlUserInput.style.pointerEvents = "none";
+                                                  dlUserInput.addEventListener("focus", (event) => event.target.blur());
+                                             }
+									document.getElementById("add-license-btn").innerText = "Update";
+
+									document.getElementById("add-license-form").innerHTML += `<input type="hidden" name="dlId" id="dlId" value="${row.cells[0].data}">`;
+									document.getElementById('add-license-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('add-license-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							let deleteBtn = gridjs.h('button', {
+								className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+										<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+										<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+									</svg>
+								`,
+								onClick: () => {
+									dlId = row.cells[0].data;
+									document.getElementById("delete-license-btn").setAttribute("data-id", dlId);
+									document.getElementById("delete-license-message").innerHTML = `Are you sure you want to delete <b>${row.cells[1].data}</b>'s license details?`;
+									document.getElementById('delete-license-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('delete-license-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							return gridjs.h('div', {
+								className: 'flex gap-4'
+							}, editBtn, deleteBtn);
+						},
+						width: '11%'
+					}
+				],
+				server: {
+					url: 'http://127.0.0.1:8000/getDlInfoData/',
+					then: data => data.map(dlInfo => [dlInfo.id, dlInfo.Name, dlInfo.dlNo, dlInfo.dlIssueDate, dlInfo.dlExpiry, dlInfo.dlType])
+				},
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
+
+			licenseGrid.render(document.getElementById("wrapper"))
+
+			document.querySelector(".gridjs-search-input").placeholder = "Search...";
+
+			licenseGrid.on('cellClick', (...args) => {
+				console.log(args);
+				if (args[2]["id"] === "name") {
+					dlId = args[3]["_cells"][0]["data"];
+					fetch(`http://127.0.0.1:8000/getDlInfoData/?dlId=${dlId}`)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+
+							document.getElementById("person-name").innerText = data.Name || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("person-dlNo").innerText = data.dlNo || "No Data Found";
+							document.getElementById("person-dlissuedate").innerText = data.dlIssueDate || "No Data Found";
+							document.getElementById("person-dlexpirydate").innerText = data.dlExpiry || "No Data Found";
+                                   // if (data.dlType === "Learning License") {
+                                   //      document.getElementById("view-license-modal-box").classList.remove("bg-gradient-to-br", "from-red-100", "to-yellow-100")
+                                   //      document.getElementById("view-license-modal-box").classList.add("bg-white")
+                                   // } else {
+                                   //      document.getElementById("view-license-modal-box").classList.remove("bg-white")
+                                   //      document.getElementById("view-license-modal-box").classList.add("bg-gradient-to-tr", "from-red-100", "to-yellow-100")
+                                   // }
+						})
+					// fetchLicenseData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
+					document.getElementById('view-license-modal').classList.remove('scale-0', 'opacity-0');
+					document.getElementById('view-license-modal').classList.add('scale-100', 'opacity-100');
+				}
+			});
+
+			function fetchLicenseData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						document.getElementById("license-model-heading").innerText = headingText;
+						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
+						document.getElementById("dlUser").value = data.userID || "No Data Found";
+						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
+						document.getElementById("dlType").value = data.dlType || "No Data Found";
+						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
+						document.getElementById("dlExpiryDate").value = data.dlExpiry || "No Data Found";
+						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
+					});
+			}
+
+			function makeInputReadOnly() {
+				document.getElementById('add-license-modal').querySelectorAll('input').forEach(input => {
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
+				document.getElementById('add-license-modal').querySelectorAll('select').forEach(input => {
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
+			}
+
+			function makeInputEditable() {
+				document.getElementById('add-license-modal').querySelectorAll('input').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				document.getElementById('add-license-modal').querySelectorAll('select').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+			}
+		</script>
+	</body>
+</html>

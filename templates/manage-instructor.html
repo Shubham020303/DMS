@@ -114,37 +114,6 @@
 								</select>
 							</div>
 						</div>
-						<div class="my-6 flex items-center gap-4 w-full">
-							<h1 class="text-xl font-bold">Driving License Information</h1>
-						</div>
-						<div class="mb-4 flex flex-col gap-2 w-full">
-							<label for="dlNo" class="block font-semibold">DL number</label>
-							<input type="text" name="dlNo" id="dlNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						</div>
-						<!-- h-[230px] -->
-						<div class="mb-4 flex items-start gap-4 w-full">
-							<!-- <div class="flex justify-center w-full h-full hidden">
-								<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="dl-image-upload">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
-										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
-										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
-									</svg>
-									<p class="whitespace-nowrap">Add Driving License Image</p>
-									<img id="driving-license-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden" alt="">
-									<input type="file" name="dlPic" id="dlPic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*">
-								</div>
-							</div> -->
-							<div class="flex items-center gap-4 w-full">
-								<div class="flex flex-col gap-2 w-full">
-									<label for="dlIssueDate" class="block font-semibold">Issue Date</label>
-									<input type="date" name="dlIssueDate" id="dlIssueDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-								</div>
-								<div class="flex flex-col gap-2 w-full">
-									<label for="dlExpiry" class="block font-semibold">Expiration Date</label>
-									<input type="date" name="dlExpiry" id="dlExpiry" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-								</div>
-							</div>
-						</div>
 					</div>
 					<div id="btns-container" class="flex justify-end">
 						<button id="add-instructor-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
@@ -251,8 +220,6 @@
 
 			const imageUpload = document.getElementById('image-upload');
 			const image = document.getElementById('profilePhoto');
-			// const dlImageUpload = document.getElementById('dl-image-upload');
-			// const dlImage = document.getElementById('dlPic');
 
 			image.addEventListener('change', () => {
 				const file = image.files[0];
@@ -266,18 +233,6 @@
 				reader.readAsDataURL(file);
 			});
 
-			// dlImage.addEventListener('change', () => {
-			// 	const file = dlImage.files[0];
-			// 	const reader = new FileReader();
-
-			// 	reader.onload = () => {
-			// 		dlImageUpload.querySelector('img').src = reader.result;
-			// 		dlImageUpload.querySelector('img').classList.remove('hidden');
-			// 	}
-
-			// 	reader.readAsDataURL(file);
-			// });
-
 			document.getElementById('add-instructor').addEventListener('click', () => {
 				document.getElementById('add-instructor-modal').classList.remove('scale-0', 'opacity-0');
 				document.getElementById('add-instructor-modal').classList.add('scale-100', 'opacity-100');
@@ -286,7 +241,6 @@
 				document.getElementById("add-instructor-btn").innerText = "Add";
 				document.getElementById('add-instructor-modal').querySelector('form').reset();
 				document.getElementById('instructor-image').classList.add('hidden');
-				// document.getElementById('driving-license-image').classList.add('hidden');
 				document.getElementById("password-container").style.display = "flex";
 				document.getElementById('add-instructor-modal').querySelectorAll('input').forEach(input => {
 					input.removeAttribute('readonly');
@@ -302,7 +256,6 @@
 				document.getElementById("password").removeAttribute("readonly");
 				document.getElementById("cnfpassword").setAttribute("required", true);
 				document.getElementById("password").setAttribute("required", true);
-				// document.getElementById("dlPic").removeAttribute("required");
 				document.getElementById("cnfpassword").style.display = "block";
 				document.getElementById("password").style.display = "block";
 			});
@@ -518,7 +471,6 @@
 									document.getElementById("password").style.display = "none";
 									document.getElementById("cnfpassword").removeAttribute("required");
 									document.getElementById("password").removeAttribute("required");
-									// document.getElementById("dlPic").removeAttribute("required");
 									document.getElementById("add-instructor-btn").innerText = "Update";
 
 									document.getElementById("add-instructor-form").innerHTML += `<input type="hidden" name="instructorId" id="instructorId" value="${row.cells[0].data}">`;
@@ -631,25 +583,6 @@
 						document.getElementById("mobile").value = data.phone || "No Data Found";
 						document.getElementById("bloodGroup").value = data.bloodGroup || "No Data Found";
 						document.getElementById("vehicle").value = data.vehicle || "No Data Found";
-						// document.getElementById("driving-license-image").classList.remove('hidden');
-						// add file to the dlPic input
-						// if (data.dlPic === null || data.dlPic?.trim() === "") {
-						// 	document.getElementById("driving-license-image").src = "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
-						// } else {
-						// 	document.getElementById("driving-license-image").src = data.dlPic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
-						// 	const dlPic = document.getElementById("dlPic");
-						// 	const fileName = data.dlPic;
-						// 	const file = new File([], fileName, {
-						// 		type: "image/*"
-						// 	});
-						// 	const dataTransfer = new DataTransfer();
-						// 	dataTransfer.items.add(file);
-						// 	dlPic.files = dataTransfer.files;
-						// 	dlPic.setAttribute("data-name", data.dlPic)
-						// }
-						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
-						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
-						document.getElementById("dlExpiry").value = data.dlExpiry || "No Data Found";
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});
 			}
@@ -666,11 +599,6 @@
 				document.getElementById("password-container").style.display = "none";
 				document.getElementById("cnfpassword").setAttribute("readonly", true);
 				document.getElementById("password").setAttribute("readonly", true);
-				// document.getElementById("dlPic").setAttribute("required", false);
-				// document.getElementById("dlPic").setAttribute("disabled", true);
-				document.getElementById("dlNo").setAttribute("readonly", true);
-				document.getElementById("dlIssueDate").setAttribute("readonly", true);
-				document.getElementById("dlExpiry").setAttribute("readonly", true);
 			}
 
 			function makeInputEditable() {
@@ -687,8 +615,7 @@
 				document.getElementById("cnfpassword").setAttribute("readonly", true);
 				document.getElementById("password").setAttribute("readonly", true);
 				document.getElementById("cnfpassword").removeAttribute("required");
-				document.getElementById("password").removeAttribute("required");
-				// document.getElementById("dlPic").removeAttribute("required");
+				document.getElementById("password").removeAttribute("required");	
 			}
 		</script>
 	</body>
