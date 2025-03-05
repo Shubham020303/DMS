@@ -93,7 +93,7 @@
                                              name="courseContentFile" 
                                              id="courseContentFile"
                                              autocomplete="off" 
-                                             required
+                                             
                                              accept="application/pdf"
                                              class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                    </div>
@@ -104,7 +104,7 @@
                                              name="courseContentVideo" 
                                              id="courseContentVideo"
                                              autocomplete="off" 
-                                             required
+                                             
                                              accept="video/*"
                                              class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                    </div>
@@ -243,6 +243,9 @@
 					input.setAttribute('required', true);
 					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
 				});
+
+				document.getElementById("courseContentFile").removeAttribute('required');
+				document.getElementById("courseContentVideo").removeAttribute('required');
 			});
 
 			document.getElementById('close-add-course-content-modal').addEventListener('click', () => {
@@ -599,6 +602,8 @@
 					input.removeAttribute('disabled');
 					input.setAttribute('required', true);
 				})
+				document.getElementById("courseContentFile").removeAttribute('required');
+				document.getElementById("courseContentVideo").removeAttribute('required');
 			}
 		</script>
 	</body>

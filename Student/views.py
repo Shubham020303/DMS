@@ -2,34 +2,36 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 import datetime
 
-from AdminPanel.models import UserProfile, Branch, Slot, Cource, Student, Attendance, Complain, CourceContent
+from AdminPanel.models import UserProfile, Branch, Slot, Cource, Student, Attendance, Complain, CourceContent,DLInfo
 # Create your views here.
 
-def getIndexData(request):   
+
+
+def index(request):
     student = Student.objects.get(user__user=request.user)
+    dlinfo = DLInfo.objects.get(dlUser = student.user)
     studentData = {
                 "id":student.id,
                 "name":student.user.user.first_name,
-                "DOB":student.dob,
+                "DOB":student.dob.strftime('%d/%m/%Y') if student.courceEnrollDate else '',
                 "address":student.address,
-                "Profilepic":student.user.profilePic,
-                "cource":student.cource.courceName,
-                "enrollmentDate":student.courceEnrollDate,
-                "completionDate":student.courceEndDate,
+                "Profilepic":student.user.profilePic.url if student.user.profilePic else '',
+                "course":student.cource.courceName,
+                "enrollmentDate":student.courceEnrollDate.strftime('%d/%m/%Y') if student.courceEnrollDate else '',
+                "completionDate":student.courceEndDate.strftime('%d/%m/%Y') if student.courceEnrollDate else '',
                 "vehicle":student.cource.courceInstructor.instructorVehicle.vehicleName,
                 "instructor":student.instructor.user.user.first_name,
+                "dueamount":student.amountPending if student.amountPending > 0 else None,
+                "dueDate":student.paymentDueDate.strftime('%d/%m/%Y') if student.paymentDueDate else '',
                 "phone":student.user.phoneNo,
-                "dlNo":student.Dlinfo.dlNo,
-                "dlIssueDate":student.Dlinfo.dlIssueDate,
-                "dlExpiry":student.Dlinfo.dlExpiry,
-            }
-    return JsonResponse(studentData,safe=False)
+                "DlNo":dlinfo.dlNo,
+                "DlIssueDate":dlinfo.dlIssueDate.strftime('%d/%m/%Y') if student.paymentDueDate else '',
+                "DlExpiry":dlinfo.dlExpiry.strftime('%d/%m/%Y') if student.paymentDueDate else '',
+                "DlType":dlinfo.dlType
 
-def index(request):
+            }
     
-    
-    
-    return render(request, 'student/index.html')
+    return render(request, 'student/index.html',context=studentData)
 
 
 def manage_complaints(request):
