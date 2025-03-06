@@ -104,8 +104,8 @@ class Student(models.Model):
     courceEnrollDate = models.DateField(null=True,blank=True)
     courceEndDate = models.DateField(null=True,blank=True)
     courceStatus = models.BooleanField(default=False)
-    amountPaid = models.IntegerField(null=True,blank=True)
-    amountPending = models.IntegerField(null=True,blank=True)
+    amountPaid = models.IntegerField(null=True,blank=True,default=0)
+    amountPending = models.IntegerField(null=True,blank=True,default=0)
     paymentDueDate = models.DateField(null=True,blank=True)
 
     def __str__(self):
