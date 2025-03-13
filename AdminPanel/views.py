@@ -6,24 +6,35 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
-from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot)
+from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment)
 from django.core.paginator import Paginator
 # Create your views here.
 
-def getPaymentData(request):
-
-    students = Student.objects.filter(amountPending__gt=0)
-    data = []
-    for student in students:
-        data.append({
+def getReamainingPaymentData(request):
+    studentid= request.GET.get('studentId',None)
+    if studentid:
+        student = Student.objects.get(id=studentid)
+        data = {
             'name': student.user.user.first_name,
-            'courseName': student.cource.courceName,
-            'amountPending': student.amountPending,
-            'amountPaid': student.amountPaid,
-            'TotalAmount': student.cource.courceFee,
-            'paymentDueDate': student.paymentDueDate
-        })
-    return JsonResponse(data, safe=False)
+            'studentId': student.id,
+            'paymentDue': student.amountPending
+
+        }
+        return JsonResponse(data, safe=False)
+    else:
+        students = Student.objects.filter(amountPending__gt=0)
+        data = []
+        for student in students:
+            data.append({
+                'name': student.user.user.first_name,
+                'studentId': student.id,
+                'courseName': student.cource.courceName,
+                'amountPending': student.amountPending,
+                'amountPaid': student.amountPaid,
+                'TotalAmount': student.cource.courceFee,
+                'paymentDueDate': student.paymentDueDate
+            })
+        return JsonResponse(data, safe=False)
 def getSlotWiseData(request):
 
     slots = Slot.objects.all()
@@ -344,8 +355,9 @@ def manage_student(request):
                     slot = Slot.objects.get(id=slot)
                     # Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
                     student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate)
-                    
+                    payment = Payment(student=student,paymentDate=datetime.today().date(),paymentAmount=paymentRecieved,paymentMethod='Cash',paymentRecevedBy=UserProfile.objects.get(user = request.user))
                     student.save()
+                    payment.save()
                 except Exception as e:
                     if newuser:
                         if userprofile:
@@ -1023,3 +1035,50 @@ def manageDlInfo(request):
     return render(request, 'manage-DlInfo.html')
 
 
+def getPaymentData(request):
+    payments = Payment.objects.all()
+    paymentData = []
+    for i in payments:
+        data = {
+            'id': i.id,
+            'Name': i.student.user.user.first_name,
+            'studentID': i.student.id,
+            'paymentAmount': i.paymentAmount,
+            'paymentDate': i.paymentDate,
+            'paymentRecevedBy': i.paymentRecevedBy.id,
+            'paymentReceivedByName': i.paymentRecevedBy.user.first_name,
+            'paymentMethod': i.paymentMethod,
+        }
+        paymentData.append(data)
+    return JsonResponse(paymentData,safe=False)
+
+def managePayment(request):
+    if request.method == 'POST':
+        paymentId = request.POST.get('paymentId',None)
+        paymentAmount = request.POST.get('paymentReceived')
+        paymentDate = request.POST.get('paymentDate')
+        paymentBy = request.POST.get('paymentReceivedBy')
+        paymentMode = request.POST.get('paymentMethod')
+        studentId = request.POST.get('studentId')
+
+        if paymentId:
+            payment = Payment.objects.get(id=paymentId)
+            payment.paymentAmount = paymentAmount
+            payment.paymentDate = paymentDate
+            payment.paymentRecevedBy = UserProfile.objects.get(id=paymentBy)
+            payment.paymentMethod = paymentMode
+            payment.save()
+            student =  Student.objects.get(id=studentId)
+            student.amountPaid = student.amountPaid + int(paymentAmount)
+            student.amountPending = student.amountPending - int(paymentAmount)
+            student.save()
+            return JsonResponse({'success': 'Payment updated successfully'})
+        else:
+            payment =  Payment(student = Student.objects.get(id=studentId),paymentAmount=paymentAmount,paymentDate=paymentDate,paymentRecevedBy=UserProfile.objects.get(id=paymentBy),paymentMethod=paymentMode)
+            payment.save()
+            student =  Student.objects.get(id=studentId)
+            student.amountPaid = student.amountPaid + int(paymentAmount)
+            student.amountPending = student.amountPending - int(paymentAmount)
+            student.save()
+            
+            return JsonResponse({'success': 'Payment added successfully'})

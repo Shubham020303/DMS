@@ -30,6 +30,9 @@
 		.gridjs-search-input{
 			width: 100%;
 		}
+		.gridjs-th-content{
+			white-space: normal;
+		}
 	</style>
 </head>
 
@@ -95,6 +98,12 @@
 					<p class="text-3xl font-semibold">Payment Remaining</p>
 				</div>
 				<div id="payment-status-table" class="w-full"></div>
+			</div>
+			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
+				<div>
+					<p class="text-3xl font-semibold">Payment Received</p>
+				</div>
+				<div id="received-payment-table" class="w-full"></div>
 			</div>
 			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
 				<div class="flex items-center justify-between">
@@ -182,211 +191,533 @@
 				</div>
 			</div> -->
 		</div>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
-		<script>
-			// const ctx = document.getElementById('myChart');
-
-			// new Chart(ctx, {
-			// 	type: 'bar',
-			// 	data: {
-			// 		labels: ["January", "February", "March", "April", "March", "May", "June"],
-			// 		datasets: [
-			// 			{
-			// 				label: "Attandance",
-			// 				data: [10, 20, 50, 30, 32, 20, 25],
-			// 				backgroundColor: "#E0E7FF",
-			// 				borderColor: "#615FFF",
-			// 				borderWidth: 1,
-			// 			},
-			// 		],
-			// 	},
-			// 	options: {
-			// 		scales: {
-			// 			y: {
-			// 				beginAtZero: true
-			// 			}
-			// 		}
-			// 	}
-			// });
-
-			document.addEventListener('DOMContentLoaded', () => {
-				fetch("http://127.0.0.1:8000/getVehicleData/")
-					.then(response => response.json())
-					.then(data => {
-						document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
-					})
-
-				fetch("http://127.0.0.1:8000/getBranchData/")
-					.then(response => response.json())
-					.then(data => {
-						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
-					})
-			})
-
-			// document.getElementById("notificationBtn").addEventListener("click", function () {
-			// 	console.log("clicked");
-			// 	document.getElementById("notificationModal").classList.toggle("scale-y-0")
-			// 	document.getElementById("notificationModal").classList.toggle("opacity-0")
-			// 	document.getElementById("notificationModal").classList.toggle("scale-y-100")
-			// 	document.getElementById("notificationModal").classList.toggle("opacity-100")
-			// })
-			
-			// document.getElementById("notificationModal").addEventListener("mouseleave", function () {
-			// 	setTimeout(() => {
-			// 		document.getElementById("notificationModal").classList.toggle("scale-y-0")
-			// 		document.getElementById("notificationModal").classList.toggle("opacity-0")
-			// 		document.getElementById("notificationModal").classList.toggle("scale-y-100")
-			// 		document.getElementById("notificationModal").classList.toggle("opacity-100")
-			// 	}, 1000);
-			// })
-
-			const vehicleSelect = document.getElementById("vehicle");
-			const branchSelect = document.getElementById("branch");
-
-			let slotData = { morning: [], evening: [] }; // Store API data globally
-
-			// Fetch data once and store it
-			function fetchSlotsDataOnce() {
-				fetch(`http://127.0.0.1:8000/getSlotWiseData/`)
-					.then(response => response.json())
-					.then(data => {
-						slotData = data; // Store fetched data
-						applyFilters(); // Apply filters after fetching data
-					})
-					.catch(error => console.error('Error fetching data:', error));
-			}
-
-			// Apply filters to stored data
-			function applyFilters() {
-				const vehicle = vehicleSelect.value;
-				const branch = branchSelect.value;
-
-				let morningData = [...slotData.morning]; // Copy stored data
-				let eveningData = [...slotData.evening];
-
-				console.log("vehicle", vehicle);
-				console.log("branch", branch);
-
-				// Apply filters only if values are selected
-				if (vehicle && vehicle !== "Select Vehicle") {
-					morningData = morningData.filter(slot => slot.vehicle === vehicle);
-					eveningData = eveningData.filter(slot => slot.vehicle === vehicle);
-				}
-
-				if (branch && branch !== "Select Branch") {
-					morningData = morningData.filter(slot => slot.branch === branch);
-					eveningData = eveningData.filter(slot => slot.branch === branch);
-				}
-
-				console.log("morningData", morningData);
-				console.log("eveningData", eveningData);
-
-				// ⚡ Destroy old tables by resetting their container
-				document.getElementById("appointment-table-before-lunch").innerHTML = '<div id="grid-morning"></div>';
-				document.getElementById("appointment-table-after-lunch").innerHTML = '<div id="grid-evening"></div>';
-
-				// Create and render morning table
-				new gridjs.Grid({
-					search: false,
-					sort: true,
-					fixedHeader: true,
-					columns: ["Slot", "Name"],
-					data: morningData.map(slot => [slot.slotTime, slot.studentName != null ? slot.studentName : "-"]),
-					className: {
-						th: '!bg-black !text-white',
-						sort: '!bg-black !text-white',
-						search: '!float-right !w-[25%]',
-					}
-				}).render(document.getElementById("grid-morning"));
-
-				// Create and render evening table
-				new gridjs.Grid({
-					search: false,
-					sort: true,
-					fixedHeader: true,
-					columns: ["Slot", "Name"],
-					data: eveningData.map(slot => [slot.slotTime, slot.studentName != null ? slot.studentName : "-"]),
-					className: {
-						th: '!bg-black !text-white',
-						sort: '!bg-black !text-white',
-						search: '!float-right !w-[25%]',
-					}
-				}).render(document.getElementById("grid-evening"));
-			}
-
-			// Event listeners for dropdown changes
-			vehicleSelect.addEventListener("change", applyFilters);
-			branchSelect.addEventListener("change", applyFilters);
-
-			// Initial API fetch
-			fetchSlotsDataOnce();
-
-			document.getElementById("clear-filters").addEventListener("click", function () {
-				vehicleSelect.value = "Select Vehicle";
-				branchSelect.value = "Select Branch";
-				applyFilters();
-			})
-
-			const paymentGrid = new gridjs.Grid({
-				search: true,
-				// pagination: {
-				// 	limit: 5,
-				// 	summary: false
-				// },
-				sort: true,
-				fixedHeader: true,
-				columns: [
-					"Name",
-					"Course",
-					"Amount Paid",
-					"Amount Remaining",
-					"Total Amount",
-					"Due Date",
-				],
-				server: {
-					url: 'http://127.0.0.1:8000/getPaymentData/',
-					then: data => data.map(payment => [payment.name, payment.courseName, payment.amountPaid, payment.amountPending, payment.TotalAmount, payment.paymentDueDate])
-				},
-				className: {
-					th: '!bg-black !text-white',
-					sort: '!bg-black !text-white',
-					search: '!float-right !w-[25%]',
-				}
-			})
-
-			const earningGrid = new gridjs.Grid({
-				search: true,
-				// pagination: {
-				// 	limit: 5,
-				// 	summary: false
-				// },
-				sort: true,
-				fixedHeader: true,
-				columns: [
-					"Branch",
-					"Branch Incharge",
-					"Amount Received",
-					"Amount Remaining",
-					"Total Amount",
-				],
-				server: {
-					url: 'http://127.0.0.1:8000/getEearningData/',
-					then: data => data.map(earning => [earning.branch, earning.branchInCharge, earning.totalAmountPaid, earning.totalAmountRemaining, earning.totalEarning])
-				},
-				className: {
-					th: '!bg-black !text-white',
-					sort: '!bg-black !text-white',
-					search: '!float-right !w-[25%]',
-				}
-			})
-
-			// appointmentBeforeLunchGrid.render(document.getElementById("appointment-table-before-lunch"))
-			// appointmentAfterLunchGrid.render(document.getElementById("appointment-table-after-lunch"))
-			paymentGrid.render(document.getElementById("payment-status-table"))
-			earningGrid.render(document.getElementById("earnings-table"))
-		</script>
 	</section>
+	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-payment-modal">
+		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+			<div class="flex justify-between items-center">
+				<h1 id="payment-model-heading" class="text-3xl font-bold">Receive Payment</h1>
+				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-payment-modal">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+						<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+					</svg>
+				</div>
+			</div>
+			<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-payment-form">
+				{%csrf_token%}
+				<div class="w-full">
+					<div class="mb-4 flex items-start gap-4 w-full">
+						<div class="flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentName" class="block font-semibold">Student</label>
+								<input type="text" name="studentName" id="studentName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="paymentDate" class="block font-semibold">Date</label>
+								<input type="date" name="paymentDate" id="paymentDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+					</div>
+					<div class="mb-4 flex items-center gap-4 w-full">
+						<div class="flex flex-col gap-2 w-1/2">
+							<label for="paymentDue" class="block font-semibold">Payment Due</label>
+							<input type="text" name="paymentDue" id="paymentDue" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div>
+						<div class="flex flex-col gap-2 w-1/2">
+							<label for="paymentReceived" class="block font-semibold">Payment Received</label>
+							<input type="text" name="paymentReceived" id="paymentReceived" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div>
+					</div>
+					<div class="mb-4 flex items-center gap-4 w-full">
+						<div class="flex flex-col gap-2 w-1/2">
+							<label for="paymentReceivedBy" class="block font-semibold">Payment Receiver</label>
+							<select name="paymentReceivedBy" id="paymentReceivedBy" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<option disabled selected>Select Person</option>
+							</select>
+						</div>
+						<div class="flex flex-col gap-2 w-1/2">
+							<label for="paymentMethod" class="block font-semibold">Payment Method</label>
+							<select name="paymentMethod" id="paymentMethod" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<option disabled selected>Select Method</option>
+								<option value="Cash">Cash</option>
+								<option value="Online">Online</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div id="btns-container" class="flex justify-end">
+					<button id="add-payment-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Add</p>
+					</button>
+					<botton id="close-add-payment-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</form>
+		</div>
+	</section>
+	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-payment-modal">
+		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+			<div class="flex justify-between items-center">
+				<h1 id="update-payment-heading" class="text-2xl font-bold">Update Payment</h1>
+				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-payment-btn">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+						<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+					</svg>
+				</div>
+			</div>
+			<div class="flex flex-col gap-2">
+				<p id="update-payment-message">Payment details updated successfully.</p>
+			</div>
+			<div class="flex justify-end">
+				<botton id="close-update-payment-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+					<p>Close</p>
+				</botton>
+			</div>
+		</div>
+	</section>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+	<script>
+		// const ctx = document.getElementById('myChart');
+
+		// new Chart(ctx, {
+		// 	type: 'bar',
+		// 	data: {
+		// 		labels: ["January", "February", "March", "April", "March", "May", "June"],
+		// 		datasets: [
+		// 			{
+		// 				label: "Attandance",
+		// 				data: [10, 20, 50, 30, 32, 20, 25],
+		// 				backgroundColor: "#E0E7FF",
+		// 				borderColor: "#615FFF",
+		// 				borderWidth: 1,
+		// 			},
+		// 		],
+		// 	},
+		// 	options: {
+		// 		scales: {
+		// 			y: {
+		// 				beginAtZero: true
+		// 			}
+		// 		}
+		// 	}
+		// });
+
+		document.addEventListener('DOMContentLoaded', () => {
+			fetch("http://127.0.0.1:8000/getVehicleData/")
+				.then(response => response.json())
+				.then(data => {
+					document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
+				})
+
+			fetch("http://127.0.0.1:8000/getBranchData/")
+				.then(response => response.json())
+				.then(data => {
+					document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+				})
+
+			fetch("http://127.0.0.1:8000/getUserProfileData/")
+				.then(response => response.json())
+				.then(data => {
+					document.getElementById("paymentReceivedBy").innerHTML += data.map(user => `<option value="${user.id}">${user.Name}</option>`).join('');
+				})
+		})
+
+		// document.getElementById("notificationBtn").addEventListener("click", function () {
+		// 	console.log("clicked");
+		// 	document.getElementById("notificationModal").classList.toggle("scale-y-0")
+		// 	document.getElementById("notificationModal").classList.toggle("opacity-0")
+		// 	document.getElementById("notificationModal").classList.toggle("scale-y-100")
+		// 	document.getElementById("notificationModal").classList.toggle("opacity-100")
+		// })
+		
+		// document.getElementById("notificationModal").addEventListener("mouseleave", function () {
+		// 	setTimeout(() => {
+		// 		document.getElementById("notificationModal").classList.toggle("scale-y-0")
+		// 		document.getElementById("notificationModal").classList.toggle("opacity-0")
+		// 		document.getElementById("notificationModal").classList.toggle("scale-y-100")
+		// 		document.getElementById("notificationModal").classList.toggle("opacity-100")
+		// 	}, 1000);
+		// })
+
+		document.getElementById('close-add-payment-modal').addEventListener('click', () => {
+			document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
+		});
+
+		document.getElementById('close-payment-modal').addEventListener('click', () => {
+			document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
+		});
+
+		const vehicleSelect = document.getElementById("vehicle");
+		const branchSelect = document.getElementById("branch");
+
+		let slotData = { morning: [], evening: [] }; // Store API data globally
+
+		// Fetch data once and store it
+		function fetchSlotsDataOnce() {
+			fetch(`http://127.0.0.1:8000/getSlotWiseData/`)
+				.then(response => response.json())
+				.then(data => {
+					slotData = data; // Store fetched data
+					applyFilters(); // Apply filters after fetching data
+				})
+				.catch(error => console.error('Error fetching data:', error));
+		}
+
+		// Apply filters to stored data
+		function applyFilters() {
+			const vehicle = vehicleSelect.value;
+			const branch = branchSelect.value;
+
+			let morningData = [...slotData.morning]; // Copy stored data
+			let eveningData = [...slotData.evening];
+
+			console.log("vehicle", vehicle);
+			console.log("branch", branch);
+
+			// Apply filters only if values are selected
+			if (vehicle && vehicle !== "Select Vehicle") {
+				morningData = morningData.filter(slot => slot.vehicle === vehicle);
+				eveningData = eveningData.filter(slot => slot.vehicle === vehicle);
+			}
+
+			if (branch && branch !== "Select Branch") {
+				morningData = morningData.filter(slot => slot.branch === branch);
+				eveningData = eveningData.filter(slot => slot.branch === branch);
+			}
+
+			console.log("morningData", morningData);
+			console.log("eveningData", eveningData);
+
+			// ⚡ Destroy old tables by resetting their container
+			document.getElementById("appointment-table-before-lunch").innerHTML = '<div id="grid-morning"></div>';
+			document.getElementById("appointment-table-after-lunch").innerHTML = '<div id="grid-evening"></div>';
+
+			// Create and render morning table
+			new gridjs.Grid({
+				search: false,
+				sort: true,
+				fixedHeader: true,
+				columns: ["Slot", "Name"],
+				data: morningData.map(slot => [slot.slotTime, slot.studentName != null ? slot.studentName : "-"]),
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			}).render(document.getElementById("grid-morning"));
+
+			// Create and render evening table
+			new gridjs.Grid({
+				search: false,
+				sort: true,
+				fixedHeader: true,
+				columns: ["Slot", "Name"],
+				data: eveningData.map(slot => [slot.slotTime, slot.studentName != null ? slot.studentName : "-"]),
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			}).render(document.getElementById("grid-evening"));
+		}
+
+		// Event listeners for dropdown changes
+		vehicleSelect.addEventListener("change", applyFilters);
+		branchSelect.addEventListener("change", applyFilters);
+
+		// Initial API fetch
+		fetchSlotsDataOnce();
+
+		document.getElementById("clear-filters").addEventListener("click", function () {
+			vehicleSelect.value = "Select Vehicle";
+			branchSelect.value = "Select Branch";
+			applyFilters();
+		})
+
+		document.getElementById("add-payment-form").addEventListener("submit", (e) => {
+			if (document.getElementById('add-payment-btn').innerText === "Update") {
+				e.preventDefault();
+				const form = e.target; // Get the form element
+				const formData = new FormData(form); // Correctly create FormData
+
+				fetch("/manage-payment/", {
+					method: "POST", // Change to PUT if updating
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log("Success:", data);
+					if (data.success) {
+						document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-payment-message").innerText = "Payment details updated successfully."
+						document.getElementById("update-payment-heading").innerText = "Update Payment"
+					} else if (data.error) {
+						console.error("Error:", data.error);
+						document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-payment-message").innerText = data.error;
+						document.getElementById("update-payment-heading").innerText = "Error"
+					}
+				})
+				.catch(error => {
+					console.error("Error:", error);
+					document.getElementById('add-paymnet-modal').classList.remove('scale-100', 'opacity-100');
+					document.getElementById('add-paymnet-modal').classList.add('scale-0', 'opacity-0');
+					document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
+					document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
+					document.getElementById("update-payment-message").innerText = "Error updating payment information."
+				});
+			} else {
+				e.preventDefault();
+				const form = e.target; // Get the form element
+				const formData = new FormData(form); // Correctly create FormData
+
+				fetch("/manage-payment/", {
+					method: "POST", // Change to PUT if updating
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log("Success:", data);
+					if (data.success) {
+						document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-payment-message").innerText = "Payment details added successfully."
+						document.getElementById("update-payment-heading").innerText = "Add Payment"
+					} else if (data.error) {
+						console.error("Error:", data.error);
+						document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-payment-message").innerText = data.error;
+						document.getElementById("update-payment-heading").innerText = "Error"
+					}
+				})
+				.catch(error => {
+					console.error("Error:", error);
+					document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
+					document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
+					document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
+					document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
+					document.getElementById("update-payment-message").innerText = "Error adding payment information."
+				});
+			}
+		})
+
+		document.getElementById("paymentReceived").addEventListener("input", () => {
+			const paymentReceivedInput = document.getElementById("paymentReceived");
+			const paymentDueInput = document.getElementById("paymentDue");
+
+			const originalPaymentDue = parseFloat(paymentDueInput.getAttribute("data-original")) || 0;
+			let paymentReceived = parseFloat(paymentReceivedInput.value) || 0;
+
+			// Ensure payment received does not exceed the original due
+			if (paymentReceived > originalPaymentDue) {
+				paymentReceived = originalPaymentDue;
+				paymentReceivedInput.value = originalPaymentDue; // Reset input value
+			}
+
+			// Update payment due dynamically
+			paymentDueInput.value = originalPaymentDue - paymentReceived;
+		});
+
+		const paymentGrid = new gridjs.Grid({
+			search: true,
+			// pagination: {
+			// 	limit: 5,
+			// 	summary: false
+			// },
+			sort: true,
+			fixedHeader: true,
+			columns: [
+				{
+					id: "id",
+					name: "ID",
+					width: '5%',
+					formatter: (cell, row) => {
+						cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+						return gridjs.html(cell);
+					},
+					hidden: true
+				},
+				"Name",
+				"Course",
+				{
+					name:"Amount Paid",
+					width: "13%"
+				},
+				{ 
+					name: "Amount Remaining",
+					width: "13%"
+				},
+				{
+					name:"Total Amount",
+					width: "13%"
+				},
+				"Due Date",
+				{
+					name: "Action",
+					formatter: (cell, row) => {
+						let editBtn = gridjs.h('button', {
+							className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+							innerHTML: `
+								Receive Payment
+							`,
+							onClick: () => {
+								const studentNameInput = document.getElementById("studentName");
+								const paymentDateInput = document.getElementById("paymentDate");
+								const paymentDueInput = document.getElementById("paymentDue");
+
+								// Set today's date before making it readonly
+								const todayDate = new Date().toISOString().split('T')[0];
+
+								setTimeout(() => {
+									document.getElementById("paymentDate").value = todayDate;
+								}, 100); // Delay ensures it persists after potential resets
+
+								// Remove required attributes and set readonly
+								studentNameInput.removeAttribute("required");
+								paymentDateInput.removeAttribute("required");
+								paymentDueInput.removeAttribute("required");
+
+								studentNameInput.setAttribute("readonly", true);
+								paymentDateInput.setAttribute("readonly", true);
+								paymentDueInput.setAttribute("readonly", true);
+
+								// Remove focus styles
+								studentNameInput.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+								paymentDateInput.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+								paymentDueInput.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+
+								// Ensure row.cells[0].data is valid
+								const studentId = row.cells[0].data
+
+								// Fetch payment data
+								fetch(`http://127.0.0.1:8000/getReamainingPaymentData/?studentId=${studentId}`)
+									.then(response => response.json())
+									.then(data => {
+										console.log("API Response:", data);
+
+										document.getElementById("studentName").value = data.name;
+										document.getElementById("paymentDue").value = data.paymentDue;
+										document.getElementById("paymentDue").setAttribute("data-original", data.paymentDue);
+									})
+									.catch(error => console.error("Fetch error:", error));
+
+								// Add hidden input for student ID
+								document.getElementById("add-payment-form").innerHTML += 
+									`<input type="hidden" name="studentId" id="studentId" value="${studentId}">`;
+
+								// Show modal
+								document.getElementById('add-payment-modal').classList.remove('scale-0', 'opacity-0');
+								document.getElementById('add-payment-modal').classList.add('scale-100', 'opacity-100');
+							}
+						}, '');
+						return gridjs.h('div', {
+							className: 'flex gap-4'
+						}, editBtn);
+					},
+					width: '17%'
+				}
+			],
+			server: {
+				url: 'http://127.0.0.1:8000/getReamainingPaymentData/',
+				then: data => data.map(payment => [payment.studentId, payment.name, payment.courseName, payment.amountPaid, payment.amountPending, payment.TotalAmount, payment.paymentDueDate])
+			},
+			className: {
+				th: '!bg-black !text-white',
+				sort: '!bg-black !text-white',
+				search: '!float-right !w-[25%]',
+			}
+		})
+
+		const receivedPaymentGrid = new gridjs.Grid({
+			search: true,
+			// pagination: {
+			// 	limit: 5,
+			// 	summary: false
+			// },
+			sort: true,
+			fixedHeader: true,
+			columns: [
+				{
+					id: "id",
+					name: "ID",
+					width: '5%',
+					formatter: (cell, row) => {
+						cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+						return gridjs.html(cell);
+					},
+					hidden: true
+				},
+				"Name",
+				{
+					name:"Total Amount",
+				},
+				{ 
+					name: "Payment Date",
+				},
+				{
+					name:"Payment Receiver",
+				},
+				{
+					name:"Payment Method",
+				},
+			],
+			server: {
+				url: 'http://127.0.0.1:8000/getPaymentData/',
+				then: data => data.map(payment => [payment.studentId, payment.Name, payment.paymentAmount, payment.paymentDate, payment.paymentReceivedByName, payment.paymentMethod])
+			},
+			className: {
+				th: '!bg-black !text-white',
+				sort: '!bg-black !text-white',
+				search: '!float-right !w-[25%]',
+			}
+		})
+
+		const earningGrid = new gridjs.Grid({
+			search: true,
+			// pagination: {
+			// 	limit: 5,
+			// 	summary: false
+			// },
+			sort: true,
+			fixedHeader: true,
+			columns: [
+				"Branch",
+				"Branch Incharge",
+				"Amount Received",
+				"Amount Remaining",
+				"Total Amount",
+			],
+			server: {
+				url: 'http://127.0.0.1:8000/getEearningData/',
+				then: data => data.map(earning => [earning.branch, earning.branchInCharge, earning.totalAmountPaid, earning.totalAmountRemaining, earning.totalEarning])
+			},
+			className: {
+				th: '!bg-black !text-white',
+				sort: '!bg-black !text-white',
+				search: '!float-right !w-[25%]',
+			}
+		})
+
+		// appointmentBeforeLunchGrid.render(document.getElementById("appointment-table-before-lunch"))
+		// appointmentAfterLunchGrid.render(document.getElementById("appointment-table-after-lunch"))
+		receivedPaymentGrid.render(document.getElementById("received-payment-table"))
+		paymentGrid.render(document.getElementById("payment-status-table"))
+		earningGrid.render(document.getElementById("earnings-table"))
+	</script>
 </body>
 
 </html>
