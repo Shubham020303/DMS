@@ -839,10 +839,12 @@ def getAttendanceData(request):
                 time1 = i.timeIn
                 time2 = i.timeOut
                 date = i.date
-
-                date1 = datetime.combine(date, time1)
-                date2 = datetime.combine(date, time2)
-                diff = date2 - date1
+                if time1 and time2:
+                    date1 = datetime.combine(date, time1)
+                    date2 = datetime.combine(date, time2)
+                    diff = date2 - date1
+                else:
+                    diff = None                
                 data = {
                     'id': i.id,
                     'student': i.student.user.user.first_name,
@@ -850,7 +852,7 @@ def getAttendanceData(request):
                     'date': i.date,
                     'timeIn': i.timeIn,
                     'timeOut': i.timeOut,
-                    'totalTime': int(diff.total_seconds() / 60),
+                    'totalTime': int(diff.total_seconds() / 60) if diff else None,
                     'status': i.status,
                     'duration': diff,
                 }
@@ -875,17 +877,19 @@ def getAttendanceData(request):
             # student  = student.filter(student = Attendance.objects.all())
             studentData = []
             for i in student:
-                data = {
-                    'id': i.id,
-                    'student': i.user.user.first_name,
-                    'studentId': i.id,
-                    'courceName': i.cource.courceName,
-                    'startDate': i.courceEnrollDate,
-                    'endDate': i.courceEndDate,
-                    'status': 'Active' if i.courceEndDate > datetime.today().date() else 'Inactive',
-                    'duration': i.cource.courceDuration,
-                }
-                studentData.append(data)
+                if i.courceEndDate > datetime.today().date():
+                    data = {
+                        'id': i.id,
+                        'student': i.user.user.first_name,
+                        'studentId': i.id,
+                        'courceName': i.cource.courceName,
+                        'startDate': i.courceEnrollDate,
+                        'endDate': i.courceEndDate,
+                        'attened_session': i.attened_session,
+                        'total_session' : i.cource.total_session,
+                        'duration': i.cource.courceDuration,
+                    }
+                    studentData.append(data)
             return JsonResponse(studentData,safe=False)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -895,8 +899,9 @@ def manageAttendance(request):
         attendanceId = request.POST.get('attendanceId',None)
         student = request.POST.get('studentName')
         date = request.POST.get('attendanceDate')
-        inTime = request.POST.get('inTime')
-        outTime = request.POST.get('outTime')
+        inTime = request.POST.get('inTime',None)
+        outTime = request.POST.get('outTime',None)
+        sessionCount = request.POST.get('session',None)
         status = request.POST.get('attendanceStatus')
 
         try:
@@ -909,6 +914,10 @@ def manageAttendance(request):
                     attendance.timeOut = outTime
                     attendance.status = status
                     attendance.save()
+                    student = Student.objects.get(id=student)
+                    student.attened_session = int(student.attened_session) + int(sessionCount)
+                    print("sa",student.attened_session)
+                    student.save()
                     return JsonResponse({'success': 'Attendance updated successfully'})
                 except Exception as e:
                     return JsonResponse({'error': 'Attendance not updated'}, status=404)
@@ -916,11 +925,15 @@ def manageAttendance(request):
                 try:
                     attendance = Attendance(student=Student.objects.get(id=student),date=date,timeIn=inTime,timeOut=outTime,status=status)
                     attendance.save()
+                    if status == 'Present':
+                        student = Student.objects.get(id=student)
+                        student.attened_session = int(student.attened_session) + int(sessionCount)
+                        student.save()
                     return JsonResponse({'success': 'Attendance added successfully'})
                 except Exception as e:
                     if "UNIQUE constraint failed" in str(e): #check for unique constraint violation.
                         return JsonResponse({'error': 'Attendance already Added'}, status=400)
-                    
+                    print(e)
                     return JsonResponse({'error': 'Attendance not added'}, status=404)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)

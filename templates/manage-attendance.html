@@ -111,15 +111,21 @@
 							</div>
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/3">
+							<div class="flex flex-col gap-2 w-1/2">
 								<label for="inTime" class="block font-semibold">In Time</label>
 								<input type="time" name="inTime" id="inTime" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/3">
+							<div class="flex flex-col gap-2 w-1/2">
 								<label for="outTime" class="block font-semibold">Out Time</label>
 								<input type="time" name="outTime" id="outTime" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-                                   <div class="flex flex-col gap-2 w-1/3">
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="session" class="block font-semibold">Session</label>
+								<input type="number" name="session" id="session" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+                                   <div class="flex flex-col gap-2 w-1/2">
 								<label for="attendanceStatus" class="block font-semibold">Status</label>
 								<select name="attendanceStatus" id="attendanceStatus" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 									<option disabled selected>Select Status</option>
@@ -326,11 +332,82 @@
 				// window.location.reload()
 			});
 
+			document.getElementById("outTime").addEventListener("change", () => {
+				const inTime = document.getElementById("inTime").value;
+				const outTime = document.getElementById("outTime").value;
+				const session = document.getElementById("session");
+				
+				if (inTime && outTime) {
+					const inTimeParts = inTime.split(':');
+					const outTimeParts = outTime.split(':');
+
+					const inHours = parseInt(inTimeParts[0]);
+					const inMinutes = parseInt(inTimeParts[1]);
+
+					const outHours = parseInt(outTimeParts[0]);
+					const outMinutes = parseInt(outTimeParts[1]);
+
+					const totalMinutes = (outHours - inHours) * 60 + (outMinutes - inMinutes);
+
+					if (totalMinutes < 30) {
+						session.value = 1;
+					} else if (totalMinutes >= 30 && totalMinutes <= 45) {
+						session.value = 1;
+					} else if (totalMinutes >= 45 && totalMinutes <= 90) {
+						session.value = 2;
+					} else if (totalMinutes >= 90 && totalMinutes <= 135) {
+						session.value = 3;
+					} else if (totalMinutes >= 135 && totalMinutes <= 180) {
+						session.value = 4;
+					} else if (totalMinutes >= 180 && totalMinutes <= 225) {
+						session.value = 5;
+					} else if (totalMinutes >= 225 && totalMinutes <= 270) {
+						session.value = 6;
+					} else if (totalMinutes >= 270 && totalMinutes <= 315) {
+						session.value = 7;
+					}
+				}
+			});
+
+			document.getElementById("attendanceStatus").addEventListener("change", () => {
+				const status = document.getElementById("attendanceStatus").value;
+				const session = document.getElementById("session");
+				const inTime = document.getElementById("inTime");
+				const outTime = document.getElementById("outTime");
+				if (status === "Present") {
+					session.value = "";
+					inTime.setAttribute('required', true);
+					outTime.setAttribute('required', true);
+					session.setAttribute('required', true);
+				} else if (status === "Absent") {
+					session.value = 0;
+					inTime.removeAttribute('required');
+					outTime.removeAttribute('required');
+					session.removeAttribute('required');
+				} else if (status === "Leave") {
+					session.value = 0;
+					inTime.removeAttribute('required');
+					outTime.removeAttribute('required');
+					session.removeAttribute('required');
+				}
+			});
+
 			document.getElementById("add-attendance-form").addEventListener("submit", (e) => {
 				if (document.getElementById('add-attendance-btn').innerText === "Update") {
 					e.preventDefault();
 					const form = e.target; // Get the form element
         				const formData = new FormData(form); // Correctly create FormData
+
+					const inTime = document.getElementById("inTime");
+					const outTime = document.getElementById("outTime");
+
+					if (inTime.value === "") {
+						formData.delete("inTime");
+					}
+
+					if (outTime.value === "") {
+						formData.delete("outTime");
+					}
 
 					fetch("/manage-attendance/", {
 						method: "POST", // Change to PUT if updating
@@ -369,13 +446,16 @@
 					const form = e.target; // Get the form element
         				const formData = new FormData(form); // Correctly create FormData
 
-					// const profilePhotoInput = document.getElementById("profilePhoto");
-					
-					// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
-					// 	formData.delete("profilePhoto");
-					// } else if (profilePhotoInput.files.length > 0) {
-					// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
-					// }
+					const inTime = document.getElementById("inTime");
+					const outTime = document.getElementById("outTime");
+
+					if (inTime.value === "") {
+						formData.delete("inTime");
+					}
+
+					if (outTime.value === "") {
+						formData.delete("outTime");
+					}
 
 					fetch("/manage-attendance/", {
 						method: "POST", // Change to PUT if updating
@@ -471,6 +551,8 @@
 					"Course",
 					"Course Start Date",
 					"Course End Date",
+					"Attended Sessions",
+					"Total Sessions",
                          // "Out Time",
                          // {
                          //      name: "Total Time",
@@ -534,8 +616,8 @@
 											let hours = Math.floor(minutes / 60);
 											let remainingMinutes = minutes % 60;
 											return hours > 0 
-												? `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minutes${remainingMinutes > 1 ? 's' : ''}` 
-												: `${remainingMinutes} minutes${remainingMinutes > 1 ? 's' : ''}`;
+												? `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` 
+												: `${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`;
 										}
 										
 										// Format data for Excel
@@ -590,7 +672,7 @@
 				],
 				server: {
 					url: 'http://127.0.0.1:8000/getAttendanceData/',
-					then: data => data.map(attendance => [attendance.id, attendance.studentId, attendance.student, attendance.courceName, attendance.startDate, attendance.endDate])
+					then: data => data.map(attendance => [attendance.id, attendance.studentId, attendance.student, attendance.courceName, attendance.startDate, attendance.endDate, attendance.attened_session, attendance.total_session])
 				},
 				className: {
 					th: '!bg-black !text-white',

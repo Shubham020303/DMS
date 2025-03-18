@@ -85,7 +85,7 @@ class Cource(models.Model):
     courceDuration = models.IntegerField()
     courceFee = models.IntegerField()
     courceInstructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
-    
+    total_session = models.IntegerField(default=0,null=True,blank=True)
     Branch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
 
     def __str__(self):
@@ -107,6 +107,8 @@ class Student(models.Model):
     amountPaid = models.IntegerField(null=True,blank=True,default=0)
     amountPending = models.IntegerField(null=True,blank=True,default=0)
     paymentDueDate = models.DateField(null=True,blank=True)
+    
+    attened_session = models.IntegerField(default=0,null=True,blank=True)
 
     def __str__(self):
         return self.user.user.first_name
