@@ -556,11 +556,12 @@ def getCourseData(request):
             'courceDescription': course.courceDescription,
             'courseFee': course.courceFee,
             'courceInstructor': course.courceInstructor.user.user.first_name,
-            'courceInstructorId': course.courceInstructor.id,
+            'courceInstructorId': course.courceInstructor.user.id,
             'courceVehicle': course.courceInstructor.instructorVehicle.vehicleName,
             'courceVehicleId': course.courceInstructor.instructorVehicle.id,
             'courseBranch': course.Branch.branchName,
-            'courseBranchId': course.Branch.id
+            'courseBranchId': course.Branch.id,
+            'total_session': course.total_session
         }
         return JsonResponse(courseData)
     else:
@@ -588,6 +589,7 @@ def manage_course(request):
         courseFee = request.POST.get('courseFee')
         courceInstructor = request.POST.get('courceInstructor')
         courseBranch = request.POST.get('courseBranch')
+        totalsession = request.POST.get('courseSession')
         print(courceId,courceInstructor,courseBranch)
         if Cource.objects.filter(id=courceId).exists():
             try:
@@ -596,8 +598,9 @@ def manage_course(request):
                 course.courceDuration = courseDuration
                 course.courceDescription = courceDescription
                 course.courceFee = courseFee
+                course.total_session = totalsession
                 try:
-                    course.courceInstructor = Instructor.objects.get(id=courceInstructor)
+                    course.courceInstructor = Instructor.objects.get(user=UserProfile.objects.get(id=courceInstructor))
                 except Instructor.DoesNotExist:
                     return JsonResponse({'error': 'Instructor not found'}, status=404)
                 course.Branch = Branch.objects.filter(id=courseBranch).first()
@@ -614,8 +617,9 @@ def manage_course(request):
                     courceDuration=courseDuration,
                     courceDescription=courceDescription,
                     courceFee=courseFee,
-                    courceInstructor=Instructor.objects.filter(id=courceInstructor).first(),
-                    Branch=Branch.objects.filter(id=courseBranch).first()
+                    courceInstructor=Instructor.objects.get(user=UserProfile.objects.get(id=courceInstructor)),
+                    Branch=Branch.objects.filter(id=courseBranch).first(),
+                    total_session = totalsession
                 )
                 course.save()
                 return JsonResponse({'success': 'Course Create  successfully'})
@@ -770,13 +774,14 @@ def getSlotsData(request):
         slots = Slot.objects.all()
         slotsData = []
         for i in slots:
-            slotsData.append({
-            'id': i.id,
-            'slotName': i.slotName,
-            'slotStartTime': i.slotStart,
-            'slotEndTime': i.slotEnd,
-            'slotBranch': i.slotBranch.branchName,
-            })
+                slotsData.append({
+                'id': i.id,
+                'slotName': i.slotName,
+                'slotStartTime': i.slotStart,
+                'slotEndTime': i.slotEnd,
+                'slotBranch': i.slotBranch.branchName,
+                'slotUsed': i.slotUsed
+                })
         
         return JsonResponse(slotsData,safe=False)
 @csrf_exempt

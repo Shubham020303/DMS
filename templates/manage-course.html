@@ -86,11 +86,15 @@
                                    </div>
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
                                         <label for="courceInstructor" class="block font-semibold">Instructor</label>
                                         <select name="courceInstructor" id="courceInstructor" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
                                              <option disabled selected>Select User</option>
                                         </select>
+                                   </div>
+							<div class="flex flex-col gap-2 w-1/2">
+                                        <label for="courseSession" class="block font-semibold">Course Session</label>
+                                        <input type="number" name="courseSession" id="courseSession" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                    </div>
                                    <!-- <div class="flex flex-col gap-2 w-1/2">
                                         <label for="courceVehicle" class="block font-semibold">Vehicle</label>
@@ -199,6 +203,9 @@
 					input.setAttribute('required', true);
 					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
 				});
+				if (document.getElementById("courseId")) {
+					document.getElementById("courseId").remove();
+				}
 			});
 
 			document.getElementById('close-add-course-modal').addEventListener('click', () => {
@@ -490,6 +497,7 @@
 						document.getElementById("courseFee").value = data.courseFee || "No Data Found";
 						document.getElementById("courseBranch").value = data.courseBranchId || "No Data Found";
 						document.getElementById("courceInstructor").value = data.courceInstructorId || "No Data Found";
+						document.getElementById("courseSession").value = data.total_session || "No Data Found";
 						// document.getElementById("courceVehicle").value = data.courceVehicleId || "No Data Found";
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});

@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
-from datetime import time
+from datetime import time,datetime
 import uuid
-
+from django.db.models import F, Case, When, Value
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phoneNo = models.CharField(max_length=10)
@@ -31,6 +33,7 @@ class Slot(models.Model):
     slotStart = models.TimeField()
     slotEnd = models.TimeField()
     slotBranch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    slotUsed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.slotName
@@ -107,13 +110,19 @@ class Student(models.Model):
     amountPaid = models.IntegerField(null=True,blank=True,default=0)
     amountPending = models.IntegerField(null=True,blank=True,default=0)
     paymentDueDate = models.DateField(null=True,blank=True)
-    
     attened_session = models.IntegerField(default=0,null=True,blank=True)
-
+    student_staus = models.BooleanField(default=False)
     def __str__(self):
         return self.user.user.first_name
 
-
+@receiver(post_save, sender=Student)
+def update_slot_used(sender, instance, **kwargs):
+    if instance.attened_session == 15 and instance.slot:
+        instance.slot.slotUsed = False
+        instance.slot.save()
+    else:
+        instance.slot.slotUsed = True
+        instance.slot.save()
 
 class Attendance(models.Model):
     choices = (
