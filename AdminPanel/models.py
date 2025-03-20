@@ -133,6 +133,7 @@ def update_slot_used(sender, instance, **kwargs):
                     student.booking_Type = "Normal"
                     student.save()
                     instance.slot.slotUsed = True
+                    instance.slot.slotPreBooked = False
                     instance.slot.save()
                 else:
                     instance.slot.slotUsed = False
