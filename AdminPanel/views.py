@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+from datetime import datetime,timedelta
 from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment)
 from django.core.paginator import Paginator
 # Create your views here.
@@ -44,7 +44,7 @@ def getSlotWiseData(request):
     for slot in slots:
             
         try:
-            student = Student.objects.get(slot=slot, courceEnrollDate__lte=today, courceEndDate__gte=today)
+            student = Student.objects.get(slot=slot,student_staus=True,booking_Type = 'Normal',courceEnrollDate__gte=today)
             student_name = student.user.user.first_name
         except Student.DoesNotExist:
             student_name = None
@@ -67,6 +67,18 @@ def getSlotWiseData(request):
             'morning': morning_slots,
             'evening': evening_slots
         }   
+    return JsonResponse(data, safe=False)
+def getStudentOnLeaveData(request):
+    next_day = datetime.today().date() + timedelta(days=1)
+    attendance = Attendance.objects.filter(status='Leave', date=next_day)
+    data = []
+    for i in attendance:
+        data.append({
+            'studentName': i.student.user.user.first_name,
+            "slotTime": f'{i.student.slot.slotStart} - {i.student.slot.slotEnd}',
+            'date': i.date,
+            'status': i.status
+        })
     return JsonResponse(data, safe=False)
 
 def getEearningData(request):
@@ -238,6 +250,7 @@ def getStudentData(request):
                 'bloodGroup': student.user.bloodGroup,
                 'profilePic': student.user.profilePic.url if student.user.profilePic else '',
                 'gender': student.gender,
+                "bookingType": student.booking_Type,
                 'cource': student.cource.courceName,
                 'courceId': student.cource.id,
                 'instructor': student.instructor.user.user.first_name,
@@ -250,7 +263,7 @@ def getStudentData(request):
                 'paymentReceived': student.amountPaid,
                 'paymentDue': student.amountPending,
                 'paymentDueDate': student.paymentDueDate,
-                'status': 'Active' if student.courceEndDate > datetime.today().date() else 'Inactive'
+                'status': student.student_staus
             }
         return JsonResponse(data)
     else:
@@ -269,12 +282,13 @@ def getStudentData(request):
                 'bloodGroup': student.user.bloodGroup,
                 'profilePic': student.user.profilePic.url if student.user.profilePic else '',
                 'gender': student.gender,
+                "bookingType": student.booking_Type,
                 'cource': student.cource.courceName,
                 'instructor': student.instructor.user.user.first_name,
                 'slot': student.slot.slotName,
                 'startDate': student.courceEnrollDate,
                 'endDate': student.courceEndDate,
-                'status': 'Active' if student.courceEndDate > datetime.today().date() else 'Inactive'
+                'status': "Active" if student.student_staus else "Inactive",
                 
             })
         return JsonResponse(data, safe=False)
@@ -298,6 +312,7 @@ def manage_student(request):
         dlExpiry = request.POST.get('dlExpiry')
         cource = request.POST.get('studentCourse')
         instructor = request.POST.get('studentInstructor')
+        bookingType = request.POST.get('bookingType')
         slot = request.POST.get('studentSlot')
         password = request.POST.get('cnfpassword',None)
         startDate = request.POST.get('courseStartDate')
@@ -327,6 +342,12 @@ def manage_student(request):
                 student.instructor = Instructor.objects.get(user_id=instructor)
                 student.Branch = Branch.objects.get(branchName=branch)
                 student.slot = Slot.objects.get(id=slot)
+                if bookingType == 'Pre-Booking':
+                    student.slot.slotPreBooked = True
+                    student.slot.save()
+                else:
+                    student.slot.slotPreBooked = False
+                    student.slot.save()
                 student.dob = dob
                 student.address = address
                 student.applicationNo = applicationNo
@@ -353,18 +374,29 @@ def manage_student(request):
                     cource = Cource.objects.get(id=cource)
                     instructor = Instructor.objects.get(user_id=instructor)
                     slot = Slot.objects.get(id=slot)
+                    if bookingType == 'Pre-Booking':
+                        slot.slotPreBooked = True
+                        slot.save()
+                    else:
+                        slot.slotPreBooked = False
+                        slot.save()
                     # Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
-                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate)
+                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate,booking_Type=bookingType)
                     payment = Payment(student=student,paymentDate=datetime.today().date(),paymentAmount=paymentRecieved,paymentMethod='Cash',paymentRecevedBy=UserProfile.objects.get(user = request.user))
+                    
                     student.save()
                     payment.save()
                 except Exception as e:
+                    print(e)
                     if newuser:
                         if userprofile:
                             userprofile.delete()
                         if Dlinfo:
                             Dlinfo.delete()
                         newuser.delete()
+                        slot.slotPreBooked = False
+                        slot.save() 
+
                     return JsonResponse({'status': 'error', 'message': str(e)})
                 return JsonResponse({'status': 'success'})
         except Exception as e:
@@ -374,6 +406,8 @@ def manage_student(request):
         try:
             id = request.GET.get('studentId')
             student = Student.objects.get(id=id)
+            student.slot.slotPreBooked = False
+            student.slot.save()
             userProf = UserProfile.objects.get(id=student.user.id)
             user = User.objects.get(id=userProf.user.id)
             userProf.delete()
@@ -760,6 +794,7 @@ def manageCourseContent(request):
 
 def getSlotsData(request):
     slotsId = request.GET.get('slotId', None)
+    bookingType = request.GET.get('bookingType', None)
     if slotsId:
         slots = Slot.objects.get(id=slotsId)
         slotsData = {
@@ -770,6 +805,21 @@ def getSlotsData(request):
             'slotBranch': slots.slotBranch.branchName,
         }
         return JsonResponse(slotsData)
+    if bookingType == "Pre-Booking":
+        slots = Slot.objects.all()
+        slotsData = []
+        for i in slots:
+            slotsData.append({
+            'id': i.id,
+            'slotName': i.slotName,
+            'slotStartTime': i.slotStart,
+            'slotEndTime': i.slotEnd,
+            'UsedTill':"" if i.slotUsed == False else Student.objects.filter(slot__id=i.id).last().courceEndDate,
+            "slotUsed": i.slotUsed,
+            'slotPreBooked': i.slotPreBooked
+            })
+        
+        return JsonResponse(slotsData,safe=False)
     else:
         slots = Slot.objects.all()
         slotsData = []

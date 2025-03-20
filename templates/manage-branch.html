@@ -162,6 +162,9 @@
 					input.setAttribute('required', true);
 					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
 				});
+				if (document.getElementById("branchId")) {
+					document.getElementById("branchId").remove();
+				}
 			});
 
 			document.getElementById('close-add-branch-modal').addEventListener('click', () => {

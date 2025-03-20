@@ -129,6 +129,15 @@
 							</div>
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="bookingType" class="block font-semibold">Booking Type</label>
+								<select name="bookingType" id="bookingType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option selected value="Normal">Normal</option>
+									<option value="Pre-Booking">Pre-Booking</option>
+								</select>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="studentCourse" class="block font-semibold">Course</label>
 								<select name="studentCourse" id="studentCourse" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
@@ -296,8 +305,8 @@
                          .then(data => {
                               document.getElementById("studentInstructor").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
                          })
-               
-                    fetch("http://127.0.0.1:8000/getSlotsData/")
+
+				fetch("http://127.0.0.1:8000/getSlotsData/")
                          .then(response => response.json())
                          .then(data => {
                               document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}" style="display: ${slot.slotUsed ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
@@ -342,10 +351,14 @@
 				document.getElementById("password").setAttribute("required", true);
 				document.getElementById("cnfpassword").style.display = "block";
 				document.getElementById("password").style.display = "block";
+				document.getElementById("paymentDueDate").removeAttribute("required");
 				document.getElementById("totalAmount").setAttribute("readonly", true);
 				document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
 				document.getElementById("paymentDue").setAttribute("readonly", true);
 				document.getElementById("paymentDue").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+				if (document.getElementById("studentId")) {
+					document.getElementById("studentId").remove();
+				}
 			});
 
 			document.getElementById('close-add-student-modal').addEventListener('click', () => {
@@ -386,6 +399,40 @@
 				document.getElementById('view-student-modal').classList.remove('scale-100', 'opacity-100');
 				document.getElementById('view-student-modal').classList.add('scale-0', 'opacity-0');
 				// window.location.reload()
+			});
+
+			document.getElementById("bookingType").addEventListener("change", () => {
+				const bookingType = document.getElementById("bookingType").value;
+				let baseURL = "http://127.0.0.1:8000/getSlotsData/"
+				if (bookingType === "Normal") {
+					document.getElementById("studentSlot").innerHTML = "";
+					document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
+					fetch(baseURL)
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}" style="display: ${slot.slotUsed ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
+                         })
+				} else {
+					document.getElementById("studentSlot").innerHTML = "";
+					document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
+					fetch(baseURL + "?bookingType=Pre-Booking")
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("studentSlot").innerHTML += data.map(slot => `<option ${slot.slotUsed && slot.UsedTill !== "" && !slot.slotPreBooked ? "data-UsedTill='" + slot.UsedTill + "'" : ""} value="${slot.id}" style="${slot.UsedTill !== "" ? "font-weight: 600; color: red;" : ""} display: ${slot.slotPreBooked ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime + (slot.UsedTill !== "" ? (" | " + slot.UsedTill) : "")}</option>`).join('');
+                         })
+				}
+			});
+
+			document.getElementById("studentSlot").addEventListener("change", () => {
+				const selectedSlot = document.getElementById("studentSlot").value;
+				const UsedTill = document.getElementById("studentSlot").querySelector(`option[value="${selectedSlot}"]`).getAttribute("data-UsedTill");
+				const courseStartDate = document.getElementById("courseStartDate");
+				const courseEndDate = document.getElementById("courseEndDate");
+				if (UsedTill) {
+					courseStartDate.value = UsedTill;
+					courseStartDate.setAttribute("min", UsedTill);
+					courseEndDate.setAttribute("min", UsedTill);
+				}
 			});
 
                document.getElementById("dob").addEventListener("input", () => {
@@ -575,8 +622,10 @@
                               name: "Status",
                               formatter: (cell, row) => {
                                    let status = row.cells[6].data;
-                                   let statusColor = status === "Active" ? "bg-green-600" : "bg-red-600";
-                                   cell = `<span class="px-3 py-1 text-white rounded-full ${statusColor}">${status}</span>`;
+                                   let statusText = row.cells[7].data === "Pre-Booking" ? row.cells[7].data : row.cells[6].data;
+							let bookingType = row.cells[7].data;
+							let statusColor = status === "Active" ? (bookingType === "Pre-Booking" ? "bg-yellow-500" : "bg-green-600") : "bg-red-600";
+                                   cell = `<span class="px-3 py-1 text-white rounded-full ${statusColor}">${statusText}</span>`;
                                    return gridjs.html(cell);
                               }
                          },
@@ -600,6 +649,7 @@
 									document.getElementById("password").style.display = "none";
 									document.getElementById("cnfpassword").removeAttribute("required");
 									document.getElementById("password").removeAttribute("required");
+									document.getElementById("paymentDueDate").removeAttribute("required");
 									document.getElementById("totalAmount").setAttribute("readonly", true);
 									document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
 									document.getElementById("paymentDue").setAttribute("readonly", true);
@@ -636,7 +686,7 @@
 				],
 				server: {
 					url: 'http://127.0.0.1:8000/getStudentData/',
-					then: data => data.map(student => [student.id, student.profilePic, student.name, student.email, student.phone, student.branch, student.status])
+					then: data => data.map(student => [student.id, student.profilePic, student.name, student.email, student.phone, student.branch, student.status, student.bookingType])
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -685,6 +735,7 @@
 						document.getElementById("studentCourse").value = data.courceId || "No Data Found";
 						document.getElementById("studentGender").value = data.gender || "No Data Found";
 						document.getElementById("studentInstructor").value = data.instructorId || "No Data Found";
+						document.getElementById("bookingType").value = data.bookingType || "No Data Found";
 						document.getElementById("studentSlot").value = data.slotId || "No Data Found";
 						document.getElementById("courseStartDate").value = data.startDate || "No Data Found";
 						document.getElementById("courseEndDate").value = data.endDate || "No Data Found";
@@ -768,6 +819,7 @@
 				document.getElementById("password").setAttribute("readonly", true);
 				document.getElementById("cnfpassword").removeAttribute("required");
 				document.getElementById("password").removeAttribute("required");
+				document.getElementById("paymentDueDate").removeAttribute("required");
 				document.getElementById("totalAmount").setAttribute("readonly", true);
 				document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
 				document.getElementById("paymentDue").setAttribute("readonly", true);

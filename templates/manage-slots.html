@@ -232,6 +232,9 @@
                          input.removeAttribute('disabled');
                          input.setAttribute('required', true);
                     });
+				if (document.getElementById("slotId")) {
+					document.getElementById("slotId").remove();
+				}
 			});
 
 			document.getElementById('close-add-slot-modal').addEventListener('click', () => {

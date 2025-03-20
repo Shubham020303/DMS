@@ -258,6 +258,9 @@
 				document.getElementById("password").setAttribute("required", true);
 				document.getElementById("cnfpassword").style.display = "block";
 				document.getElementById("password").style.display = "block";
+				if (document.getElementById("instructorId")) {
+					document.getElementById("instructorId").remove();
+				}
 			});
 
 			document.getElementById('close-add-instructor-modal').addEventListener('click', () => {

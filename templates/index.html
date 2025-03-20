@@ -95,6 +95,12 @@
 			</div>
 			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
 				<div>
+					<p class="text-3xl font-semibold">On Leave Students</p>
+				</div>
+				<div id="on-leave-table" class="w-full"></div>
+			</div>
+			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
+				<div>
 					<p class="text-3xl font-semibold">Payment Remaining</p>
 				</div>
 				<div id="payment-status-table" class="w-full"></div>
@@ -711,12 +717,38 @@
 				search: '!float-right !w-[25%]',
 			}
 		})
+		
+		const onLeaveGrid = new gridjs.Grid({
+			search: true,
+			// pagination: {
+			// 	limit: 5,
+			// 	summary: false
+			// },
+			sort: true,
+			fixedHeader: true,
+			columns: [
+				"Name",
+				"Date",
+				"Slot Time",
+				"status",
+			],
+			server: {
+				url: 'http://127.0.0.1:8000/getStudentOnLeaveData/',
+				then: data => data.map(onLeave => [onLeave.studentName, onLeave.date, onLeave.slotTime, onLeave.status])
+			},
+			className: {
+				th: '!bg-black !text-white',
+				sort: '!bg-black !text-white',
+				search: '!float-right !w-[25%]',
+			}
+		})
 
 		// appointmentBeforeLunchGrid.render(document.getElementById("appointment-table-before-lunch"))
 		// appointmentAfterLunchGrid.render(document.getElementById("appointment-table-after-lunch"))
 		receivedPaymentGrid.render(document.getElementById("received-payment-table"))
 		paymentGrid.render(document.getElementById("payment-status-table"))
 		earningGrid.render(document.getElementById("earnings-table"))
+		onLeaveGrid.render(document.getElementById("on-leave-table"))
 	</script>
 </body>
 

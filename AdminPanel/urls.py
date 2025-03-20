@@ -9,6 +9,7 @@ urlpatterns = [
     path('getReamainingPaymentData/', views.getReamainingPaymentData, name='getReamainingPaymentData/'),
     path('getSlotWiseData/', views.getSlotWiseData, name='getSlotWiseData/'),
     path('getEearningData/', views.getEearningData, name='getEearningData/'),
+    path('getStudentOnLeaveData/', views.getStudentOnLeaveData, name='getStudentOnLeaveData/'),
     path('getInstructorData/', views.getInstructorData, name='getInstructorData/'),
     path('manage-instructor/', views.manage_instructor, name='manage-instructor/'),
     path('getStudentData/', views.getStudentData, name='getStudentData/'),

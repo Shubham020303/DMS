@@ -246,6 +246,10 @@
 
 				document.getElementById("courseContentFile").removeAttribute('required');
 				document.getElementById("courseContentVideo").removeAttribute('required');
+
+				if (document.getElementById("courceContentId")) {
+					document.getElementById("courceContentId").remove();
+				}
 			});
 
 			document.getElementById('close-add-course-content-modal').addEventListener('click', () => {

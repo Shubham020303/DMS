@@ -217,6 +217,9 @@
                          dlUserInput.style.pointerEvents = "auto";
                          dlUserInput.removeEventListener("focus", (event) => event.target.blur()); // Ensure it's focusable
                     }
+				if (document.getElementById("dlId")) {
+					document.getElementById("dlId").remove();
+				}
 			});
 
 			document.getElementById('close-add-license-modal').addEventListener('click', () => {

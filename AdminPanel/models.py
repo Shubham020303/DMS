@@ -34,6 +34,8 @@ class Slot(models.Model):
     slotEnd = models.TimeField()
     slotBranch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     slotUsed = models.BooleanField(default=False)
+    slotPreBooked = models.BooleanField(default=False)
+
 
     def __str__(self):
         return self.slotName
@@ -104,6 +106,7 @@ class Student(models.Model):
     instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE,null=True,blank=True,related_name='slot')
     Branch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
+    booking_Type = models.CharField(max_length=20,null=True,blank=True)
     courceEnrollDate = models.DateField(null=True,blank=True)
     courceEndDate = models.DateField(null=True,blank=True)
     courceStatus = models.BooleanField(default=False)
@@ -111,18 +114,30 @@ class Student(models.Model):
     amountPending = models.IntegerField(null=True,blank=True,default=0)
     paymentDueDate = models.DateField(null=True,blank=True)
     attened_session = models.IntegerField(default=0,null=True,blank=True)
-    student_staus = models.BooleanField(default=False)
+    student_staus = models.BooleanField(default=True)
     def __str__(self):
         return self.user.user.first_name
 
 @receiver(post_save, sender=Student)
 def update_slot_used(sender, instance, **kwargs):
-    if instance.attened_session == 15 and instance.slot:
-        instance.slot.slotUsed = False
-        instance.slot.save()
-    else:
-        instance.slot.slotUsed = True
-        instance.slot.save()
+    if instance.attened_session == instance.cource.total_session and instance.student_staus == True:
+            instance.student_staus = False
+            instance.save()
+            student = Student.objects.filter(slot=instance.slot, student_staus=True)
+            if len(student) == 0:
+                instance.slot.slotUsed = False
+                instance.slot.save()
+            else:
+                if instance.slot.slotPreBooked == True:
+                    student = Student.objects.filter(slot=instance.slot, student_staus=True).last()
+                    student.booking_Type = "Normal"
+                    student.save()
+                    instance.slot.slotUsed = True
+                    instance.slot.save()
+                else:
+                    instance.slot.slotUsed = False
+                    instance.slot.save()
+   
 
 class Attendance(models.Model):
     choices = (
