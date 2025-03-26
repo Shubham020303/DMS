@@ -6,7 +6,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from datetime import datetime,timedelta
-from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment)
+from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment,AddOnService)
 from django.core.paginator import Paginator
 # Create your views here.
 
@@ -44,7 +44,7 @@ def getSlotWiseData(request):
     for slot in slots:
             
         try:
-            student = Student.objects.get(slot=slot,student_staus=True,booking_Type = 'Normal',courceEnrollDate__gte=today)
+            student = Student.objects.get(slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
             student_name = student.user.user.first_name
         except Student.DoesNotExist:
             student_name = None
@@ -70,7 +70,7 @@ def getSlotWiseData(request):
     return JsonResponse(data, safe=False)
 def getStudentOnLeaveData(request):
     next_day = datetime.today().date() + timedelta(days=1)
-    attendance = Attendance.objects.filter(status='Leave', date=next_day)
+    attendance = Attendance.objects.filter(status='Leave', date__btwn=[datetime.today().date(), next_day], date__lt=next_day)
     data = []
     for i in attendance:
         data.append({
@@ -194,11 +194,11 @@ def manage_instructor(request):
                     instructor.instructorBranch = Branch.objects.get(branchName=branch)
                     instructor.instructorVehicle = Vehicle.objects.get(id=vehicle)
                     instructor.save()
-                    dlinfo = DLInfo.objects.get(dlUser=userprofile)
-                    dlinfo.dlNo = dlNo
-                    dlinfo.dlIssueDate = dlIssueDate
-                    dlinfo.dlExpiry = dlExpiry
-                    dlinfo.save()
+                    # dlinfo = DLInfo.objects.get(dlUser=userprofile)
+                    # dlinfo.dlNo = dlNo
+                    # dlinfo.dlIssueDate = dlIssueDate
+                    # dlinfo.dlExpiry = dlExpiry
+                    # dlinfo.save()
                     return JsonResponse({'status': 'success'})
                 except Exception as e:
                     return JsonResponse({'status': 'error', 'message': str(e)})
@@ -213,8 +213,8 @@ def manage_instructor(request):
                     vehicle = Vehicle.objects.get(id=vehicle)
                     instructor = Instructor(user=userprofile, instructorBranch=branch, instructorVehicle=vehicle)
                     instructor.save()
-                    dlinfo = DLInfo(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
-                    dlinfo.save()
+                    # dlinfo = DLInfo(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
+                    # dlinfo.save()
                     return JsonResponse({'status': 'success'})
                 except Exception as e:
                     return JsonResponse({'status': 'error', 'message': str(e)})
@@ -1150,3 +1150,72 @@ def managePayment(request):
             student.save()
             
             return JsonResponse({'success': 'Payment added successfully'})
+        
+
+def getAddOnServiceData(request):
+    addOnServiceId = request.GET.get('serviceId', None)
+    if addOnServiceId:
+        addOnService = AddOnService.objects.get(id=addOnServiceId)
+        data = {
+            'id': addOnService.id,
+            'addOnServiceName': addOnService.serviceName,
+            'addOnServiceAmount': addOnService.serviceFee,
+            'mandetory': addOnService.mandetory,
+        }
+        return JsonResponse(data,safe=False)
+    else:
+        addOnServices = AddOnService.objects.all()
+        addOnServiceData = []
+        for i in addOnServices:
+            data = {
+                'id': i.id,
+                'addOnServiceName': i.serviceName,
+                'addOnServiceAmount': i.serviceFee,
+                'mandetory': i.mandetory,
+            }
+            addOnServiceData.append(data)
+        return JsonResponse(addOnServiceData,safe=False)
+    
+@csrf_exempt
+def manageAddOnService(request):
+    if request.method == 'POST':
+        addOnServiceId = request.POST.get('serviceId',None)
+        addOnServiceName = request.POST.get('serviceName')
+        addOnServiceAmount = request.POST.get('serviceFee')
+        mandetory = request.POST.get('isMandatory')
+        if mandetory == 'Yes':
+            mandetory = True
+        else:
+            mandetory = False
+
+        if addOnServiceId:
+            try:
+                addOnService = AddOnService.objects.get(id=addOnServiceId)
+                addOnService.serviceName = addOnServiceName
+                addOnService.serviceFee = addOnServiceAmount
+                addOnService.mandetory = mandetory
+                addOnService.save()
+                return JsonResponse({'success': 'Add On Service updated successfully'})
+            except Exception as e:
+                return JsonResponse({'error': 'Add On Service not updated'}, status=404)
+        else:
+            try:
+                addOnService = AddOnService(serviceName=addOnServiceName,serviceFee=addOnServiceAmount,mandetory=mandetory)
+                addOnService.save()
+            except Exception as e:
+                return JsonResponse({'error': 'Add On Service not added'}, status=404)
+            
+            return JsonResponse({'success': 'Add On Service added successfully'})
+    
+
+    if request.method == 'DELETE':
+        addOnServiceId = request.GET.get('serviceId', None)
+        try:
+            if addOnServiceId:
+                addOnService = AddOnService.objects.get(id=addOnServiceId)
+                addOnService.delete()
+                return JsonResponse({'success': 'Add On Service deleted successfully'})
+            else:
+                return JsonResponse({'error': 'No Add On Service ID provided'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)

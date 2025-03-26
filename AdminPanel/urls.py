@@ -34,6 +34,8 @@ urlpatterns = [
     path('getDlInfoData/', views.getDlInfoData, name='getDlInfoData/'),
     path('getPaymentData/', views.getPaymentData, name='getPaymentData/'),
     path('manage-payment/', views.managePayment, name='manage-payment/'),
+    path('getAddOnServiceData/', views.getAddOnServiceData, name='getAddOnServiceData/'),
+    path('manage-addOnService/', views.manageAddOnService, name='manage-addOnService/'),
     # path('DeleteALlComplain/', views.DeleteALlComplain, name='DeleteALlComplain/'),
     
     # path('getVehicleData/', views.getVehicleData, name='getVehicleData/'),

@@ -32,9 +32,9 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex h-screen">
+		<section class="flex flex-col h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+			<div class="p-8 w-[calc(100vw-18.5rem)] ml-[18rem]">
 				<div class="w-full flex justify-between items-center">
 					<h1 class="text-3xl font-bold">Manage Courses</h1>
 					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-course">
@@ -43,7 +43,19 @@
 				</div>
 				<div id="wrapper" class="w-full mt-8"></div>
 			</div>
+			<div class="p-8 w-[calc(100vw-18.5rem)] ml-[18rem]">
+				<div class="w-full flex justify-between items-center">
+					<h1 class="text-3xl font-bold">Manage Services</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-service">
+						<p>Add Service</p>
+					</div>
+				</div>
+				<div id="service-wrapper" class="w-full mt-8"></div>
+			</div>
 		</section>
+
+		<!-------------------------------------------- Add Course Modal -------------------------------------------->
+
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-course-modal">
 			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
 				<div class="flex justify-between items-center">
@@ -115,6 +127,61 @@
 				</form>
 			</div>
 		</section>
+
+		<!-------------------------------------------- Add Course Modal -------------------------------------------->
+
+		<!-------------------------------------------- Add Service Modal -------------------------------------------->
+
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-service-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="service-model-heading" class="text-3xl font-bold">Add Service</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-service-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-service-form">
+					{%csrf_token%}
+					<div class="w-full">
+                              <div class="mb-4 flex items-center gap-4 w-full">
+                                   <div class="flex flex-col gap-2 w-1/2">
+                                        <label for="serviceName" class="block font-semibold">Service Name</label>
+                                        <input type="text" name="serviceName" id="serviceName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                   </div>
+                                   <div class="flex flex-col gap-2 w-1/2">
+                                        <label for="serviceFee" class="block font-semibold">Service Fee</label>
+                                        <input type="text" name="serviceFee" id="serviceFee" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                   </div>
+                              </div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+                                        <label for="isMandatory" class="block font-semibold">Is It Mandatory?</label>
+                                        <select name="isMandatory" id="isMandatory" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                                             <option disabled selected>Select Status</option>
+                                             <option value="Yes">Yes</option>
+                                             <option value="No">No</option>
+                                        </select>
+                                   </div>
+						</div>
+					</div>
+					<div id="service-btns-container" class="flex justify-end">
+						<button id="add-service-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+							<p>Add</p>
+						</button>
+						<botton id="close-add-service-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+							<p>Cancel</p>
+						</botton>
+					</div>
+				</form>
+			</div>
+		</section>
+
+		<!-------------------------------------------- Add Service Modal -------------------------------------------->
+
+		<!-------------------------------------------- Update Course Modal -------------------------------------------->
+
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-course-modal">
 			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
 				<div class="flex justify-between items-center">
@@ -135,6 +202,36 @@
 				</div>
 			</div>
 		</section>
+
+		<!-------------------------------------------- Update Course Modal -------------------------------------------->
+
+		<!-------------------------------------------- Update Service Modal -------------------------------------------->
+
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-service-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="update-service-heading" class="text-2xl font-bold">Update Service</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-service-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<p id="update-service-message">Service details updated successfully.</p>
+				</div>
+				<div class="flex justify-end">
+					<botton id="close-update-service-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Close</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+
+		<!-------------------------------------------- Update Service Modal -------------------------------------------->
+
+		<!-------------------------------------------- Delete Course Modal -------------------------------------------->
+
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-course-modal">
 			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
 				<div class="flex justify-between items-center">
@@ -159,6 +256,37 @@
 				</div>
 			</div>
 		</section>
+
+		<!-------------------------------------------- Delete Course Modal -------------------------------------------->
+
+		<!-------------------------------------------- Delete Service Modal -------------------------------------------->
+
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-service-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">Delete Service</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-service-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div id="delete-service-message-container" class="flex flex-col gap-2">
+					<p id="delete-service-message">Are you sure you want to delete this service?</p>
+					<p>This action cannot be undone.</p>
+				</div>
+				<div class="flex justify-end">
+					<button id="delete-service-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Delete</p>
+					</button>
+					<botton id="close-delete-service-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+
+		<!-------------------------------------------- Delete Service Modal -------------------------------------------->
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
 			document.addEventListener('DOMContentLoaded', () => {
@@ -171,16 +299,7 @@
 						document.getElementById("courseBranch").innerHTML = "<option disabled selected>No Branch Found</option>";
 					})
 
-				// fetch("http://127.0.0.1:8000/getVehicleData/")
-				// 	.then(response => response.json())
-				// 	.then(data => {
-				// 		document.getElementById("courceVehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.id}">${vehicle.vehicalName}</option>`).join('');
-				// 	}).catch(error => {
-				// 		console.error('Error:', error);
-				// 		document.getElementById("courceVehicle").innerHTML = "<option disabled selected>No Vehicle Found</option>";
-				// 	})
-
-					fetch("http://127.0.0.1:8000/getInstructorData/")
+				fetch("http://127.0.0.1:8000/getInstructorData/")
 					.then(response => response.json())
 					.then(data => {
 						document.getElementById("courceInstructor").innerHTML += data.map(user => `<option value="${user.id}">${user.name}</option>`).join('');
@@ -190,6 +309,7 @@
 					})
 			})
 
+			// Add Course Modal
 			document.getElementById('add-course').addEventListener('click', () => {
 				document.getElementById('add-course-modal').classList.remove('scale-0', 'opacity-0');
 				document.getElementById('add-course-modal').classList.add('scale-100', 'opacity-100');
@@ -207,54 +327,112 @@
 					document.getElementById("courseId").remove();
 				}
 			});
+			
+			// Add Service Modal
+			document.getElementById('add-service').addEventListener('click', () => {
+				document.getElementById('add-service-modal').classList.remove('scale-0', 'opacity-0');
+				document.getElementById('add-service-modal').classList.add('scale-100', 'opacity-100');
+				document.getElementById("service-model-heading").innerText = "Add Service";
+				document.getElementById("service-btns-container").style.display = "flex";
+				document.getElementById("add-service-btn").innerText = "Add";
+				document.getElementById('add-service-modal').querySelector('form').reset();
+				document.getElementById('add-service-modal').querySelectorAll('input').forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+				if (document.getElementById("serviceId")) {
+					document.getElementById("serviceId").remove();
+				}
+			});
 
+			// Close Add Course Modal
 			document.getElementById('close-add-course-modal').addEventListener('click', () => {
 				document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
 				document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
 			});
 
+			// Close Add Course Modal
 			document.getElementById('close-course-modal').addEventListener('click', () => {
 				document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
 				document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
 			});
+			
+			// Close Add Service Modal
+			document.getElementById('close-add-service-modal').addEventListener('click', () => {
+				document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
+			});
 
+			// Close Add Service Modal
+			document.getElementById('close-service-modal').addEventListener('click', () => {
+				document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			// Close Delete Course Modal
 			document.getElementById('close-delete-course-modal').addEventListener('click', () => {
 				document.getElementById('delete-course-modal').classList.remove('scale-100', 'opacity-100');
 				document.getElementById('delete-course-modal').classList.add('scale-0', 'opacity-0');
 				window.location.reload()
 			});
 
+			// Close Delete Course Modal
 			document.getElementById('close-delete-course-btn').addEventListener('click', () => {
 				document.getElementById('delete-course-modal').classList.remove('scale-100', 'opacity-100');
 				document.getElementById('delete-course-modal').classList.add('scale-0', 'opacity-0');
 				window.location.reload()
 			});
+			
+			// Close Delete Service Modal
+			document.getElementById('close-delete-service-modal').addEventListener('click', () => {
+				document.getElementById('delete-service-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-service-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
 
+			// Close Delete Service Modal
+			document.getElementById('close-delete-service-btn').addEventListener('click', () => {
+				document.getElementById('delete-service-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-service-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			// Close Update Course Modal
 			document.getElementById('close-update-course-btn').addEventListener('click', () => {
 				document.getElementById('updated-course-modal').classList.remove('scale-100', 'opacity-100');
 				document.getElementById('updated-course-modal').classList.add('scale-0', 'opacity-0');
 				window.location.reload()
 			});
 
+			// Close Update Course Modal
 			document.getElementById('close-update-course-modal').addEventListener('click', () => {
 				document.getElementById('updated-course-modal').classList.remove('scale-100', 'opacity-100');
 				document.getElementById('updated-course-modal').classList.add('scale-0', 'opacity-0');
 				window.location.reload()
 			});
+			
+			// Close Update Service Modal
+			document.getElementById('close-update-service-btn').addEventListener('click', () => {
+				document.getElementById('updated-service-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-service-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
 
+			// Close Update Service Modal
+			document.getElementById('close-update-service-modal').addEventListener('click', () => {
+				document.getElementById('updated-service-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-service-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			// Add Course Form
 			document.getElementById("add-course-form").addEventListener("submit", (e) => {
 				if (document.getElementById('add-course-btn').innerText === "Update") {
 					e.preventDefault();
 					const form = e.target; // Get the form element
         				const formData = new FormData(form); // Correctly create FormData
-
-					// const profilePhotoInput = document.getElementById("profilePhoto");
-					
-					// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
-					// 	formData.delete("profilePhoto");
-					// } else if (profilePhotoInput.files.length > 0) {
-					// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
-					// }
 
 					fetch("/manage-course/", {
 						method: "POST", // Change to PUT if updating
@@ -293,14 +471,6 @@
 					const form = e.target; // Get the form element
         				const formData = new FormData(form); // Correctly create FormData
 
-					// const profilePhotoInput = document.getElementById("profilePhoto");
-					
-					// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
-					// 	formData.delete("profilePhoto");
-					// } else if (profilePhotoInput.files.length > 0) {
-					// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
-					// }
-
 					fetch("/manage-course/", {
 						method: "POST", // Change to PUT if updating
 						body: formData
@@ -335,7 +505,89 @@
 					});
 				}
 			})
+			
+			// Add Service Form
+			document.getElementById("add-service-form").addEventListener("submit", (e) => {
+				if (document.getElementById('add-service-btn').innerText === "Update") {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
 
+					fetch("/manage-addOnService/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-service-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-service-message").innerText = "Service details updated successfully."
+							document.getElementById("update-service-heading").innerText = "Update Service"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-service-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-service-message").innerText = "Error updating service information."
+							document.getElementById("update-service-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-service-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-service-message").innerText = "Error updating service information."
+						document.getElementById("update-service-heading").innerText = "Error"
+					});
+				} else {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					fetch("/manage-addOnService/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-service-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-service-message").innerText = "Service details added successfully."
+							document.getElementById("update-service-heading").innerText = "Add Service"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-service-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-service-message").innerText = "Error adding service information."
+							document.getElementById("update-service-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-service-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-service-message").innerText = "Error adding service information."
+						document.getElementById("update-service-heading").innerText = "Error"
+					});
+				}
+			})
+
+			// Delete Course Button
 			document.getElementById('delete-course-btn').addEventListener('click', () => {
 				const courseId = document.getElementById('delete-course-btn').getAttribute('data-id');
 				fetch(`http://127.0.0.1:8000/manage-course/?courseId=${courseId}`, {
@@ -355,6 +607,33 @@
 							document.getElementById("delete-course-message-container").innerHTML = `<p>${data.error}</p>`;
 							document.getElementById("delete-course-btn").style.display = "none";
 							document.getElementById("close-delete-course-modal").innerText = "Close";
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			});
+
+			// Delete Service Button
+			document.getElementById('delete-service-btn').addEventListener('click', () => {
+				const serviceId = document.getElementById('delete-service-btn').getAttribute('data-id');
+				fetch(`http://127.0.0.1:8000/manage-addOnService/?serviceId=${serviceId}`, {
+						method: 'DELETE',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if (data.success) {
+							document.getElementById("delete-service-message-container").innerHTML = `<p>${data.success}</p>`;
+							document.getElementById("delete-service-btn").style.display = "none";
+							document.getElementById("close-delete-service-modal").innerText = "Close";
+						} else if (data.error) {
+							document.getElementById("delete-service-message-container").innerHTML = `<p>${data.error}</p>`;
+							document.getElementById("delete-service-btn").style.display = "none";
+							document.getElementById("close-delete-service-modal").innerText = "Close";
 						}
 					})
 					.catch(error => {
@@ -469,8 +748,92 @@
 					search: '!float-right !w-[25%]',
 				}
 			})
+			
+			const servicesGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [
+                         {
+						id: "id",
+						name: "ID",
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					"Service Name",
+					"Service Fee",
+					{
+						name: "Is Mandatory",
+						formatter: (cell, row) => {
+							let status = cell ? "Yes" : "No";
+							return gridjs.h('span', {
+								innerHTML: status
+							}, '');
+						}
+					},
+					{
+						name: "Action",
+						formatter: (cell, row) => {
+							let editBtn = gridjs.h('button', {
+								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+									</svg>
+								`,
+								onClick: () => {
+									fetchServiceData(`http://127.0.0.1:8000/getAddOnServiceData/?serviceId=${row.cells[0].data}`, "Edit Service Details", true, false);
+									document.getElementById("add-service-btn").innerText = "Update";
+
+									document.getElementById("add-service-form").innerHTML += `<input type="hidden" name="serviceId" id="serviceId" value="${row.cells[0].data}">`;
+									document.getElementById('add-service-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('add-service-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							let deleteBtn = gridjs.h('button', {
+								className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+										<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+										<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+									</svg>
+								`,
+								onClick: () => {
+									serviceId = row.cells[0].data;
+									document.getElementById("delete-service-btn").setAttribute("data-id", serviceId);
+									document.getElementById("delete-service-message").innerHTML = `Are you sure you want to delete <b>${row.cells[1].data}</b>'s details?`;
+									document.getElementById('delete-service-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('delete-service-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							return gridjs.h('div', {
+								className: 'flex gap-4'
+							}, editBtn, deleteBtn);
+						},
+						width: '11%'
+					}
+				],
+				server: {
+					url: 'http://127.0.0.1:8000/getAddOnServiceData/',
+					then: data => data.map(service => [service.id, service.addOnServiceName, service.addOnServiceAmount, service.mandetory])
+				},
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
 
 			courseGrid.render(document.getElementById("wrapper"))
+			servicesGrid.render(document.getElementById("service-wrapper"))
 
 			document.querySelector(".gridjs-search-input").placeholder = "Search...";
 
@@ -503,7 +866,23 @@
 					});
 			}
 
+			// Fetch Service Data
+			function fetchServiceData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						document.getElementById("service-model-heading").innerText = headingText;
+						document.getElementById("service-btns-container").style.display = isBtnsVisible ? "flex" : "none";
+						document.getElementById("serviceName").value = data.addOnServiceName || "No Data Found";
+						document.getElementById("serviceFee").value = data.addOnServiceAmount || "No Data Found";
+						document.getElementById("isMandatory").value = (data.mandetory ? "Yes" : "No") || "No Data Found";
+						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
+					});
+			}
+
 			function makeInputReadOnly() {
+				// Course Model
 				document.getElementById('add-course-modal').querySelectorAll('input').forEach(input => {
 					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
 					input.setAttribute('readonly', true);
@@ -520,9 +899,28 @@
 					input.setAttribute('disabled', true);
 					input.removeAttribute('required');
 				})
+				
+				// Service Model
+				document.getElementById('add-service-modal').querySelectorAll('input').forEach(input => {
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
+				document.getElementById('add-service-modal').querySelectorAll("textarea").forEach(input => {
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
+				document.getElementById('add-service-modal').querySelectorAll("select").forEach(input => {
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
 			}
 
 			function makeInputEditable() {
+				// Course Model
 				document.getElementById('add-course-modal').querySelectorAll('input').forEach(input => {
 					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
 					input.removeAttribute('readonly');
@@ -535,6 +933,24 @@
 					input.setAttribute('required', true);
 				})
 				document.getElementById('add-course-modal').querySelectorAll("select").forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				
+				// Service Model
+				document.getElementById('add-service-modal').querySelectorAll('input').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				document.getElementById('add-service-modal').querySelectorAll("textarea").forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				document.getElementById('add-service-modal').querySelectorAll("select").forEach(input => {
 					input.removeAttribute('readonly');
 					input.removeAttribute('disabled');
 					input.setAttribute('required', true);

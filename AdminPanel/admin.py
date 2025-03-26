@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Slot,Complain,CourceContent,Payment)
+from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Slot,Complain,CourceContent,Payment,AddOnService)
 # Register your models here.
 class slotAdmin(admin.ModelAdmin):
     list_display = ['slotName','slotStart','slotEnd','slotBranch']
@@ -19,3 +19,4 @@ admin.site.register(Slot,slotAdmin)
 admin.site.register(Complain)
 admin.site.register(CourceContent)
 admin.site.register(Payment)
+admin.site.register(AddOnService)
