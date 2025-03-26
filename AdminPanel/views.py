@@ -70,7 +70,8 @@ def getSlotWiseData(request):
     return JsonResponse(data, safe=False)
 def getStudentOnLeaveData(request):
     next_day = datetime.today().date() + timedelta(days=1)
-    attendance = Attendance.objects.filter(status='Leave', date__btwn=[datetime.today().date(), next_day], date__lt=next_day)
+    today =datetime.today().date()
+    attendance = Attendance.objects.filter(status='Leave', date__gte=today, date__lte=next_day)
     data = []
     for i in attendance:
         data.append({

@@ -29,6 +29,16 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+
+			.form-stage {
+				display: none;
+			}
+			.form-stage.active {
+				display: block;
+			}
+			.progress-step {
+				transition: all 0.3s ease-in-out;
+			}
 		</style>
 	</head>
 	<body>
@@ -211,221 +221,224 @@
 		</section> -->
 
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-student-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 h-[600px] flex flex-col gap-6">
-			    <div class="flex justify-between items-center">
-				   <h1 id="student-model-heading" class="text-3xl font-bold">Add Student</h1>
-				   <div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-student-modal">
-					  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-						 <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-					  </svg>
-				   </div>
-			    </div>
-		 
-			    <form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-student-form">
-				   {%csrf_token%}
-		 
-				   <!-- Step Indicator -->
-				   <div class="flex justify-between mb-4">
-					  <button type="button" class="step-btn px-4 py-2 rounded" data-step="1">Personal Info</button>
-					  <button type="button" class="step-btn px-4 py-2 rounded" data-step="2">Course Details</button>
-					  <button type="button" class="step-btn px-4 py-2 rounded" data-step="3">License Info</button>
-					  <button type="button" class="step-btn px-4 py-2 rounded" data-step="4">Add-On Services</button>
-				   </div>
-		 
-				   <!-- Step 1: Personal Info -->
-				   <div class="form-step" data-step="1">
-					  <div class="mb-4 flex items-start gap-4 w-full h-[230px]">
-						 <div class="flex flex-col items-center gap-4 w-full">
+			<div class="bg-white p-8 rounded-lg w-1/2 max-h-[600px] flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="student-model-heading" class="text-3xl font-bold">Add Student</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-student-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-student-form">
+					{%csrf_token%}
+					<!-- Step Indicator -->
+					<div class="w-full flex justify-between mb-4">
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="1">
+							<div class="progress-number w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1">1</div>
+							<span class="text-xs font-medium">Personal Info</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="2">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">2</div>
+							<span class="text-xs font-medium">Course Details</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="3">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">3</div>
+							<span class="text-xs font-medium">License Info</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="4">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">4</div>
+							<span class="text-xs font-medium">Add-On Services</span>
+						</div>
+					</div>
+					<!-- Step 1: Personal Info -->
+					<div class="form-step" data-step="1">
+						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
+							<div class="flex flex-col items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="studentName" class="block font-semibold">Student Name</label>
+									<input type="text" name="studentName" id="studentName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="studentEmail" class="block font-semibold">Student Email</label>
+									<input type="email" name="studentEmail" id="studentEmail" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="studentGender" class="block font-semibold">Gender</label>
+									<select name="studentGender" id="studentGender" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+										<option disabled selected>Select Gender</option>
+										<option value="Male">Male</option>
+										<option value="Female">Female</option>
+									</select>
+								</div>
+							</div>
+							<div class="flex justify-center w-full h-full">
+								<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="image-upload">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+									</svg>
+									<p class="whitespace-nowrap">Add Student Image</p>
+									<img id="student-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
+									<input type="file" name="profilePic" id="profilePic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*" required>
+								</div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="phone" class="block font-semibold">Phone</label>
+								<input type="text" name="phone" id="phone" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="bloodGroup" class="block font-semibold">Blood Group</label>
+								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dob" class="block font-semibold">Date of Birth</label>
+								<input type="date" name="dob" id="dob" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="applicationNo" class="block font-semibold">Application Number</label>
+								<input type="text" name="applicationNo" id="applicationNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-full">
-							    <label for="studentName" class="block font-semibold">Student Name</label>
-							    <input type="text" name="studentName" id="studentName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<label for="address" class="block font-semibold">Address</label>
+								<textarea rows="3" name="address" id="address" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
 							</div>
-							<div class="flex flex-col gap-2 w-full">
-							    <label for="studentGender" class="block font-semibold">Gender</label>
-							    <select name="studentGender" id="studentGender" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-								   <option disabled selected>Select Gender</option>
-								   <option value="Male">Male</option>
-								   <option value="Female">Female</option>
-							    </select>
+						</div>
+					</div>
+					<!-- Step 2: Course Details -->
+					<div class="form-step hidden" data-step="2">
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentCourse" class="block font-semibold">Course</label>
+								<select name="studentCourse" id="studentCourse" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Course</option>
+								</select>
 							</div>
-						 </div>
-						 <div class="flex justify-center w-full h-full">
-							<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="image-upload">
-							    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
-								   <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
-								   <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
-							    </svg>
-							    <p class="whitespace-nowrap">Add Student Image</p>
-							    <img id="student-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
-							    <input type="file" name="profilePic" id="profilePic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*" required>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentInstructor" class="block font-semibold">Instructor</label>
+								<select name="studentInstructor" id="studentInstructor" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Instructor</option>
+								</select>
 							</div>
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="studentEmail" class="block font-semibold">Student Email</label>
-							<input type="email" name="studentEmail" id="studentEmail" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="phone" class="block font-semibold">Phone</label>
-							<input type="text" name="phone" id="phone" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="bloodGroup" class="block font-semibold">Blood Group</label>
-							<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="dob" class="block font-semibold">Date of Birth</label>
-							<input type="date" name="dob" id="dob" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="applicationNo" class="block font-semibold">Application Number</label>
-							<input type="text" name="applicationNo" id="applicationNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="address" class="block font-semibold">Address</label>
-							<textarea rows="3" name="address" id="address" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
-						 </div>
-					  </div>
-				   </div>
-		 
-				   <!-- Step 2: Course Details -->
-				   <div class="form-step hidden" data-step="2">
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="studentCourse" class="block font-semibold">Course</label>
-							<select name="studentCourse" id="studentCourse" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-							    <option disabled selected>Select Course</option>
-							</select>
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="studentInstructor" class="block font-semibold">Instructor</label>
-							<select name="studentInstructor" id="studentInstructor" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-							    <option disabled selected>Select Instructor</option>
-							</select>
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="studentSlot" class="block font-semibold">Time Slot</label>
-							<select name="studentSlot" id="studentSlot" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-							    <option disabled selected>Select Slot</option>
-							</select>
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="branch" class="block font-semibold">Branch</label>
-							<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-							    <option disabled selected>Select Branch</option>
-							</select>
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="courseStartDate" class="block font-semibold">Course Start Date</label>
-							<input type="date" name="courseStartDate" id="courseStartDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="courseEndDate" class="block font-semibold">Course End Date</label>
-							<input type="date" name="courseEndDate" id="courseEndDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="totalAmount" class="block font-semibold">Total Amount</label>
-							<input type="text" name="totalAmount" id="totalAmount" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="paymentDueDate" class="block font-semibold">Payment Due Date</label>
-							<input type="date" name="paymentDueDate" id="paymentDueDate" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="paymentReceived" class="block font-semibold">Payment Received</label>
-							<input type="text" name="paymentReceived" id="paymentReceived" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="paymentDue" class="block font-semibold">Payment Due</label>
-							<input type="text" name="paymentDue" id="paymentDue" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-					  </div>
-				   </div>
-		 
-				   <!-- Step 3: License Info -->
-				   <div class="form-step hidden" data-step="3">
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="licenseNumber" class="block font-semibold">License Number</label>
-							<input type="text" name="licenseNumber" id="licenseNumber" autocomplete="off" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="licenseType" class="block font-semibold">License Type</label>
-							<select name="licenseType" id="licenseType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-							    <option disabled selected>Select License Type</option>
-							    <option value="LTV">LTV</option>
-							    <option value="HTV">HTV</option>
-							</select>
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="licenseIssueDate" class="block font-semibold">License Issue Date</label>
-							<input type="date" name="licenseIssueDate" id="licenseIssueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-						 <div class="flex flex-col gap-2 w-1/2">
-							<label for="licenseExpiryDate" class="block font-semibold">License Expiry Date</label>
-							<input type="date" name="licenseExpiryDate" id="licenseExpiryDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-					  </div>
-					  <div class="mb-4 flex items-center gap-4 w-full">
-						 <div class="flex flex-col gap-2 w-full">
-							<label for="licensePhoto" class="block font-semibold">License Photo</label>
-							<input type="file" name="licensePhoto" id="licensePhoto" accept="image/*" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						 </div>
-					  </div>
-				   </div>
-		 
-				   <!-- Step 4: Add-On Services -->
-				   <div class="form-step hidden" data-step="4">
-					  <div class="mb-4 flex flex-wrap gap-4">
-						 <div class="flex items-center">
-							<input type="checkbox" id="service1" name="addOnServices" value="Service 1" class="mr-2">
-							<label for="service1">Service 1</label>
-						 </div>
-						 <div class="flex items-center">
-							<input type="checkbox" id="service2" name="addOnServices" value="Service 2" class="mr-2">
-							<label for="service2">Service 2</label>
-						 </div>
-						 <div class="flex items-center">
-							<input type="checkbox" id="service3" name="addOnServices" value="Service 3" class="mr-2">
-							<label for="service3">Service 3</label>
-						 </div>
-						 <div class="flex items-center">
-							<input type="checkbox" id="service4" name="addOnServices" value="Service 4" class="mr-2">
-							<label for="service4">Service 4</label>
-						 </div>
-					  </div>
-				   </div>
-		 
-				   <!-- Navigation Buttons -->
-				   <div id="btns-container" class="flex justify-between">
-					  <button type="button" id="prev-step" class="bg-gray-500 text-white px-6 py-2 rounded cursor-pointer mr-2 hidden">
-						 Previous
-					  </button>
-					  <button type="button" id="next-step" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer">
-						 Next
-					  </button>
-					  <button id="add-student-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
-						 Add Student
-					  </button>
-				   </div>
-			    </form>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentSlot" class="block font-semibold">Time Slot</label>
+								<select name="studentSlot" id="studentSlot" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Slot</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="branch" class="block font-semibold">Branch</label>
+								<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Branch</option>
+								</select>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="courseStartDate" class="block font-semibold">Course Start Date</label>
+								<input type="date" name="courseStartDate" id="courseStartDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="courseEndDate" class="block font-semibold">Course End Date</label>
+								<input type="date" name="courseEndDate" id="courseEndDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="totalAmount" class="block font-semibold">Total Amount</label>
+								<input type="text" name="totalAmount" id="totalAmount" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="paymentDueDate" class="block font-semibold">Payment Due Date</label>
+								<input type="date" name="paymentDueDate" id="paymentDueDate" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="paymentReceived" class="block font-semibold">Payment Received</label>
+								<input type="text" name="paymentReceived" id="paymentReceived" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="paymentDue" class="block font-semibold">Payment Due</label>
+								<input type="text" name="paymentDue" id="paymentDue" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+					</div>
+					<!-- Step 3: License Info -->
+					<div class="form-step hidden" data-step="3">
+						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
+							<div class="flex flex-col items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="licenseNumber" class="block font-semibold">License Number</label>
+									<input type="text" name="licenseNumber" id="licenseNumber" autocomplete="off" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="licenseType" class="block font-semibold">License Type</label>
+									<select name="licenseType" id="licenseType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+										<option disabled selected>Select License Type</option>
+										<option value="LTV">LTV</option>
+										<option value="HTV">HTV</option>
+									</select>
+								</div>
+							</div>
+							<div class="flex justify-center w-full h-full">
+								<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="dl-image-upload">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+									</svg>
+									<p class="whitespace-nowrap">Add License Image</p>
+									<img id="dl-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
+									<input type="file" name="dlPic" id="dlPic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*" required>
+								</div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="licenseIssueDate" class="block font-semibold">License Issue Date</label>
+								<input type="date" name="licenseIssueDate" id="licenseIssueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="licenseExpiryDate" class="block font-semibold">License Expiry Date</label>
+								<input type="date" name="licenseExpiryDate" id="licenseExpiryDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+					</div>
+					<!-- Step 4: Add-On Services -->
+					<div class="form-step hidden" data-step="4">
+						<div class="bg-white rounded-xl">
+							<div id="services-container" class="space-y-4">
+							</div>
+						</div>
+					</div>
+					<!-- Navigation Buttons -->
+					<div id="btns-container" class="flex justify-between">
+						<button type="button" id="prev-step" class="bg-gray-500 text-white px-6 py-2 rounded cursor-pointer mr-2 hidden">
+						Previous
+						</button>
+						<button type="button" id="next-step" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer">
+						Next
+						</button>
+						<div class="flex items-center gap-4">
+							<div>
+								<p>Total Amount : <span id="total-amount"></span></p>
+							</div>
+							<button id="add-student-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
+							Add Student
+							</button>
+						</div>
+					</div>
+				</form>
 			</div>
-		 </section>
+		</section>
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-student-modal">
 			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
 				<div class="flex justify-between items-center">
@@ -510,13 +523,13 @@
 					.then(data => {
 						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
 					})
-				
+
 				fetch("http://127.0.0.1:8000/getCourseData/")
 					.then(response => response.json())
 					.then(data => {
 						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}" data-fee="${course.courseFee}">${course.courseName}</option>`).join('');
 					})
-				
+
                     fetch("http://127.0.0.1:8000/getInstructorData/")
                          .then(response => response.json())
                          .then(data => {
@@ -529,83 +542,164 @@
                               document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}" style="display: ${slot.slotUsed ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
                          })
 
+				const steps = document.querySelectorAll('.form-step');
+				const progressStep = document.querySelectorAll('.progress-step');
+				const nextBtn = document.getElementById('next-step');
+				const prevBtn = document.getElementById('prev-step');
+				const addStudentBtn = document.getElementById('add-student-btn');
+				let currentStep = 1;
 
-					const steps = document.querySelectorAll('.form-step');
-    const stepButtons = document.querySelectorAll('.step-btn');
-    const nextBtn = document.getElementById('next-step');
-    const prevBtn = document.getElementById('prev-step');
-    const addStudentBtn = document.getElementById('add-student-btn');
-    let currentStep = 1;
+				// Step button click handling
+				progressStep.forEach(button => {
+					button.addEventListener('click', function() {
+						const step = this.getAttribute('data-step');
+						goToStep(parseInt(step));
+					});
+				});
 
-    // Step button click handling
-    stepButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const step = this.getAttribute('data-step');
-            goToStep(parseInt(step));
-        });
-    });
+				// Next button click handling
+				nextBtn.addEventListener('click', function() {					
+					// if (validateCurrentStep()) {
+						if (currentStep < 4) {
+							currentStep++;
+							updateForm();
+						}
+					// }
+				});
 
-    // Next button click handling
-    nextBtn.addEventListener('click', function() {
-        if (validateCurrentStep()) {
-            if (currentStep < 4) {
-                currentStep++;
-                updateForm();
-            }
-        }
-    });
+				// Previous button click handling
+				prevBtn.addEventListener('click', function() {
+					if (currentStep > 1) {
+						currentStep--;
+						updateForm();
+					}
+				});
 
-    // Previous button click handling
-    prevBtn.addEventListener('click', function() {
-        if (currentStep > 1) {
-            currentStep--;
-            updateForm();
-        }
-    });
+				// Form validation for current step
+				function validateCurrentStep() {
+					const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+					const requiredFields = currentStepElement.querySelectorAll('[required]');
+					let isValid = true;
 
-    // Form validation for current step
-    function validateCurrentStep() {
-        const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
-        const requiredFields = currentStepElement.querySelectorAll('[required]');
-        let isValid = true;
+					requiredFields.forEach(field => {
+						if (!field.value.trim()) {
+							field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+							field.classList.add('outline-red-300', 'focus:outline-red-600');							
+							isValid = false;
+						} else {
+							field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+							field.classList.remove('outline-red-300', 'focus:outline-red-600');
+						}
+					});
 
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('border-red-500');
-                isValid = false;
-            } else {
-                field.classList.remove('border-red-500');
-            }
-        });
+					return isValid;
+				}
 
-        return isValid;
-    }
+				// Update form display and buttons based on current step
+				function updateForm() {
+					// Hide all steps
+					steps.forEach(step => step.classList.add('hidden'));
+					
+					// Show current step
+					document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
 
-    // Update form display and buttons based on current step
-    function updateForm() {
-        // Hide all steps
-        steps.forEach(step => step.classList.add('hidden'));
-        
-        // Show current step
-        document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+					// Update step buttons
+					progressStep.forEach(btn => {
+						btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+						btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+						if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+							btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+							btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+						}
+					});
 
-        // Update step buttons
-        stepButtons.forEach(btn => {
-            btn.classList.remove('bg-indigo-600', 'text-white');
-            if (parseInt(btn.getAttribute('data-step')) === currentStep) {
-                btn.classList.add('bg-indigo-600', 'text-white');
-            }
-        });
+					// Manage navigation buttons
+					prevBtn.classList.toggle('hidden', currentStep === 1);
+					nextBtn.classList.toggle('hidden', currentStep === 4);
+					addStudentBtn.classList.toggle('hidden', currentStep !== 4);
+				}
 
-        // Manage navigation buttons
-        prevBtn.classList.toggle('hidden', currentStep === 1);
-        nextBtn.classList.toggle('hidden', currentStep === 4);
-        addStudentBtn.classList.toggle('hidden', currentStep !== 4);
-    }
+				function goToStep(step) {
+					currentStep = step;
+					updateForm();
+				}
 
-    // Initial form setup
-    updateForm();
+				// Initial form setup
+				updateForm();
+
+				fetchServices()
+
+				// Add event listener to course selection
+				document.getElementById("studentCourse").addEventListener("change", updateTotalAmount);
+
+				// Add event listeners to service checkboxes
+				document.addEventListener('change', function(event) {
+					if (event.target.matches('#services-container input[type="checkbox"]')) {
+						updateTotalAmount();
+					}
+				});
+
+				// Initial calculation when the page loads
+				updateTotalAmount();
 			})
+
+			function updateTotalAmount() {
+				// Get the course fee
+				const courseSelect = document.getElementById("studentCourse");
+				const selectedCourse = courseSelect.value;
+				const courseFee = parseInt(courseSelect.querySelector(`option[value="${selectedCourse}"]`)?.getAttribute('data-fee')) || 0;
+
+				// Calculate additional services fee
+				let servicesFee = 0;
+				document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+					servicesFee += parseInt(checkbox.getAttribute('data-fee')) || 0;
+				});
+
+				// Calculate and set total amount
+				const totalAmount = courseFee + servicesFee;
+				document.getElementById("total-amount").innerText = totalAmount;
+			}
+
+			function fetchServices() {
+				fetch("http://127.0.0.1:8000/getAddOnServiceData/")
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("services-container").innerHTML += data.map(service => `
+							<div class="border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+								<div class="flex items-center">
+									<input 
+										type="checkbox" 
+										id="service1" 
+										name="addOnServices" 
+										value="Service 1" 
+										class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 mr-4 ${service.mandetory ? 'cursor-not-allowed pointer-events-none' : ''}"
+										data-fee="${service.addOnServiceAmount}"
+										${service.mandetory ? 'checked' : ''}
+										>
+									<div>
+										<h3 class="font-semibold text-gray-800">${service.addOnServiceName}</h3>
+									</div>
+								</div>
+								<div class="flex items-center space-x-4">
+									<span class="text-green-600 font-medium">₹${service.addOnServiceAmount}</span>
+									<span class="${service.mandetory ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'} text-xs px-2 py-1 rounded-full">${service.mandetory ? 'Mandatory' : 'Optional'}</span>
+								</div>
+							</div>
+						`).join('');
+						
+						document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+							checkbox.addEventListener('change', function() {
+								this.closest('.border').classList.toggle('bg-indigo-100', this.checked);
+							});
+
+							if (checkbox.checked) {
+								checkbox.closest('.border').classList.add('bg-indigo-100');
+							}
+						});
+						updateTotalAmount();
+                         })
+
+			}
 
 			const imageUpload = document.getElementById('image-upload');
 			const image = document.getElementById('profilePic');
@@ -617,6 +711,21 @@
 				reader.onload = () => {
 					imageUpload.querySelector('img').src = reader.result;
 					imageUpload.querySelector('img').classList.remove('hidden');
+				}
+
+				reader.readAsDataURL(file);
+			});
+			
+			const dlImageUpload = document.getElementById('dl-image-upload');
+			const dlImage = document.getElementById('dlPic');
+
+			dlImage.addEventListener('change', () => {
+				const file = dlImage.files[0];
+				const reader = new FileReader();
+
+				reader.onload = () => {
+					dlImageUpload.querySelector('img').src = reader.result;
+					dlImageUpload.querySelector('img').classList.remove('hidden');
 				}
 
 				reader.readAsDataURL(file);
