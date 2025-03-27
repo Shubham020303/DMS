@@ -239,6 +239,7 @@ def getStudentData(request):
     studentid = request.GET.get('studentId',None)
     if studentid:
         student = Student.objects.filter(id=studentid).first()
+        dlinfo = DLInfo.objects.filter(dlUser=student.user).first()
         data = {
                 'id': student.id,
                 'name': student.user.user.first_name,
@@ -264,7 +265,12 @@ def getStudentData(request):
                 'paymentReceived': student.amountPaid,
                 'paymentDue': student.amountPending,
                 'paymentDueDate': student.paymentDueDate,
-                'status': student.student_staus
+                'status': student.student_staus,
+                'addOnService': [addOnService.id for addOnService in student.addOnService.all()],
+                'dlNo': dlinfo.dlNo if dlinfo else '',
+                'dlIssueDate': dlinfo.dlIssueDate if dlinfo else '',
+                'dlExpiry': dlinfo.dlExpiry if dlinfo else '',
+                'dlType': dlinfo.dlType if dlinfo else '',
             }
         return JsonResponse(data)
     else:
@@ -290,6 +296,7 @@ def getStudentData(request):
                 'startDate': student.courceEnrollDate,
                 'endDate': student.courceEndDate,
                 'status': "Active" if student.student_staus else "Inactive",
+                'addOnService': [addOnService.serviceName for addOnService in student.addOnService.all()],
                 
             })
         return JsonResponse(data, safe=False)
@@ -308,20 +315,24 @@ def manage_student(request):
         bloodGroup = request.POST.get('bloodGroup')
         profilepic = request.FILES.get('profilePic',None)
         gender = request.POST.get('studentGender')
-        dlNo = request.POST.get('dlNo')
-        dlIssueDate = request.POST.get('dlIssueDate')
-        dlExpiry = request.POST.get('dlExpiry')
+        dlNo = request.POST.get('dlNo',None)
+        dlIssueDate = request.POST.get('dlIssueDate',None)
+        dlExpiry = request.POST.get('dlExpiry',None)
+        dlType = request.POST.get('dlType',None)
         cource = request.POST.get('studentCourse')
         instructor = request.POST.get('studentInstructor')
         bookingType = request.POST.get('bookingType')
         slot = request.POST.get('studentSlot')
-        password = request.POST.get('cnfpassword',None)
         startDate = request.POST.get('courseStartDate')
         endDate = request.POST.get('courseEndDate')
         paymentRecieved = request.POST.get('paymentReceived')
         paymentDue = request.POST.get('paymentDue')
         paymentDueDate = request.POST.get('paymentDueDate')
-
+        addOnService = request.POST.get('addOnService')
+        paymentRecievedBy = request.POST.get('paymentRecievedBy')
+        addOnService = map(int, addOnService.split(','))
+        addOnService = list(addOnService)
+     
         try:
             if Student.objects.filter(id=id).exists():
                 student = Student.objects.get(id=id)
@@ -335,6 +346,16 @@ def manage_student(request):
                     student.user.profilePic = profilepic
                 
                 student.user.save()
+                dlinfo = DLInfo.objects.filter(uer=student.user).first()
+                if dlinfo:
+                    dlinfo.dlType = dlType
+                    dlinfo.dlNo = dlNo
+                    dlinfo.dlIssueDate = dlIssueDate
+                    dlinfo.dlExpiry = dlExpiry
+                    dlinfo.save()
+                else:
+                    DLInfo.objects.create(uer=student.user,dlType=dlType,dlNo=dlNo,dlIssueDate=dlIssueDate,dlExpiry=dlExpiry)
+                # student.Dlinfo.dlType = dlType
                 # student.Dlinfo.dlNo = dlNo
                 # student.Dlinfo.dlIssueDate = dlIssueDate
                 # student.Dlinfo.dlExpiry = dlExpiry
@@ -358,6 +379,8 @@ def manage_student(request):
                 student.amountPaid = paymentRecieved
                 student.amountPending = paymentDue
                 student.paymentDueDate = paymentDueDate
+                for addOnServiceId in addOnService:
+                    student.addOnService.add(AddOnService.objects.get(id=addOnServiceId))
                 student.save()
                 return JsonResponse({'status': 'success'})
             else:
@@ -368,12 +391,12 @@ def manage_student(request):
                     if User.objects.filter(email=email).exists():
                         newuser = User.objects.get(email=email)    
                     else:
-                        newuser = User.objects.create_user(username=email, email=email, password=password, first_name=name)
+                        newuser = User.objects.create_user(username=email, email=email, password=dob, first_name=name)
                     userprofile = UserProfile(user=newuser, phoneNo=phone, is_student=True, profilePic=profilepic ,bloodGroup=bloodGroup)
                     userprofile.save()
                     branch = Branch.objects.get(branchName=branch)
                     cource = Cource.objects.get(id=cource)
-                    instructor = Instructor.objects.get(user_id=instructor)
+                    instructor = Instructor.objects.get(user__id=instructor)
                     slot = Slot.objects.get(id=slot)
                     if bookingType == 'Pre-Booking':
                         slot.slotPreBooked = True
@@ -383,10 +406,17 @@ def manage_student(request):
                         slot.save()
                     # Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
                     student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate,booking_Type=bookingType)
-                    payment = Payment(student=student,paymentDate=datetime.today().date(),paymentAmount=paymentRecieved,paymentMethod='Cash',paymentRecevedBy=UserProfile.objects.get(user = request.user))
-                    
+                    # paymentBy = Instructor.objects.get(user__id=paymentRecievedBy) 
+                    payment = Payment(student=student,paymentDate=datetime.today().date(),paymentAmount=paymentRecieved,paymentMethod='Cash',paymentRecevedBy=UserProfile.objects.get(id=paymentRecievedBy))
+                    print(addOnService)
+                    student.save()
+                    for addOn in addOnService:
+                        addOnService = AddOnService.objects.get(id=addOn)
+                        student.addOnService.add(addOnService)
                     student.save()
                     payment.save()
+                    dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile,dlType=dlType)
+                    dlinfo.save()  
                 except Exception as e:
                     print(e)
                     if newuser:

@@ -42,7 +42,13 @@ class Slot(models.Model):
 
 
 # Create your models here.
+class AddOnService(models.Model):
+    serviceName = models.CharField(max_length=50)
+    serviceFee = models.IntegerField()
+    mandetory = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.serviceName
 
 class DLInfo(models.Model):
     choises = (
@@ -114,6 +120,7 @@ class Student(models.Model):
     amountPending = models.IntegerField(null=True,blank=True,default=0)
     paymentDueDate = models.DateField(null=True,blank=True)
     attened_session = models.IntegerField(default=0,null=True,blank=True)
+    addOnService = models.ManyToManyField(AddOnService,null=True, blank=True)
     student_staus = models.BooleanField(default=True)
     def __str__(self):
         return self.user.user.first_name
@@ -198,10 +205,3 @@ class Payment(models.Model):
     
 
 
-class AddOnService(models.Model):
-    serviceName = models.CharField(max_length=50)
-    serviceFee = models.IntegerField()
-    mandetory = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.serviceName

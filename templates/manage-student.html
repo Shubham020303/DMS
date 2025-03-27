@@ -250,6 +250,10 @@
 							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">4</div>
 							<span class="text-xs font-medium">Add-On Services</span>
 						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="5">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">5</div>
+							<span class="text-xs font-medium">Summary</span>
+						</div>
 					</div>
 					<!-- Step 1: Personal Info -->
 					<div class="form-step" data-step="1">
@@ -321,40 +325,55 @@
 								</select>
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
+								<label for="bookingType" class="block font-semibold">Booking Type</label>
+								<select name="bookingType" id="bookingType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option selected value="Normal">Normal</option>
+									<option value="Pre-Booking">Pre-Booking</option>
+								</select>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
 								<label for="studentInstructor" class="block font-semibold">Instructor</label>
 								<select name="studentInstructor" id="studentInstructor" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 									<option disabled selected>Select Instructor</option>
 								</select>
 							</div>
-						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="studentSlot" class="block font-semibold">Time Slot</label>
 								<select name="studentSlot" id="studentSlot" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 									<option disabled selected>Select Slot</option>
 								</select>
 							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="branch" class="block font-semibold">Branch</label>
 								<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 									<option disabled selected>Select Branch</option>
 								</select>
 							</div>
-						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="courseStartDate" class="block font-semibold">Course Start Date</label>
 								<input type="date" name="courseStartDate" id="courseStartDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="courseEndDate" class="block font-semibold">Course End Date</label>
 								<input type="date" name="courseEndDate" id="courseEndDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="totalAmount" class="block font-semibold">Total Amount</label>
 								<input type="text" name="totalAmount" id="totalAmount" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="paymentRecievedBy" class="block font-semibold">Payment Received By</label>
+								<select name="paymentRecievedBy" id="paymentRecievedBy" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Person</option>
+								</select>
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="paymentDueDate" class="block font-semibold">Payment Due Date</label>
@@ -377,19 +396,19 @@
 						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
 							<div class="flex flex-col items-center gap-4 w-full">
 								<div class="flex flex-col gap-2 w-full">
-									<label for="licenseNumber" class="block font-semibold">License Number</label>
-									<input type="text" name="licenseNumber" id="licenseNumber" autocomplete="off" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<label for="dlNo" class="block font-semibold">License Number</label>
+									<input type="text" name="dlNo" id="dlNo" autocomplete="off" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 								</div>
 								<div class="flex flex-col gap-2 w-full">
-									<label for="licenseType" class="block font-semibold">License Type</label>
-									<select name="licenseType" id="licenseType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-										<option disabled selected>Select License Type</option>
-										<option value="LTV">LTV</option>
-										<option value="HTV">HTV</option>
+									<label for="dlType" class="block font-semibold">License Type</label>
+									<select name="dlType" id="dlType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+										<option disabled selected>Select License</option>
+										<option value="Learning License">Learning License</option>
+										<option value="Driving License">Driving License</option>
 									</select>
 								</div>
 							</div>
-							<div class="flex justify-center w-full h-full">
+							<!-- <div class="flex justify-center w-full h-full">
 								<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="dl-image-upload">
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
 										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
@@ -399,16 +418,16 @@
 									<img id="dl-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
 									<input type="file" name="dlPic" id="dlPic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*" required>
 								</div>
-							</div>
+							</div> -->
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
-								<label for="licenseIssueDate" class="block font-semibold">License Issue Date</label>
-								<input type="date" name="licenseIssueDate" id="licenseIssueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<label for="dlIssueDate" class="block font-semibold">License Issue Date</label>
+								<input type="date" name="dlIssueDate" id="dlIssueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
-								<label for="licenseExpiryDate" class="block font-semibold">License Expiry Date</label>
-								<input type="date" name="licenseExpiryDate" id="licenseExpiryDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<label for="dlExpiry" class="block font-semibold">License Expiry Date</label>
+								<input type="date" name="dlExpiry" id="dlExpiry" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
 					</div>
@@ -416,6 +435,69 @@
 					<div class="form-step hidden" data-step="4">
 						<div class="bg-white rounded-xl">
 							<div id="services-container" class="space-y-4">
+							</div>
+						</div>
+					</div>
+					<!-- New Step 5: Summary -->
+					<div class="form-step hidden" data-step="5">
+						<div class="bg-white rounded-xl">
+							<div class="grid md:grid-cols-2 gap-8">
+								<!-- <div>
+									<div class="bg-gray-50 rounded-lg p-6 border border-gray-100 shadow-sm">
+										<h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+											</svg>
+											Course Details
+										</h3>
+										<div id="summary-course-details" class="space-y-3">
+											<div class="flex justify-between items-center">
+												<span class="text-gray-600 font-medium">Course:</span>
+												<span id="summary-course-name" class="text-gray-900 font-semibold">-</span>
+											</div>
+											<div class="flex justify-between items-center">
+												<span class="text-gray-600 font-medium">Course Fee:</span>
+												<span id="summary-course-fee" class="text-indigo-600 font-bold">₹0</span>
+											</div>
+										</div>
+									</div>
+								</div> -->
+								<div>
+									<div class="bg-gray-50 rounded-lg p-6 border border-gray-100 shadow-sm">
+										<h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+											</svg>
+											Course Details
+										</h3>
+										<div id="summary-course-details" class="space-y-3">
+											<p class="flex justify-between">
+												<span id="summary-course-name" class="font-medium">Two Wheel License:</span>
+												<span id="summary-course-fee">₹1000</span>
+											</p>
+										</div>
+									</div>
+								</div>
+								<div>
+									<div class="bg-gray-50 rounded-lg p-6 border border-gray-100 shadow-sm">
+										<h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+											</svg>
+											Add-On Services
+										</h3>
+										<div id="summary-services-details" class="space-y-3">
+											<!-- Services will be dynamically populated here -->
+											<p class="text-gray-500 text-sm italic">No additional services selected</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="mt-8 pt-6 border-t border-gray-200">
+								<div class="flex justify-between items-center">
+									<span class="text-2xl font-bold text-gray-800">Grand Total:</span>
+									<span id="summary-grand-total" class="text-3xl font-extrabold text-indigo-700">₹0</span>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -427,14 +509,9 @@
 						<button type="button" id="next-step" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer">
 						Next
 						</button>
-						<div class="flex items-center gap-4">
-							<div>
-								<p>Total Amount : <span id="total-amount"></span></p>
-							</div>
-							<button id="add-student-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
-							Add Student
-							</button>
-						</div>
+						<button id="add-student-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
+						Add Student
+						</button>
 					</div>
 				</form>
 			</div>
@@ -534,6 +611,7 @@
                          .then(response => response.json())
                          .then(data => {
                               document.getElementById("studentInstructor").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
+                              document.getElementById("paymentRecievedBy").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
                          })
 
 				fetch("http://127.0.0.1:8000/getSlotsData/")
@@ -560,7 +638,7 @@
 				// Next button click handling
 				nextBtn.addEventListener('click', function() {					
 					// if (validateCurrentStep()) {
-						if (currentStep < 4) {
+						if (currentStep < 5) {
 							currentStep++;
 							updateForm();
 						}
@@ -595,7 +673,7 @@
 					return isValid;
 				}
 
-				// Update form display and buttons based on current step
+				// Update form function modified to include 5 steps
 				function updateForm() {
 					// Hide all steps
 					steps.forEach(step => step.classList.add('hidden'));
@@ -615,8 +693,13 @@
 
 					// Manage navigation buttons
 					prevBtn.classList.toggle('hidden', currentStep === 1);
-					nextBtn.classList.toggle('hidden', currentStep === 4);
-					addStudentBtn.classList.toggle('hidden', currentStep !== 4);
+					nextBtn.classList.toggle('hidden', currentStep === 5);
+					addStudentBtn.classList.toggle('hidden', currentStep !== 5);
+
+					// Update summary if moving to summary step
+					if (currentStep === 5) {
+						updateSummary();
+					}
 				}
 
 				function goToStep(step) {
@@ -628,39 +711,46 @@
 				updateForm();
 
 				fetchServices()
-
-				// Add event listener to course selection
-				document.getElementById("studentCourse").addEventListener("change", updateTotalAmount);
-
-				// Add event listeners to service checkboxes
-				document.addEventListener('change', function(event) {
-					if (event.target.matches('#services-container input[type="checkbox"]')) {
-						updateTotalAmount();
-					}
-				});
-
-				// Initial calculation when the page loads
-				updateTotalAmount();
 			})
 
-			function updateTotalAmount() {
-				// Get the course fee
+			// Function to update summary stage
+			function updateSummary() {
+				// Course Details
 				const courseSelect = document.getElementById("studentCourse");
 				const selectedCourse = courseSelect.value;
+				const courseName = courseSelect.options[courseSelect.selectedIndex].text;
 				const courseFee = parseInt(courseSelect.querySelector(`option[value="${selectedCourse}"]`)?.getAttribute('data-fee')) || 0;
 
-				// Calculate additional services fee
+				document.getElementById("summary-course-name").textContent = courseName;
+				document.getElementById("summary-course-fee").textContent = `₹${courseFee}`;
+
+				// Add-On Services
+				const servicesContainer = document.getElementById("summary-services-details");
+				servicesContainer.innerHTML = ''; // Clear previous services
 				let servicesFee = 0;
+
 				document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
-					servicesFee += parseInt(checkbox.getAttribute('data-fee')) || 0;
+					const serviceFee = parseInt(checkbox.getAttribute('data-fee')) || 0;
+					const serviceName = checkbox.closest('.border').querySelector('h3').textContent;
+					
+					servicesFee += serviceFee;
+
+					const serviceRow = document.createElement('p');
+					serviceRow.classList.add('flex', 'justify-between');
+					serviceRow.innerHTML = `
+						<span class="font-medium">${serviceName}:</span>
+						<span>₹${serviceFee}</span>
+					`;
+					servicesContainer.appendChild(serviceRow);
 				});
 
-				// Calculate and set total amount
-				const totalAmount = courseFee + servicesFee;
-				document.getElementById("total-amount").innerText = totalAmount;
+				// Grand Total
+				const grandTotal = courseFee + servicesFee;
+				document.getElementById("summary-grand-total").textContent = `₹${grandTotal}`;
 			}
 
 			function fetchServices() {
+				document.getElementById("services-container").innerHTML = '';
 				fetch("http://127.0.0.1:8000/getAddOnServiceData/")
                          .then(response => response.json())
                          .then(data => {
@@ -671,7 +761,7 @@
 										type="checkbox" 
 										id="service1" 
 										name="addOnServices" 
-										value="Service 1" 
+										value="${service.id}" 
 										class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 mr-4 ${service.mandetory ? 'cursor-not-allowed pointer-events-none' : ''}"
 										data-fee="${service.addOnServiceAmount}"
 										${service.mandetory ? 'checked' : ''}
@@ -696,9 +786,7 @@
 								checkbox.closest('.border').classList.add('bg-indigo-100');
 							}
 						});
-						updateTotalAmount();
                          })
-
 			}
 
 			const imageUpload = document.getElementById('image-upload');
@@ -716,22 +804,23 @@
 				reader.readAsDataURL(file);
 			});
 			
-			const dlImageUpload = document.getElementById('dl-image-upload');
-			const dlImage = document.getElementById('dlPic');
+			// const dlImageUpload = document.getElementById('dl-image-upload');
+			// const dlImage = document.getElementById('dlPic');
 
-			dlImage.addEventListener('change', () => {
-				const file = dlImage.files[0];
-				const reader = new FileReader();
+			// dlImage.addEventListener('change', () => {
+			// 	const file = dlImage.files[0];
+			// 	const reader = new FileReader();
 
-				reader.onload = () => {
-					dlImageUpload.querySelector('img').src = reader.result;
-					dlImageUpload.querySelector('img').classList.remove('hidden');
-				}
+			// 	reader.onload = () => {
+			// 		dlImageUpload.querySelector('img').src = reader.result;
+			// 		dlImageUpload.querySelector('img').classList.remove('hidden');
+			// 	}
 
-				reader.readAsDataURL(file);
-			});
+			// 	reader.readAsDataURL(file);
+			// });
 
 			document.getElementById('add-student').addEventListener('click', () => {
+				currentStep = 1
 				document.getElementById('add-student-modal').classList.remove('scale-0', 'opacity-0');
 				document.getElementById('add-student-modal').classList.add('scale-100', 'opacity-100');
 				document.getElementById("student-model-heading").innerText = "Add Student";
@@ -739,40 +828,76 @@
 				document.getElementById("add-student-btn").innerText = "Add";
 				document.getElementById('add-student-modal').querySelector('form').reset();
 				document.getElementById('student-image').classList.add('hidden');
-				// document.getElementById('driving-license-image').classList.add('hidden');
-				// document.getElementById("password-container").style.display = "flex";
 				document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-					input.setAttribute('required', true);
 					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
 				});
-				document.getElementById("add-student-modal").querySelectorAll('select').forEach(select => select.removeAttribute('disabled'));
-				// document.getElementById("cnfpassword").removeAttribute("readonly");
-				// document.getElementById("password").removeAttribute("readonly");
-				// document.getElementById("cnfpassword").setAttribute("required", true);
-				// document.getElementById("password").setAttribute("required", true);
-				// document.getElementById("cnfpassword").style.display = "block";
-				// document.getElementById("password").style.display = "block";
-				document.getElementById("paymentDueDate").removeAttribute("required");
-				document.getElementById("totalAmount").setAttribute("readonly", true);
-				document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
-				document.getElementById("paymentDue").setAttribute("readonly", true);
-				document.getElementById("paymentDue").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+				document.querySelectorAll(`.form-step[data-step="1"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+				});
+				document.querySelectorAll(`.form-step[data-step="1"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+				});
+				document.querySelectorAll(`.form-step[data-step="2"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+				});
+				document.querySelectorAll(`.form-step[data-step="2"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+				});
+				document.querySelectorAll(`.form-step[data-step="3"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('disabled');
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="3"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('disabled');
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="4"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.removeAttribute('disabled');
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="4"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.removeAttribute('disabled');
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
 				if (document.getElementById("studentId")) {
 					document.getElementById("studentId").remove();
 				}
 			});
 
-			// document.getElementById('close-add-student-modal').addEventListener('click', () => {
-			// 	document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
-			// 	document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
-			// });
-
-			// document.getElementById('close-student-modal').addEventListener('click', () => {
-			// 	document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
-			// 	document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
-			// });
+			document.getElementById('close-student-modal').addEventListener('click', () => {
+				document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+			});
 
 			document.getElementById('close-delete-student-modal').addEventListener('click', () => {
 				document.getElementById('delete-student-modal').classList.remove('scale-100', 'opacity-100');
@@ -804,27 +929,27 @@
 				// window.location.reload()
 			});
 
-			// document.getElementById("bookingType").addEventListener("change", () => {
-			// 	const bookingType = document.getElementById("bookingType").value;
-			// 	let baseURL = "http://127.0.0.1:8000/getSlotsData/"
-			// 	if (bookingType === "Normal") {
-			// 		document.getElementById("studentSlot").innerHTML = "";
-			// 		document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
-			// 		fetch(baseURL)
-               //           .then(response => response.json())
-               //           .then(data => {
-               //                document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}" style="display: ${slot.slotUsed ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
-               //           })
-			// 	} else {
-			// 		document.getElementById("studentSlot").innerHTML = "";
-			// 		document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
-			// 		fetch(baseURL + "?bookingType=Pre-Booking")
-               //           .then(response => response.json())
-               //           .then(data => {
-               //                document.getElementById("studentSlot").innerHTML += data.map(slot => `<option ${slot.slotUsed && slot.UsedTill !== "" && !slot.slotPreBooked ? "data-UsedTill='" + slot.UsedTill + "'" : ""} value="${slot.id}" style="${slot.UsedTill !== "" ? "font-weight: 600; color: red;" : ""} display: ${slot.slotPreBooked ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime + (slot.UsedTill !== "" ? (" | " + slot.UsedTill) : "")}</option>`).join('');
-               //           })
-			// 	}
-			// });
+			document.getElementById("bookingType").addEventListener("change", () => {
+				const bookingType = document.getElementById("bookingType").value;
+				let baseURL = "http://127.0.0.1:8000/getSlotsData/"
+				if (bookingType === "Normal") {
+					document.getElementById("studentSlot").innerHTML = "";
+					document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
+					fetch(baseURL)
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}" style="display: ${slot.slotUsed ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
+                         })
+				} else {
+					document.getElementById("studentSlot").innerHTML = "";
+					document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
+					fetch(baseURL + "?bookingType=Pre-Booking")
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("studentSlot").innerHTML += data.map(slot => `<option ${slot.slotUsed && slot.UsedTill !== "" && !slot.slotPreBooked ? "data-UsedTill='" + slot.UsedTill + "'" : ""} value="${slot.id}" style="${slot.UsedTill !== "" ? "font-weight: 600; color: red;" : ""} display: ${slot.slotPreBooked ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime + (slot.UsedTill !== "" ? (" | " + slot.UsedTill) : "")}</option>`).join('');
+                         })
+				}
+			});
 
 			document.getElementById("studentSlot").addEventListener("change", () => {
 				const selectedSlot = document.getElementById("studentSlot").value;
@@ -919,6 +1044,21 @@
 					e.preventDefault();
 					const form = e.target; // Get the form element
         				const formData = new FormData(form); // Correctly create FormData
+					let addonservices = []
+
+					if (formData.has("addOnServices")) {
+						formData.delete("addOnServices")
+					}
+
+					document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+						addonservices.push(checkbox.value)
+					})
+
+					formData.append("addOnService", addonservices)
+
+					formData.forEach((value, key) => {
+						console.log(key, value);
+					});
 
 					fetch("/manage-student/", {
 						method: "POST", // Change to PUT if updating
@@ -1037,13 +1177,6 @@
 								`,
 								onClick: () => {
 									fetchStudentData(`http://127.0.0.1:8000/getStudentData/?studentId=${row.cells[0].data}`, "Edit Student Details", true, false);
-									document.getElementById("password-container").style.display = "none";
-									document.getElementById("cnfpassword").setAttribute("readonly", true);
-									document.getElementById("password").setAttribute("readonly", true);
-									document.getElementById("cnfpassword").style.display = "none";
-									document.getElementById("password").style.display = "none";
-									document.getElementById("cnfpassword").removeAttribute("required");
-									document.getElementById("password").removeAttribute("required");
 									document.getElementById("paymentDueDate").removeAttribute("required");
 									document.getElementById("totalAmount").setAttribute("readonly", true);
 									document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
@@ -1141,6 +1274,15 @@
 						document.getElementById("paymentDueDate").value = data.paymentDueDate || "No Data Found";
 						document.getElementById("paymentReceived").value = data.paymentReceived || "No Data Found";
 						document.getElementById("paymentDue").value = data.paymentDue || "No Data Found";
+						data.addOnService.map((item,index) => {
+							document.querySelectorAll("#services-container input").forEach((checkbox) => {
+								console.log(parseInt(checkbox.value), parseInt(item));
+								if (parseInt(checkbox.value) == parseInt(item)) {
+									console.log(checkbox);
+									checkbox.setAttribute("checked", true);
+								}
+							})
+						})
 						document.getElementById("student-image").classList.remove('hidden');
 						// add file to the profilePic input
 						if (data.profilePic === null || data.profilePic?.trim() === "") {
@@ -1185,40 +1327,256 @@
 							const paymentReceived = document.getElementById("paymentReceived").value;
 							document.getElementById("paymentDue").value = totalAmount - paymentReceived;
 						})
+
+						const steps = document.querySelectorAll('.form-step');
+						const progressStep = document.querySelectorAll('.progress-step');
+						const nextBtn = document.getElementById('next-step');
+						const prevBtn = document.getElementById('prev-step');
+						const addStudentBtn = document.getElementById('add-student-btn');
+						let currentStep = 1;
+
+						// Step button click handling
+						progressStep.forEach(button => {
+							button.addEventListener('click', function() {
+								const step = this.getAttribute('data-step');
+								goToStep(parseInt(step));
+							});
+						});
+
+						// Next button click handling
+						nextBtn.addEventListener('click', function() {					
+							// if (validateCurrentStep()) {
+								if (currentStep < 5) {
+									console.log(currentStep);
+									currentStep++;
+									updateForm();
+								}
+							// }
+						});
+
+						// Previous button click handling
+						prevBtn.addEventListener('click', function() {
+							if (currentStep > 1) {
+								currentStep--;
+								updateForm();
+							}
+						});
+
+						// Form validation for current step
+						function validateCurrentStep() {
+							const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+							const requiredFields = currentStepElement.querySelectorAll('[required]');
+							let isValid = true;
+
+							requiredFields.forEach(field => {
+								if (!field.value.trim()) {
+									field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+									field.classList.add('outline-red-300', 'focus:outline-red-600');							
+									isValid = false;
+								} else {
+									field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+									field.classList.remove('outline-red-300', 'focus:outline-red-600');
+								}
+							});
+
+							return isValid;
+						}
+
+						// Update form function modified to include 5 steps
+						function updateForm() {
+							// Hide all steps
+							steps.forEach(step => step.classList.add('hidden'));
+							
+							// Show current step
+							document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+							// Update step buttons
+							progressStep.forEach(btn => {
+								btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+								btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+								if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+									btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+									btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+								}
+							});
+
+							// Manage navigation buttons
+							prevBtn.classList.toggle('hidden', currentStep === 1);
+							nextBtn.classList.toggle('hidden', currentStep === 5);
+							addStudentBtn.classList.toggle('hidden', currentStep !== 5);
+
+							// Update summary if moving to summary step
+							if (currentStep === 5) {
+								updateSummary();
+							}
+						}
+
+						function goToStep(step) {
+							currentStep = step;
+							updateForm();
+						}
+
+						// Initial form setup
+						updateForm();
+
+						fetchServices()
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});
 			}
 
 			function makeInputReadOnly() {
-				document.getElementById("password-container").style.display = "none";
-
                     document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
-                         input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
-                         input.setAttribute('readonly', true);
-                         input.setAttribute('disabled', true);
-                         input.removeAttribute('required');
-                    })
-
-                    document.getElementById("add-student-modal").querySelectorAll('select').forEach(select => select.setAttribute('disabled', true));
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+                    document.getElementById('add-student-modal').querySelectorAll('select').forEach(input => {
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+				document.querySelectorAll(`.form-step[data-step="1"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+				});
+				document.querySelectorAll(`.form-step[data-step="1"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+				});
+				document.querySelectorAll(`.form-step[data-step="2"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+				});
+				document.querySelectorAll(`.form-step[data-step="2"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+				});
+				document.querySelectorAll(`.form-step[data-step="3"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="3"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="4"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="4"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
 			}
 
 			function makeInputEditable() {
+				// document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
+				// 	input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				// 	input.removeAttribute('readonly');
+				// 	input.removeAttribute('disabled');
+				// 	input.setAttribute('required', true);
+				// })
+				// document.getElementById("add-student-modal").querySelectorAll('select').forEach(select => select.removeAttribute('disabled'));
+				// document.getElementById("cnfpassword").setAttribute("readonly", true);
+				// document.getElementById("password").setAttribute("readonly", true);
+				// document.getElementById("cnfpassword").removeAttribute("required");
+				// document.getElementById("password").removeAttribute("required");
+				// document.getElementById("paymentDueDate").removeAttribute("required");
+				// document.getElementById("totalAmount").setAttribute("readonly", true);
+				// document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+				// document.getElementById("paymentDue").setAttribute("readonly", true);
+				// document.getElementById("paymentDue").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+
 				document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
 					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+                    document.getElementById('add-student-modal').querySelectorAll('select').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+				document.querySelectorAll(`.form-step[data-step="1"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
 					input.removeAttribute('readonly');
 					input.removeAttribute('disabled');
-					input.setAttribute('required', true);
-				})
-				document.getElementById("add-student-modal").querySelectorAll('select').forEach(select => select.removeAttribute('disabled'));
-				document.getElementById("cnfpassword").setAttribute("readonly", true);
-				document.getElementById("password").setAttribute("readonly", true);
-				document.getElementById("cnfpassword").removeAttribute("required");
-				document.getElementById("password").removeAttribute("required");
-				document.getElementById("paymentDueDate").removeAttribute("required");
-				document.getElementById("totalAmount").setAttribute("readonly", true);
-				document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
-				document.getElementById("paymentDue").setAttribute("readonly", true);
-				document.getElementById("paymentDue").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+				});
+				document.querySelectorAll(`.form-step[data-step="1"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+				});
+				document.querySelectorAll(`.form-step[data-step="2"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+				});
+				document.querySelectorAll(`.form-step[data-step="2"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+				});
+				document.querySelectorAll(`.form-step[data-step="3"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="3"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('disabled');
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="4"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('disabled');
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="4"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.removeAttribute('disabled');
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
 			}
 		</script>
 	</body>
