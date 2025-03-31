@@ -134,6 +134,7 @@ def getInstructorData(request):
                 'id': instructor.user.user.id,
                 'name': instructor.user.user.first_name,
                 'email': instructor.user.user.email,
+                'dob': instructor.dob,
                 'phone': instructor.user.phoneNo,
                 'branch': instructor.instructorBranch.branchName,
                 'vehicle': instructor.instructorVehicle.id,
@@ -141,7 +142,11 @@ def getInstructorData(request):
                 'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
                 'dlNo': DlInfo.dlNo,
                 'dlIssueDate': DlInfo.dlIssueDate,
-                'dlExpiry': DlInfo.dlExpiry
+                'dlExpiry': DlInfo.dlExpiry,
+                'adharCard': instructor.adharCard.url if instructor.adharCard else None,
+                'aggrementDoc': instructor.aggreementDoc.url if instructor.aggreementDoc else None,
+                'policeVerificationDoc': instructor.policeVerificationDoc.url if instructor.policeVerificationDoc else None,
+
 
             }
             return JsonResponse(data)
@@ -167,34 +172,51 @@ def getInstructorData(request):
 @csrf_exempt
 def manage_instructor(request):
     if request.method == 'POST':
+        instructorid= request.POST.get('instructorId',None)
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('mobile')
+        dob = request.POST.get('dob')
         branch = request.POST.get('branch')
         vehicle = request.POST.get('vehicle')
-        password = request.POST.get('password')
         profilepic = request.FILES.get('profilePhoto')
         bloodGroup = request.POST.get('bloodGroup')
         dlNo = request.POST.get('dlNo')
         dlIssueDate = request.POST.get('dlIssueDate')
         dlExpiry = request.POST.get('dlExpiry')
+        adharcard = request.FILES.get('adharcard')
+        aggrement  = request.FILES.get('aggrement')
+        policeVerification = request.FILES.get('policeVerification')
         try:
-            if User.objects.filter(email=email).exists():
+            if instructorid:
                 try:
-                    user = User.objects.get(email=email)
+                    instructor = Instructor.objects.get(user__id=instructorid)
+                    user = User.objects.get(id=instructor.user.user.id)
                     user.first_name = name
                     user.email = email
                     user.save()
-                    userprofile = UserProfile.objects.get(user=user)
-                    userprofile.phoneNo = phone
+                    userProfile = UserProfile.objects.get(id=instructor.user.id)
+                    userProfile.phoneNo = phone
+                    userProfile.bloodGroup = bloodGroup
                     if profilepic:
-                        userprofile.profilePic = profilepic
-                    userprofile.bloodGroup = bloodGroup
-                    userprofile.save()
-                    instructor = Instructor.objects.get(user=userprofile)
+                        userProfile.profilePic = profilepic
+                    userProfile.save()
                     instructor.instructorBranch = Branch.objects.get(branchName=branch)
                     instructor.instructorVehicle = Vehicle.objects.get(id=vehicle)
+                    instructor.dob = dob
+                    if adharcard:
+                        instructor.adharCard = adharcard
+                    if aggrement:
+                        instructor.aggreementDoc = aggrement
+                    if policeVerification:
+                        instructor.policeVerificationDoc = policeVerification
                     instructor.save()
+                    if dlNo and dlIssueDate and dlExpiry:
+                        dlinfo = DLInfo.objects.get(dlUser=instructor.user)
+                        dlinfo.dlNo = dlNo
+                        dlinfo.dlIssueDate = dlIssueDate
+                        dlinfo.dlExpiry = dlExpiry
+                        dlinfo.save()
                     # dlinfo = DLInfo.objects.get(dlUser=userprofile)
                     # dlinfo.dlNo = dlNo
                     # dlinfo.dlIssueDate = dlIssueDate
@@ -205,14 +227,21 @@ def manage_instructor(request):
                     return JsonResponse({'status': 'error', 'message': str(e)})
             else: 
                 try:  
-                    newuser = User.objects.create_user(username=email, email=email, password=password, first_name=name)
-                    
+                    newuser = User.objects.create_user(username=email, email=email, password=dob, first_name=name)
                     userprofile = UserProfile(user=newuser, phoneNo=phone, is_instructor=True, profilePic=profilepic ,bloodGroup=bloodGroup)
                     newuser.save()
                     userprofile.save()
                     branch = Branch.objects.get(branchName=branch)
                     vehicle = Vehicle.objects.get(id=vehicle)
-                    instructor = Instructor(user=userprofile, instructorBranch=branch, instructorVehicle=vehicle)
+                    instructor = Instructor(user=userprofile, instructorBranch=branch, instructorVehicle=vehicle,dob=dob)
+                    dlInfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
+                    dlInfo.save()
+                    if adharcard:
+                        instructor.adharCard = adharcard
+                    if aggrement:
+                        instructor.aggreementDoc = aggrement
+                    if policeVerification:
+                        instructor.policeVerificationDoc = policeVerification
                     instructor.save()
                     # dlinfo = DLInfo(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
                     # dlinfo.save()
@@ -272,6 +301,9 @@ def getStudentData(request):
                 'dlExpiry': dlinfo.dlExpiry if dlinfo else '',
                 'dlType': dlinfo.dlType if dlinfo else '',
             }
+        paymetRecieved = Payment.objects.filter(student=student).order_by('-paymentDate').first()
+        if paymetRecieved:
+            data['paymentRecievedBy'] = paymetRecieved.paymentRecevedBy.id
         return JsonResponse(data)
     else:
         students = Student.objects.all()
@@ -287,7 +319,7 @@ def getStudentData(request):
                 'address': student.address,
                 'branch': student.Branch.branchName,
                 'bloodGroup': student.user.bloodGroup,
-                'profilePic': student.user.profilePic.url if student.user.profilePic else '',
+                'profilePic': student.user.profilePic.url if student.user.profilePic else None,
                 'gender': student.gender,
                 "bookingType": student.booking_Type,
                 'cource': student.cource.courceName,
@@ -327,11 +359,12 @@ def manage_student(request):
         endDate = request.POST.get('courseEndDate')
         paymentRecieved = request.POST.get('paymentReceived')
         paymentDue = request.POST.get('paymentDue')
-        paymentDueDate = request.POST.get('paymentDueDate')
-        addOnService = request.POST.get('addOnService')
+        paymentDueDate = request.POST.get('paymentDueDate',None)
+        addOnService = request.POST.get('addOnService',None)
         paymentRecievedBy = request.POST.get('paymentRecievedBy')
-        addOnService = map(int, addOnService.split(','))
-        addOnService = list(addOnService)
+        if addOnService:
+            addOnService = map(int, addOnService.split(','))
+            addOnService = list(addOnService)
      
         try:
             if Student.objects.filter(id=id).exists():
@@ -346,7 +379,7 @@ def manage_student(request):
                     student.user.profilePic = profilepic
                 
                 student.user.save()
-                dlinfo = DLInfo.objects.filter(uer=student.user).first()
+                dlinfo = DLInfo.objects.filter(dlUser=student.user).first()
                 if dlinfo:
                     dlinfo.dlType = dlType
                     dlinfo.dlNo = dlNo
@@ -354,7 +387,10 @@ def manage_student(request):
                     dlinfo.dlExpiry = dlExpiry
                     dlinfo.save()
                 else:
-                    DLInfo.objects.create(uer=student.user,dlType=dlType,dlNo=dlNo,dlIssueDate=dlIssueDate,dlExpiry=dlExpiry)
+                    if dlNo:
+                        dlinfo = DLInfo(dlUser=student.user,dlType=dlType,dlNo=dlNo,dlIssueDate=dlIssueDate,dlExpiry=dlExpiry)
+                        dlinfo.save()
+                    # student.Dlinfo = dlinfo
                 # student.Dlinfo.dlType = dlType
                 # student.Dlinfo.dlNo = dlNo
                 # student.Dlinfo.dlIssueDate = dlIssueDate
@@ -379,9 +415,12 @@ def manage_student(request):
                 student.amountPaid = paymentRecieved
                 student.amountPending = paymentDue
                 student.paymentDueDate = paymentDueDate
+                student.addOnService.clear()
                 for addOnServiceId in addOnService:
+
                     student.addOnService.add(AddOnService.objects.get(id=addOnServiceId))
                 student.save()
+                
                 return JsonResponse({'status': 'success'})
             else:
                 newuser = None
@@ -400,11 +439,16 @@ def manage_student(request):
                     slot = Slot.objects.get(id=slot)
                     if bookingType == 'Pre-Booking':
                         slot.slotPreBooked = True
+
                         slot.save()
                     else:
                         slot.slotPreBooked = False
+                        slot.slotUsed = True
                         slot.save()
                     # Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
+                    if paymentDueDate == "":
+                        paymentDueDate = None
+
                     student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate,booking_Type=bookingType)
                     # paymentBy = Instructor.objects.get(user__id=paymentRecievedBy) 
                     payment = Payment(student=student,paymentDate=datetime.today().date(),paymentAmount=paymentRecieved,paymentMethod='Cash',paymentRecevedBy=UserProfile.objects.get(id=paymentRecievedBy))
@@ -415,8 +459,11 @@ def manage_student(request):
                         student.addOnService.add(addOnService)
                     student.save()
                     payment.save()
-                    dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile,dlType=dlType)
-                    dlinfo.save()  
+                    if dlNo:
+                        print("DLINFO",dlNo)
+                        dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile,dlType=dlType)
+                        dlinfo.save()
+
                 except Exception as e:
                     print(e)
                     if newuser:
@@ -426,6 +473,7 @@ def manage_student(request):
                             Dlinfo.delete()
                         newuser.delete()
                         slot.slotPreBooked = False
+                        slot.slotUsed = False
                         slot.save() 
 
                     return JsonResponse({'status': 'error', 'message': str(e)})
@@ -438,14 +486,17 @@ def manage_student(request):
             id = request.GET.get('studentId')
             student = Student.objects.get(id=id)
             student.slot.slotPreBooked = False
+            student.slot.slotUsed = False
             student.slot.save()
             userProf = UserProfile.objects.get(id=student.user.id)
+            print(userProf)
             user = User.objects.get(id=userProf.user.id)
             userProf.delete()
             student.delete()
             user.delete()
             return JsonResponse({'status': 'success'})
         except Exception as e:
+            print(e)
             return JsonResponse({'status': 'error', 'message': str(e)})
 
 
@@ -491,6 +542,7 @@ def getBranchData(request):
                     'branchIncharge': branch.branchIncharge.user.first_name,
                 })
             return JsonResponse(data, safe=False)
+@csrf_exempt
 def manage_branch(request):
     if request.method == 'POST':
         id = request.POST.get('branchId')
@@ -521,10 +573,13 @@ def manage_branch(request):
             except Exception as e:
                 return JsonResponse({'status': 'error', 'message': str(e)})
     if request.method == 'DELETE':
-        id = request.GET.get('id')
-        branch = Branch.objects.get(id=id)
-        branch.delete()
-        return JsonResponse({'status': 'success'})
+        try:
+            id = request.GET.get('branchId')
+            branch = Branch.objects.get(id=id)
+            branch.delete()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
     
     return render(request, 'manage-branch.html')
 

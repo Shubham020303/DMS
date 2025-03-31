@@ -5,6 +5,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Manage Students | DMS</title>
 		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<style>
 			::-webkit-scrollbar {
@@ -29,16 +31,6 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
-
-			.form-stage {
-				display: none;
-			}
-			.form-stage.active {
-				display: block;
-			}
-			.progress-step {
-				transition: all 0.3s ease-in-out;
-			}
 		</style>
 	</head>
 	<body>
@@ -48,7 +40,7 @@
 				<div class="w-full flex justify-between items-center">
 					<h1 class="text-3xl font-bold">Manage Students</h1>
 					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-student">
-						<p>Add Student</p>
+						<p>New Enrollment</p>
 					</div>
 				</div>
 				<div id="wrapper" class="w-full mt-8"></div>
@@ -223,7 +215,7 @@
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-student-modal">
 			<div class="bg-white p-8 rounded-lg w-1/2 max-h-[600px] flex flex-col gap-6">
 				<div class="flex justify-between items-center">
-					<h1 id="student-model-heading" class="text-3xl font-bold">Add Student</h1>
+					<h1 id="student-model-heading" class="text-3xl font-bold">New Enrollment</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-student-modal">
 						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
@@ -265,11 +257,11 @@
 								</div>
 								<div class="flex flex-col gap-2 w-full">
 									<label for="studentEmail" class="block font-semibold">Student Email</label>
-									<input type="email" name="studentEmail" id="studentEmail" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<input type="email" name="studentEmail" id="studentEmail" autocomplete="off" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 								</div>
 								<div class="flex flex-col gap-2 w-full">
 									<label for="studentGender" class="block font-semibold">Gender</label>
-									<select name="studentGender" id="studentGender" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<select name="studentGender" id="studentGender" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 										<option disabled selected>Select Gender</option>
 										<option value="Male">Male</option>
 										<option value="Female">Female</option>
@@ -284,7 +276,7 @@
 									</svg>
 									<p class="whitespace-nowrap">Add Student Image</p>
 									<img id="student-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
-									<input type="file" name="profilePic" id="profilePic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*" required>
+									<input type="file" name="profilePic" id="profilePic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*">
 								</div>
 							</div>
 						</div>
@@ -301,7 +293,7 @@
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="dob" class="block font-semibold">Date of Birth</label>
-								<input type="date" name="dob" id="dob" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<input type="date" name="dob" id="dob" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="applicationNo" class="block font-semibold">Application Number</label>
@@ -320,13 +312,13 @@
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="studentCourse" class="block font-semibold">Course</label>
-								<select name="studentCourse" id="studentCourse" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<select name="studentCourse" id="studentCourse" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 									<option disabled selected>Select Course</option>
 								</select>
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="bookingType" class="block font-semibold">Booking Type</label>
-								<select name="bookingType" id="bookingType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<select name="bookingType" id="bookingType" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 									<option selected value="Normal">Normal</option>
 									<option value="Pre-Booking">Pre-Booking</option>
 								</select>
@@ -335,13 +327,13 @@
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="studentInstructor" class="block font-semibold">Instructor</label>
-								<select name="studentInstructor" id="studentInstructor" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<select name="studentInstructor" id="studentInstructor" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 									<option disabled selected>Select Instructor</option>
 								</select>
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="studentSlot" class="block font-semibold">Time Slot</label>
-								<select name="studentSlot" id="studentSlot" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<select name="studentSlot" id="studentSlot" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 									<option disabled selected>Select Slot</option>
 								</select>
 							</div>
@@ -349,13 +341,13 @@
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="branch" class="block font-semibold">Branch</label>
-								<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<select name="branch" id="branch" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 									<option disabled selected>Select Branch</option>
 								</select>
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="courseStartDate" class="block font-semibold">Course Start Date</label>
-								<input type="date" name="courseStartDate" id="courseStartDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<input type="date" name="courseStartDate" id="courseStartDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
@@ -368,16 +360,16 @@
 								<input type="text" name="totalAmount" id="totalAmount" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
+						<!-- <div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="paymentRecievedBy" class="block font-semibold">Payment Received By</label>
-								<select name="paymentRecievedBy" id="paymentRecievedBy" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<select name="paymentRecievedBy" id="paymentRecievedBy" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 									<option disabled selected>Select Person</option>
 								</select>
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="paymentDueDate" class="block font-semibold">Payment Due Date</label>
-								<input type="date" name="paymentDueDate" id="paymentDueDate" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<input type="date" name="paymentDueDate" id="paymentDueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
@@ -389,7 +381,7 @@
 								<label for="paymentDue" class="block font-semibold">Payment Due</label>
 								<input type="text" name="paymentDue" id="paymentDue" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-						</div>
+						</div> -->
 					</div>
 					<!-- Step 3: License Info -->
 					<div class="form-step hidden" data-step="3">
@@ -441,7 +433,7 @@
 					<!-- New Step 5: Summary -->
 					<div class="form-step hidden" data-step="5">
 						<div class="bg-white rounded-xl">
-							<div class="grid md:grid-cols-2 gap-8">
+							<div class="grid md:grid-cols-2 gap-8 mb-4">
 								<!-- <div>
 									<div class="bg-gray-50 rounded-lg p-6 border border-gray-100 shadow-sm">
 										<h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
@@ -491,6 +483,28 @@
 											<p class="text-gray-500 text-sm italic">No additional services selected</p>
 										</div>
 									</div>
+								</div>
+							</div>
+							<div class="mb-4 flex items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-1/2">
+									<label for="paymentRecievedBy" class="block font-semibold">Payment Received By</label>
+									<select name="paymentRecievedBy" id="paymentRecievedBy" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+										<option disabled selected>Select Person</option>
+									</select>
+								</div>
+								<div class="flex flex-col gap-2 w-1/2">
+									<label for="paymentDueDate" class="block font-semibold">Payment Due Date</label>
+									<input type="date" name="paymentDueDate" id="paymentDueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+							</div>
+							<div class="mb-4 flex items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-1/2">
+									<label for="paymentReceived" class="block font-semibold">Payment Received</label>
+									<input type="text" name="paymentReceived" id="paymentReceived" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-1/2">
+									<label for="paymentDue" class="block font-semibold">Payment Due</label>
+									<input type="text" name="paymentDue" id="paymentDue" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 								</div>
 							</div>
 							<div class="mt-8 pt-6 border-t border-gray-200">
@@ -592,8 +606,10 @@
 				</div>
 			</div>
 		</section>
+		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
+			let currentStep = 1;
 			document.addEventListener('DOMContentLoaded', () => {
 				fetch("http://127.0.0.1:8000/getBranchData/")
 					.then(response => response.json())
@@ -604,7 +620,7 @@
 				fetch("http://127.0.0.1:8000/getCourseData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}" data-fee="${course.courseFee}">${course.courseName}</option>`).join('');
+						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}" data-fee="${course.courseFee}" data-duration=${course.courseDuration}>${course.courseName}</option>`).join('');
 					})
 
                     fetch("http://127.0.0.1:8000/getInstructorData/")
@@ -625,7 +641,6 @@
 				const nextBtn = document.getElementById('next-step');
 				const prevBtn = document.getElementById('prev-step');
 				const addStudentBtn = document.getElementById('add-student-btn');
-				let currentStep = 1;
 
 				// Step button click handling
 				progressStep.forEach(button => {
@@ -637,12 +652,12 @@
 
 				// Next button click handling
 				nextBtn.addEventListener('click', function() {					
-					// if (validateCurrentStep()) {
+					if (validateCurrentStep() && currentStep < 5) {
 						if (currentStep < 5) {
 							currentStep++;
 							updateForm();
 						}
-					// }
+					}
 				});
 
 				// Previous button click handling
@@ -658,17 +673,40 @@
 					const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
 					const requiredFields = currentStepElement.querySelectorAll('[required]');
 					let isValid = true;
+					let firstInvalidField = null;
 
 					requiredFields.forEach(field => {
-						if (!field.value.trim()) {
-							field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
-							field.classList.add('outline-red-300', 'focus:outline-red-600');							
+						const isSelect = field.tagName.toLowerCase() === "select";
+						const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+						const isEmpty = isSelect 
+							? !field.value || (selectedOption && selectedOption.disabled) 
+							: !field.value.trim();
+						const pattern = field.getAttribute('pattern');
+						const isPatternMismatch = !isSelect && pattern 
+							? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+							: false;
+						const alreadyInvalid = field.classList.contains('outline-red-300');
+
+						if (isEmpty || isPatternMismatch) {
+							if (!alreadyInvalid) {
+								field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+								field.classList.add('outline-red-300', 'focus:outline-red-600');
+							}
+							if (!firstInvalidField) firstInvalidField = field;
 							isValid = false;
 						} else {
-							field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-							field.classList.remove('outline-red-300', 'focus:outline-red-600');
+							if (alreadyInvalid) {
+								field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+								field.classList.remove('outline-red-300', 'focus:outline-red-600');
+							}
 						}
 					});
+
+					// If there's an invalid field, scroll and focus on it
+					if (firstInvalidField) {
+						firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+						firstInvalidField.focus();
+					}
 
 					return isValid;
 				}
@@ -764,6 +802,7 @@
 										value="${service.id}" 
 										class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 mr-4 ${service.mandetory ? 'cursor-not-allowed pointer-events-none' : ''}"
 										data-fee="${service.addOnServiceAmount}"
+										data-mandatory="${service.mandetory}"
 										${service.mandetory ? 'checked' : ''}
 										>
 									<div>
@@ -823,7 +862,7 @@
 				currentStep = 1
 				document.getElementById('add-student-modal').classList.remove('scale-0', 'opacity-0');
 				document.getElementById('add-student-modal').classList.add('scale-100', 'opacity-100');
-				document.getElementById("student-model-heading").innerText = "Add Student";
+				document.getElementById("student-model-heading").innerText = "New Enrollment";
 				document.getElementById("btns-container").style.display = "flex";
 				document.getElementById("add-student-btn").innerText = "Add";
 				document.getElementById('add-student-modal').querySelector('form').reset();
@@ -831,64 +870,44 @@
 				document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
 					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
 				});
-				document.querySelectorAll(`.form-step[data-step="1"] input`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-				});
-				document.querySelectorAll(`.form-step[data-step="1"] select`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-				});
-				document.querySelectorAll(`.form-step[data-step="2"] input`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-				});
-				document.querySelectorAll(`.form-step[data-step="2"] select`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-				});
-				document.querySelectorAll(`.form-step[data-step="3"] input`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('disabled');
-					input.removeAttribute('readonly');
-					input.removeAttribute('required');
-				});
-				document.querySelectorAll(`.form-step[data-step="3"] select`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('disabled');
-					input.removeAttribute('readonly');
-					input.removeAttribute('required');
-				});
-				document.querySelectorAll(`.form-step[data-step="4"] input`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.removeAttribute('disabled');
-					input.removeAttribute('readonly');
-					input.removeAttribute('required');
-				});
-				document.querySelectorAll(`.form-step[data-step="4"] select`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.removeAttribute('disabled');
-					input.removeAttribute('readonly');
-					input.removeAttribute('required');
-				});
+
+				// Personal Info
+				document.getElementById("studentName").setAttribute("required", true);
+				document.getElementById("studentEmail").setAttribute("required", true);
+				document.getElementById("studentGender").setAttribute("required", true);
+				document.getElementById("phone").setAttribute("required", true);
+				document.getElementById("bloodGroup").setAttribute("required", true);
+				document.getElementById("dob").setAttribute("required", true);
+				document.getElementById("applicationNo").setAttribute("required", true);
+				document.getElementById("address").setAttribute("required", true);
+
+				// Course Details
+				document.getElementById("studentCourse").setAttribute("required", true);
+				document.getElementById("bookingType").setAttribute("required", true);
+				document.getElementById("studentInstructor").setAttribute("required", true);
+				document.getElementById("studentSlot").setAttribute("required", true);
+				document.getElementById("branch").setAttribute("required", true);
+				document.getElementById("courseStartDate").setAttribute("required", true);
+				document.getElementById("courseStartDate").setAttribute("min", new Date().toISOString().split("T")[0]);
+				document.getElementById("courseEndDate").setAttribute("required", true);
+				document.getElementById("totalAmount").setAttribute("required", true);
+				document.getElementById("totalAmount").setAttribute("readonly", true);
+				document.getElementById("paymentRecievedBy").setAttribute("required", true);
+				document.getElementById("paymentReceived").setAttribute("required", true);
+				document.getElementById("paymentDue").setAttribute("required", true);
+				document.getElementById("paymentDue").setAttribute("readonly", true);
+
+				// Add On Services
+				document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+					if (checkbox.getAttribute('data-mandatory') === 'true') {
+						checkbox.checked = true
+						checkbox.closest('.border').classList.add('bg-indigo-100');
+					} else {
+						checkbox.checked = false
+						checkbox.closest('.border').classList.remove('bg-indigo-100');
+					}
+				})
+
 				if (document.getElementById("studentId")) {
 					document.getElementById("studentId").remove();
 				}
@@ -989,24 +1008,100 @@
 			})
 
 			document.getElementById("paymentReceived").addEventListener("input", () => {
-				const totalAmount = document.getElementById("totalAmount").value;
+				// Course Details
+				const courseSelect = document.getElementById("studentCourse");
+				const selectedCourse = courseSelect.value;
+				const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+				const courseFee = parseInt(courseSelect.querySelector(`option[value="${selectedCourse}"]`)?.getAttribute('data-fee')) || 0;
 				const paymentReceived = document.getElementById("paymentReceived").value;
-				document.getElementById("paymentDue").value = totalAmount - paymentReceived;
+
+				// Add-On Services
+				let servicesFee = 0;
+
+				document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+					const serviceFee = parseInt(checkbox.getAttribute('data-fee')) || 0;
+					const serviceName = checkbox.closest('.border').querySelector('h3').textContent;
+					
+					servicesFee += serviceFee;
+				});
+
+				// Grand Total
+				const grandTotal = courseFee + servicesFee;
+
+				document.getElementById("paymentDue").value = grandTotal - paymentReceived;
+				document.getElementById("summary-grand-total").textContent = `₹${grandTotal - paymentReceived}`;
 			})
+			// document.getElementById("paymentReceived").addEventListener("input", () => {
+			// 	const totalAmount = document.getElementById("totalAmount").value;
+			// 	const paymentReceived = document.getElementById("paymentReceived").value;
+			// 	document.getElementById("paymentDue").value = totalAmount - paymentReceived;
+			// })
+
+			document.getElementById("courseStartDate").addEventListener("input", () => {
+				const today = new Date().toISOString().split("T")[0];
+				const selectedCourse = document.getElementById("studentCourse").value;
+				const courseDuration = parseInt(document.getElementById("studentCourse").querySelector(`option[value="${selectedCourse}"]`).getAttribute("data-duration"));
+
+				if (isNaN(courseDuration)) return; // Ensure duration is valid
+
+				const courseStartDate = new Date(document.getElementById("courseStartDate").value);
+				if (isNaN(courseStartDate.getTime()) || courseStartDate < new Date(today)) {
+					alert("Course start date cannot be in the past!");
+					document.getElementById("courseStartDate").value = today;
+					return;
+				}
+
+				// Calculate course end date
+				const courseEndDate = new Date(courseStartDate);
+				courseEndDate.setDate(courseEndDate.getDate() + courseDuration);
+
+				// Set the calculated end date and its minimum value
+				document.getElementById("courseEndDate").value = courseEndDate.toISOString().split("T")[0];
+				document.getElementById("courseEndDate").setAttribute("min", document.getElementById("courseStartDate").value);
+
+				// Calculate payment due date (3 days after courseStartDate)
+				const paymentDueDate = new Date(courseStartDate);
+				paymentDueDate.setDate(paymentDueDate.getDate() + 3);
+
+				// Set payment due date field
+				document.getElementById("paymentDueDate").value = paymentDueDate.toISOString().split("T")[0];
+				document.getElementById("paymentDueDate").setAttribute("min", document.getElementById("courseStartDate").value);
+			});
 
 			document.getElementById("add-student-form").addEventListener("submit", (e) => {
 				if (document.getElementById('add-student-btn').innerText === "Update") {
 					e.preventDefault();
 					const form = e.target; // Get the form element
         				const formData = new FormData(form); // Correctly create FormData
+					let addonservices = []
 
-					const profilePicInput = document.getElementById("profilePic");
-					
-					if (profilePicInput.files[0].name === profilePicInput.getAttribute("data-name")) {
+					const profilePicInput = document.getElementById("profilePic")
+
+					if (profilePicInput.files.length > 0) {
+						if (profilePicInput.files[0].name === profilePicInput.getAttribute("data-name")) {
+							formData.delete("profilePic");
+						} else {
+							formData.append("profilePic", profilePicInput.files[0]);
+						}
+					} else {
 						formData.delete("profilePic");
-					} else if (profilePicInput.files.length > 0) {
-						formData.append("profilePic", profilePicInput.files[0]);
 					}
+
+					if (formData.has("addOnServices")) {
+						formData.delete("addOnServices")
+					}
+
+					document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+						addonservices.push(checkbox.value)
+					})
+
+					formData.append("addOnService", addonservices)
+
+					formData.forEach((value, key) => {
+						if (value === "" || value === "No Data Found" || value === "null" || value === "undefined") {
+							formData.delete(key);
+						}
+					});
 
 					fetch("/manage-student/", {
 						method: "POST", // Change to PUT if updating
@@ -1057,6 +1152,12 @@
 					formData.append("addOnService", addonservices)
 
 					formData.forEach((value, key) => {
+						if (value === "" || value === "No Data Found" || value === "null" || value === "undefined") {
+							formData.delete(key);
+						}
+					});
+
+					formData.forEach((value, key) => {
 						console.log(key, value);
 					});
 
@@ -1073,7 +1174,7 @@
 							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-student-message").innerText = "Student details added successfully."
-							document.getElementById("update-student-heading").innerText = "Add Student"
+							document.getElementById("update-student-heading").innerText = "New Enrollment"
 						} else if (data.status === "error") {
 							console.error("Error:", data.message);
 							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
@@ -1144,7 +1245,12 @@
 						id: "profilePic",
 						name: "",
 						formatter: (cell, row) => {
-							cell = `<img src="${cell}" class="w-10 h-10 rounded-full object-cover" alt="">`;
+							cell = cell !== null ? 
+								`<img src="${cell}" class="w-10 h-10 rounded-full object-cover" alt="">` : 
+								`<svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+									<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+									<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+								</svg>`;
 							return gridjs.html(cell);
 						},
 						width: '7%'
@@ -1177,11 +1283,6 @@
 								`,
 								onClick: () => {
 									fetchStudentData(`http://127.0.0.1:8000/getStudentData/?studentId=${row.cells[0].data}`, "Edit Student Details", true, false);
-									document.getElementById("paymentDueDate").removeAttribute("required");
-									document.getElementById("totalAmount").setAttribute("readonly", true);
-									document.getElementById("totalAmount").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
-									document.getElementById("paymentDue").setAttribute("readonly", true);
-									document.getElementById("paymentDue").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
 									document.getElementById("add-student-btn").innerText = "Update";
 
 									document.getElementById("add-student-form").innerHTML += `<input type="hidden" name="studentId" id="studentId" value="${row.cells[0].data}">`;
@@ -1272,12 +1373,17 @@
 						document.getElementById("address").value = data.address || "No Data Found";
 						document.getElementById("totalAmount").value = data.totalAmount || "No Data Found";
 						document.getElementById("paymentDueDate").value = data.paymentDueDate || "No Data Found";
-						document.getElementById("paymentReceived").value = data.paymentReceived || "No Data Found";
-						document.getElementById("paymentDue").value = data.paymentDue || "No Data Found";
+						// document.getElementById("paymentReceived").value = data.paymentReceived || "No Data Found";
+						document.getElementById("paymentRecievedBy").value = data.paymentRecievedBy || "No Data Found";
+						// document.getElementById("paymentDue").value = data.paymentDue || "No Data Found";
+						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
+						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
+						document.getElementById("dlExpiry").value = data.dlExpiry || "No Data Found";
+						document.getElementById("dlType").value = data.dlType || "No Data Found";
 						data.addOnService.map((item,index) => {
 							document.querySelectorAll("#services-container input").forEach((checkbox) => {
 								console.log(parseInt(checkbox.value), parseInt(item));
-								if (parseInt(checkbox.value) == parseInt(item)) {
+								if (parseInt(checkbox.value) === parseInt(item)) {
 									console.log(checkbox);
 									checkbox.setAttribute("checked", true);
 								}
@@ -1333,7 +1439,7 @@
 						const nextBtn = document.getElementById('next-step');
 						const prevBtn = document.getElementById('prev-step');
 						const addStudentBtn = document.getElementById('add-student-btn');
-						let currentStep = 1;
+						currentStep = 1;
 
 						// Step button click handling
 						progressStep.forEach(button => {
@@ -1345,13 +1451,13 @@
 
 						// Next button click handling
 						nextBtn.addEventListener('click', function() {					
-							// if (validateCurrentStep()) {
+							if (validateCurrentStep() && currentStep < 5) {
 								if (currentStep < 5) {
 									console.log(currentStep);
 									currentStep++;
 									updateForm();
 								}
-							// }
+							}
 						});
 
 						// Previous button click handling
@@ -1367,17 +1473,40 @@
 							const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
 							const requiredFields = currentStepElement.querySelectorAll('[required]');
 							let isValid = true;
+							let firstInvalidField = null;
 
 							requiredFields.forEach(field => {
-								if (!field.value.trim()) {
-									field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
-									field.classList.add('outline-red-300', 'focus:outline-red-600');							
+								const isSelect = field.tagName.toLowerCase() === "select";
+								const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+								const isEmpty = isSelect 
+									? !field.value || (selectedOption && selectedOption.disabled) 
+									: !field.value.trim();
+								const pattern = field.getAttribute('pattern');
+								const isPatternMismatch = !isSelect && pattern 
+									? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+									: false;
+								const alreadyInvalid = field.classList.contains('outline-red-300');
+
+								if (isEmpty || isPatternMismatch) {
+									if (!alreadyInvalid) {
+										field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+										field.classList.add('outline-red-300', 'focus:outline-red-600');
+									}
+									if (!firstInvalidField) firstInvalidField = field;
 									isValid = false;
 								} else {
-									field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-									field.classList.remove('outline-red-300', 'focus:outline-red-600');
+									if (alreadyInvalid) {
+										field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+										field.classList.remove('outline-red-300', 'focus:outline-red-600');
+									}
 								}
 							});
+
+							// If there's an invalid field, scroll and focus on it
+							if (firstInvalidField) {
+								firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+								firstInvalidField.focus();
+							}
 
 							return isValid;
 						}
@@ -1419,7 +1548,42 @@
 						// Initial form setup
 						updateForm();
 
-						fetchServices()
+						document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+							checkbox.addEventListener('change', function() {
+								this.closest('.border').classList.toggle('bg-indigo-100', this.checked);
+							});
+
+							if (checkbox.checked) {
+								checkbox.closest('.border').classList.add('bg-indigo-100');
+							}
+						});
+
+						document.getElementById("paymentReceived").addEventListener("input", () => {
+							// Course Details
+							const courseSelect = document.getElementById("studentCourse");
+							const selectedCourse = courseSelect.value;
+							const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+							const courseFee = parseInt(courseSelect.querySelector(`option[value="${selectedCourse}"]`)?.getAttribute('data-fee')) || 0;
+							const paymentReceived = document.getElementById("paymentReceived").value;
+
+							// Add-On Services
+							let servicesFee = 0;
+
+							document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+								const serviceFee = parseInt(checkbox.getAttribute('data-fee')) || 0;
+								const serviceName = checkbox.closest('.border').querySelector('h3').textContent;
+								
+								servicesFee += serviceFee;
+							});
+
+							// Grand Total
+							const grandTotal = courseFee + servicesFee;
+
+							document.getElementById("paymentDue").value = grandTotal - paymentReceived;
+							document.getElementById("summary-grand-total").textContent = `₹${grandTotal - paymentReceived}`;
+						})
+
+						// fetchServices()
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});
 			}
@@ -1517,66 +1681,32 @@
                     document.getElementById('add-student-modal').querySelectorAll('select').forEach(input => {
 					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
 				});
-				document.querySelectorAll(`.form-step[data-step="1"] input`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-				});
-				document.querySelectorAll(`.form-step[data-step="1"] select`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-				});
-				document.querySelectorAll(`.form-step[data-step="2"] input`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-				});
-				document.querySelectorAll(`.form-step[data-step="2"] select`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('readonly');
-					input.removeAttribute('disabled');
-				});
-				document.querySelectorAll(`.form-step[data-step="3"] input`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('disabled', true);
-					input.removeAttribute('readonly');
-					input.removeAttribute('required');
-				});
-				document.querySelectorAll(`.form-step[data-step="3"] select`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.remove('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('disabled');
-					input.removeAttribute('readonly');
-					input.removeAttribute('required');
-				});
-				document.querySelectorAll(`.form-step[data-step="4"] input`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.add('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('disabled');
-					input.removeAttribute('readonly');
-					input.removeAttribute('required');
-				});
-				document.querySelectorAll(`.form-step[data-step="4"] select`).forEach(input => {
-					input.classList.remove('outline-red-300', 'focus:outline-red-600');
-					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
-					input.classList.add('cursor-not-allowed', 'pointer-events-none');
-					input.removeAttribute('disabled');
-					input.removeAttribute('readonly');
-					input.removeAttribute('required');
-				});
+
+				// Personal Info
+				document.getElementById("studentName").setAttribute("required", true);
+				document.getElementById("studentEmail").setAttribute("required", true);
+				document.getElementById("studentGender").setAttribute("required", true);
+				document.getElementById("phone").setAttribute("required", true);
+				document.getElementById("bloodGroup").setAttribute("required", true);
+				document.getElementById("dob").setAttribute("required", true);
+				document.getElementById("applicationNo").setAttribute("required", true);
+				document.getElementById("address").setAttribute("required", true);
+
+				// Course Details
+				document.getElementById("studentCourse").setAttribute("required", true);
+				document.getElementById("bookingType").setAttribute("required", true);
+				document.getElementById("studentInstructor").setAttribute("required", true);
+				document.getElementById("studentSlot").setAttribute("required", true);
+				document.getElementById("branch").setAttribute("required", true);
+				document.getElementById("courseStartDate").setAttribute("required", true);
+				// document.getElementById("courseStartDate").setAttribute("min", new Date().toISOString().split("T")[0]);
+				document.getElementById("courseEndDate").setAttribute("required", true);
+				document.getElementById("totalAmount").setAttribute("required", true);
+				document.getElementById("totalAmount").setAttribute("readonly", true);
+				document.getElementById("paymentRecievedBy").setAttribute("required", true);
+				document.getElementById("paymentReceived").setAttribute("required", true);
+				document.getElementById("paymentDue").setAttribute("required", true);
+				document.getElementById("paymentDue").setAttribute("readonly", true);
 			}
 		</script>
 	</body>

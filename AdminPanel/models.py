@@ -80,8 +80,12 @@ class Vehicle(models.Model):
     
 class Instructor(models.Model):
     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE,null=True,blank=True,related_name='instructor')
+    dob = models.DateField(blank=True,null=True)
     instructorVehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE,null=True,blank=True)
     instructorBranch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True,blank=True)
+    adharCard = models.FileField(upload_to='instructorDoc/',null=True,blank=True)
+    aggreementDoc = models.FileField(upload_to='instructorDoc/',null=True,blank=True)
+    policeVerificationDoc = models.FileField(upload_to='instructorDoc/',null=True,blank=True)
     
     def __str__(self):
         return self.user.user.first_name
@@ -120,7 +124,7 @@ class Student(models.Model):
     amountPending = models.IntegerField(null=True,blank=True,default=0)
     paymentDueDate = models.DateField(null=True,blank=True)
     attened_session = models.IntegerField(default=0,null=True,blank=True)
-    addOnService = models.ManyToManyField(AddOnService,null=True, blank=True)
+    addOnService = models.ManyToManyField(AddOnService)
     student_staus = models.BooleanField(default=True)
     def __str__(self):
         return self.user.user.first_name
@@ -203,5 +207,4 @@ class Payment(models.Model):
     def __str__(self):
         return self.student.user.user.first_name
     
-
 

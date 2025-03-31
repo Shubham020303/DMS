@@ -6,6 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Dashboard | DMS</title>
 	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+	<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 	<style>
 		::-webkit-scrollbar {
@@ -282,6 +284,7 @@
 		</div>
 	</section>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
 	<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 	<script>
 		// const ctx = document.getElementById('myChart');
@@ -322,10 +325,10 @@
 					document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
 				})
 
-			fetch("http://127.0.0.1:8000/getUserProfileData/")
+			fetch("http://127.0.0.1:8000/getInstructorData/")
 				.then(response => response.json())
 				.then(data => {
-					document.getElementById("paymentReceivedBy").innerHTML += data.map(user => `<option value="${user.id}">${user.Name}</option>`).join('');
+					document.getElementById("paymentReceivedBy").innerHTML += data.map(user => `<option value="${user.id}">${user.name}</option>`).join('');
 				})
 		})
 

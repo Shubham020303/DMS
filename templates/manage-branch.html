@@ -5,6 +5,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Manage Branches | DMS</title>
 		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<style>
 			::-webkit-scrollbar {
@@ -139,6 +141,7 @@
 				</div>
 			</div>
 		</section>
+		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
                document.addEventListener('DOMContentLoaded', () => {
@@ -306,12 +309,12 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log(data);
-						if (data.success) {
-							document.getElementById("delete-branch-message-container").innerHTML = `<p>${data.success}</p>`;
+						if (data.status === "success") {
+							document.getElementById("delete-branch-message-container").innerHTML = `<p>Branch deleted successfully</p>`;
 							document.getElementById("delete-branch-btn").style.display = "none";
 							document.getElementById("close-delete-branch-modal").innerText = "Close";
-						} else if (data.error) {
-							document.getElementById("delete-branch-message-container").innerHTML = `<p>${data.error}</p>`;
+						} else if (data.status === "error") {
+							document.getElementById("delete-branch-message-container").innerHTML = `<p>${data.message}</p>`;
 							document.getElementById("delete-branch-btn").style.display = "none";
 							document.getElementById("close-delete-branch-modal").innerText = "Close";
 						}

@@ -5,6 +5,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Manage Instructor | DMS</title>
 		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<style>
 			::-webkit-scrollbar {
@@ -45,7 +47,7 @@
 			</div>
 		</section>
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-instructor-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 h-[600px] flex flex-col gap-6">
+			<div class="bg-white p-8 rounded-lg w-1/2 max-h-[600px] flex flex-col gap-6">
 				<div class="flex justify-between items-center">
 					<h1 id="instructon-model-heading" class="text-3xl font-bold">Add Instructor</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-instructor-modal">
@@ -56,7 +58,216 @@
 				</div>
 				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-instructor-form">
 					{%csrf_token%}
-					<div class="w-full">
+					<!-- Step Indicator -->
+					<div class="w-full flex justify-between mb-4">
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="1">
+							<div class="progress-number w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1">1</div>
+							<span class="text-xs font-medium">Personal Info</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="2">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">2</div>
+							<span class="text-xs font-medium">License Info</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="3">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">3</div>
+							<span class="text-xs font-medium">Documents</span>
+						</div>
+					</div>
+
+					<div class="form-step" data-step="1">
+						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
+							<div class="flex flex-col items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="name" class="block font-semibold">Name</label>
+									<input type="text" name="name" id="name" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="email" class="block font-semibold">Email</label>
+									<input type="email" name="email" id="email" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="branch" class="block font-semibold">Branch</label>
+									<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+										<option disabled selected>Select Branch</option>
+									</select>
+								</div>
+							</div>
+							<div class="flex justify-center w-full h-full">
+								<div class="image-upload-container flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="image-upload">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+									</svg>
+									<p class="whitespace-nowrap">Add Instructor Image</p>
+									<img id="instructor-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
+									<input type="file" name="profilePhoto" id="profilePhoto" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*" required>
+								</div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="mobile" class="block font-semibold">Phone</label>
+								<input type="text" name="mobile" id="mobile" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="bloodGroup" class="block font-semibold">Blood Group</label>
+								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dob" class="block font-semibold">Date of Birth</label>
+								<input type="date" name="dob" id="dob" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="vehicle" class="block font-semibold">Vehicle</label>
+								<select name="vehicle" id="vehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Vehicle</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="form-step" data-step="2">
+						<div class="mb-4 flex items-start gap-4 w-full">
+							<div class="flex flex-col items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="dlNo" class="block font-semibold">License Number</label>
+									<input type="text" name="dlNo" id="dlNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dlIssueDate" class="block font-semibold">License Issue Date</label>
+								<input type="date" name="dlIssueDate" id="dlIssueDate" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dlExpiry" class="block font-semibold">License Expiry Date</label>
+								<input type="date" name="dlExpiry" id="dlExpiry" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<!-- <div class="flex flex-col gap-2 w-full">
+								<label for="dlType" class="block font-semibold">License Type</label>
+								<select name="dlType" id="dlType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option disabled selected>Select License</option>
+									<option value="Learning License">Learning License</option>
+									<option value="Driving License">Driving License</option>
+								</select>
+							</div> -->
+						</div>
+							<!-- <div class="flex justify-center w-1/2 h-full">
+								<div class="image-upload-container flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="dl-image-upload">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+									</svg>
+									<p class="whitespace-nowrap">Add License Image</p>
+									<img id="dl-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
+									<input type="file" name="dlPic" id="dlPic" required class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*">
+								</div>
+							</div> -->
+						<!-- </div> -->
+						<!-- <div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dlIssueDate" class="block font-semibold">License Issue Date</label>
+								<input type="date" name="dlIssueDate" id="dlIssueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dlExpiry" class="block font-semibold">License Expiry Date</label>
+								<input type="date" name="dlExpiry" id="dlExpiry" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div> -->
+					</div>
+					<div class="form-step" data-step="3">
+						<div class="mb-6">
+							<h3 class="font-semibold text-lg text-gray-800 mb-2">Upload Required Documents</h3>
+							<p class="text-sm text-gray-600">Please upload the following documents in the specified format.</p>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+							<!-- Aadhar Card Upload -->
+							<div class="document-upload-container">
+								<label class="block font-semibold mb-2">Aadhar Card</label>
+								<div class="flex flex-col items-center justify-center gap-2 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden" id="aadhar-upload">
+									<div class="flex flex-col items-center justify-center gap-2 text-center">
+										<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-gray-500" viewBox="0 0 16 16">
+											<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+											<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+										</svg>
+										<p class="font-medium text-sm text-gray-700">Upload Aadhar Card</p>
+										<p class="text-xs text-gray-500">JPG, PNG or PDF (Max 5MB)</p>
+										<div class="document-preview hidden mt-2">
+											<div class="flex items-center gap-2 text-sm text-indigo-600">
+												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+													<path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+												</svg>
+												<span class="document-name">document.pdf</span>
+											</div>
+										</div>
+									</div>
+									<input type="file" name="adharcard" id="adharcard" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf" required>
+								</div>
+							</div>
+							<!-- Agreement Upload -->
+							<div class="document-upload-container">
+								<label class="block font-semibold mb-2">Agreement</label>
+								<div class="flex flex-col items-center justify-center gap-2 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden" id="agreement-upload">
+									<div class="flex flex-col items-center justify-center gap-2 text-center">
+										<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-gray-500" viewBox="0 0 16 16">
+											<path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 1 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+											<path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+										</svg>
+										<p class="font-medium text-sm text-gray-700">Upload Agreement</p>
+										<p class="text-xs text-gray-500">PDF only (Max 10MB)</p>
+										<div class="document-preview hidden mt-2">
+											<div class="flex items-center gap-2 text-sm text-indigo-600">
+												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+													<path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+												</svg>
+												<span class="document-name">document.pdf</span>
+											</div>
+										</div>
+									</div>
+									<input type="file" name="aggrement" id="aggrement" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" accept=".pdf" required>
+								</div>
+							</div>
+						</div>
+						<!-- Police Verification Document Upload -->
+						<div class="mb-6">
+							<div class="document-upload-container">
+								<label class="block font-semibold mb-2">Police Verification Document</label>
+								<div class="flex flex-col items-center justify-center gap-2 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden" id="police-upload">
+									<div class="flex flex-col items-center justify-center gap-2 text-center">
+										<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-gray-500" viewBox="0 0 16 16">
+											<path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM5.057 6h5.886L11 8h-.5c-.18-1.096-.356-1.192-1.694-1.235l-.298-.01v5.09c0 .47.1.582.903.655v.5H6.59v-.5c.799-.073.898-.184.898-.654V6.755l-.293.01C5.856 6.808 5.68 6.905 5.5 8H5l.057-2z"/>
+										</svg>
+										<p class="font-medium text-sm text-gray-700">Upload Police Verification</p>
+										<p class="text-xs text-gray-500">PDF only (Max 10MB)</p>
+										<div class="document-preview hidden mt-2">
+											<div class="flex items-center gap-2 text-sm text-indigo-600">
+												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+													<path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+												</svg>
+												<span class="document-name">document.pdf</span>
+											</div>
+										</div>
+									</div>
+									<input type="file" name="policeVerification" id="policeVerification" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" accept=".pdf">
+								</div>
+							</div>
+						</div>
+						<div class="mb-6 bg-indigo-50 p-4 rounded-lg">
+							<div class="flex items-start gap-3">
+								<div class="flex-shrink-0 pt-0.5">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-indigo-600" viewBox="0 0 16 16">
+										<path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+									</svg>
+								</div>
+								<div>
+									<p class="text-sm text-indigo-800">All documents submitted must be clear, legible, and valid. Please ensure the information matches with your government-issued IDs.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- <div class="w-full">
 						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
 							<div class="flex flex-col items-center gap-4 w-full">
 								<div class="flex flex-col gap-2 w-full">
@@ -96,16 +307,6 @@
 								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
-						<div id="password-container" class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="password" class="block font-semibold">Password</label>
-								<input type="password" name="password" id="password" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-							</div>
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="cnfpassword" class="block font-semibold">Confirm Password</label>
-								<input type="text" name="cnfpassword" id="cnfpassword" autocomplete="email" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-							</div>
-						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-full">
 								<label for="vehicle" class="block font-semibold">Vehicle</label>
@@ -114,15 +315,27 @@
 								</select>
 							</div>
 						</div>
+					</div> -->
+					<!-- Navigation Buttons -->
+					<div id="btns-container" class="flex justify-between">
+						<button type="button" id="prev-step" class="bg-gray-500 text-white px-6 py-2 rounded cursor-pointer mr-2 hidden">
+						Previous
+						</button>
+						<button type="button" id="next-step" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer">
+						Next
+						</button>
+						<button id="add-instructor-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
+						Add Student
+						</button>
 					</div>
-					<div id="btns-container" class="flex justify-end">
+					<!-- <div id="btns-container" class="flex justify-end">
 						<button id="add-instructor-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
 							<p>Add</p>
 						</button>
 						<botton id="close-add-instructor-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
 							<p>Cancel</p>
 						</botton>
-					</div>
+					</div> -->
 				</form>
 			</div>
 		</section>
@@ -202,8 +415,10 @@
 				</div>
 			</div>
 		</section>
+		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
+			let currentStep = 1;
 			document.addEventListener('DOMContentLoaded', () => {
 				fetch("http://127.0.0.1:8000/getBranchData/")
 					.then(response => response.json())
@@ -216,7 +431,178 @@
 					.then(data => {
 						document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.id}">${vehicle.vehicalName}</option>`).join('');
 					})
+
+				const steps = document.querySelectorAll('.form-step');
+				const progressStep = document.querySelectorAll('.progress-step');
+				const nextBtn = document.getElementById('next-step');
+				const prevBtn = document.getElementById('prev-step');
+				const addStudentBtn = document.getElementById('add-instructor-btn');
+
+				// Step button click handling
+				progressStep.forEach(button => {
+					button.addEventListener('click', function() {
+						const step = this.getAttribute('data-step');
+						goToStep(parseInt(step));
+					});
+				});
+
+				// Next button click handling
+				nextBtn.addEventListener('click', function() {					
+					if (validateCurrentStep() && currentStep < 3) {
+						if (currentStep < 3) {
+							currentStep++;
+							updateForm();
+						}
+					}
+				});
+
+				// Previous button click handling
+				prevBtn.addEventListener('click', function() {
+					if (currentStep > 1) {
+						currentStep--;
+						updateForm();
+					}
+				});
+
+				// Form validation for current step
+				function validateCurrentStep() {
+					const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+					const requiredFields = currentStepElement.querySelectorAll('[required]');
+					let isValid = true;
+					let firstInvalidField = null;
+
+					requiredFields.forEach(field => {
+						const isSelect = field.tagName.toLowerCase() === "select";
+						const isFileInput = field.type === "file";
+						const isUploadContainer = field.closest(".image-upload-container"); // Handle multiple image upload containers
+
+						const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+
+						const isEmpty = isFileInput 
+							? field.files.length === 0  // Check if file input is empty
+							: isSelect 
+								? !field.value || (selectedOption && selectedOption.disabled)  // Check if select has a disabled value
+								: !field.value.trim();  // Check normal input fields
+
+						const pattern = field.getAttribute('pattern');
+						const isPatternMismatch = !isSelect && !isFileInput && pattern 
+							? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+							: false;
+
+						const alreadyInvalid = field.classList.contains('outline-red-300');
+
+						if (isEmpty || isPatternMismatch) {
+							if (!alreadyInvalid) {
+								field.classList.remove("focus:outline-indigo-600", "bg-white");
+								field.classList.add("focus:outline-red-600", "bg-red-100");
+							}
+
+							// Special case: Highlight the image upload box if file input is empty
+							if (isFileInput && isUploadContainer) {
+								isUploadContainer.classList.add("border-red-500", "bg-red-500");
+							}
+
+							if (!firstInvalidField) firstInvalidField = field;
+							isValid = false;
+						} else {
+							if (alreadyInvalid) {
+								field.classList.add("focus:outline-indigo-600", "bg-white");
+								field.classList.remove("focus:outline-red-600", "bg-red-100");
+							}
+
+							// Remove error styles from image upload box if valid
+							if (isFileInput && isUploadContainer) {
+								isUploadContainer.classList.remove("border-red-500", "bg-red-500");
+							}
+						}
+					});
+
+					// If there's an invalid field, scroll and focus on it
+					if (firstInvalidField) {
+						firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+						firstInvalidField.focus();
+					}
+
+					return isValid;
+				}
+
+				// Update form function modified to include 5 steps
+				function updateForm() {
+					// Hide all steps
+					steps.forEach(step => step.classList.add('hidden'));
+					
+					// Show current step
+					document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+					// Update step buttons
+					progressStep.forEach(btn => {
+						btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+						btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+						if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+							btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+							btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+						}
+					});
+
+					// Manage navigation buttons
+					prevBtn.classList.toggle('hidden', currentStep === 1);
+					nextBtn.classList.toggle('hidden', currentStep === 3);
+					addStudentBtn.classList.toggle('hidden', currentStep !== 3);
+
+					// // Update summary if moving to summary step
+					// if (currentStep === 5) {
+					// 	updateSummary();
+					// }
+				}
+
+				function goToStep(step) {
+					currentStep = step;
+					updateForm();
+				}
+
+				// Initial form setup
+				updateForm();
+
+				const uploadContainers = document.querySelectorAll('.document-upload-container');
+
+				uploadContainers.forEach(container => {
+					const input = container.querySelector('input[type="file"]');
+					const preview = container.querySelector('.document-preview');
+					const docName = container.querySelector('.document-name');
+					
+					input.addEventListener('change', function() {
+						if (this.files && this.files[0]) {
+							// Show file name in preview
+							docName.textContent = this.files[0].name;
+							preview.classList.remove('hidden');
+							
+							// Change background color to indicate file selected
+							const uploadBox = this.parentElement;
+							uploadBox.classList.add('bg-indigo-50', 'border-indigo-300');
+							uploadBox.classList.remove('bg-gray-100', 'border-gray-300');
+						}
+					});
+				});
 			})
+
+			document.getElementById("dob").addEventListener("input", () => {
+                    const dob = new Date(document.getElementById("dob").value);
+                    const today = new Date();
+                    const age = today.getFullYear() - dob.getFullYear();
+                    if (age < 18) {
+                         document.getElementById("dob").value = "";
+                         alert("Age should be greater than 18 years.");
+                         document.getElementById("dob").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+                         document.getElementById("dob").classList.add("focus:outline-2", "focus:-outline-offset-2", "focus:outline-red-600");
+                         document.getElementById("dob").classList.remove("bg-white");
+                         document.getElementById("dob").classList.add("bg-red-100");
+                    } else {
+                         document.getElementById("dob").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-red-600");
+                         document.getElementById("dob").classList.add("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+                         document.getElementById("dob").classList.remove("bg-red-100");
+                         document.getElementById("dob").classList.add("bg-white");
+                    }
+               });
 
 			const imageUpload = document.getElementById('image-upload');
 			const image = document.getElementById('profilePhoto');
@@ -232,6 +618,21 @@
 
 				reader.readAsDataURL(file);
 			});
+			
+			// const dlImageUpload = document.getElementById('dl-image-upload');
+			// const dlImage = document.getElementById('dlPic');
+
+			// dlImage.addEventListener('change', () => {
+			// 	const file = dlImage.files[0];
+			// 	const reader = new FileReader();
+
+			// 	reader.onload = () => {
+			// 		dlImageUpload.querySelector('img').src = reader.result;
+			// 		dlImageUpload.querySelector('img').classList.remove('hidden');
+			// 	}
+
+			// 	reader.readAsDataURL(file);
+			// });
 
 			document.getElementById('add-instructor').addEventListener('click', () => {
 				document.getElementById('add-instructor-modal').classList.remove('scale-0', 'opacity-0');
@@ -241,7 +642,6 @@
 				document.getElementById("add-instructor-btn").innerText = "Add";
 				document.getElementById('add-instructor-modal').querySelector('form').reset();
 				document.getElementById('instructor-image').classList.add('hidden');
-				document.getElementById("password-container").style.display = "flex";
 				document.getElementById('add-instructor-modal').querySelectorAll('input').forEach(input => {
 					input.removeAttribute('readonly');
 					input.removeAttribute('disabled');
@@ -252,20 +652,9 @@
 				document.getElementById("branch").removeAttribute('disabled');
 				document.getElementById("vehicle").setAttribute("disabled", false);
 				document.getElementById("vehicle").removeAttribute('disabled');
-				document.getElementById("cnfpassword").removeAttribute("readonly");
-				document.getElementById("password").removeAttribute("readonly");
-				document.getElementById("cnfpassword").setAttribute("required", true);
-				document.getElementById("password").setAttribute("required", true);
-				document.getElementById("cnfpassword").style.display = "block";
-				document.getElementById("password").style.display = "block";
 				if (document.getElementById("instructorId")) {
 					document.getElementById("instructorId").remove();
 				}
-			});
-
-			document.getElementById('close-add-instructor-modal').addEventListener('click', () => {
-				document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
-				document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
 			});
 
 			document.getElementById('close-instructor-modal').addEventListener('click', () => {
@@ -304,52 +693,126 @@
 			});
 
 			document.getElementById("add-instructor-form").addEventListener("submit", (e) => {
-				if (document.getElementById('add-instructor-btn').innerText === "Update") {
-					e.preventDefault();
-					const form = e.target; // Get the form element
-        				const formData = new FormData(form); // Correctly create FormData
+				// if (document.getElementById('add-instructor-btn').innerText === "Update") {
+				// 	e.preventDefault();
+				// 	const form = e.target; // Get the form element
+        			// 	const formData = new FormData(form); // Correctly create FormData
 
-					const profilePhotoInput = document.getElementById("profilePhoto");
+				// 	const profilePhotoInput = document.getElementById("profilePhoto");
 					
-					if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
-						formData.delete("profilePhoto");
-					} else if (profilePhotoInput.files.length > 0) {
-						formData.append("profilePhoto", profilePhotoInput.files[0]);
-					}
+				// 	if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
+				// 		formData.delete("profilePhoto");
+				// 	} else if (profilePhotoInput.files.length > 0) {
+				// 		formData.append("profilePhoto", profilePhotoInput.files[0]);
+				// 	}
 
-					fetch("/manage-instructor/", {
-						method: "POST", // Change to PUT if updating
-						body: formData
-					})
-					.then(response => response.json())
-					.then(data => {
-						console.log("Success:", data);
-						if (data.status === "success") {
-							document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
-							document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
-							document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
-							document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
-							document.getElementById("update-instructor-message").innerText = "Instructor details updated successfully."
-							document.getElementById("update-insturctor-heading").innerText = "Update Instructor"
-						} else if (data.status === "error") {
-							console.error("Error:", data.message);
-							document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
-							document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
-							document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
-							document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
-							document.getElementById("update-instructor-message").innerText = data.message;
-							document.getElementById("update-insturctor-heading").innerText = "Error"
-						}
-					})
-					.catch(error => {
-						console.error("Error:", error);
-						document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
-						document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
-						document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
-						document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
-						document.getElementById("update-instructor-message").innerText = "Error updating instructor information."
-					});
-				} else {
+				// 	fetch("/manage-instructor/", {
+				// 		method: "POST", // Change to PUT if updating
+				// 		body: formData
+				// 	})
+				// 	.then(response => response.json())
+				// 	.then(data => {
+				// 		console.log("Success:", data);
+				// 		if (data.status === "success") {
+				// 			document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
+				// 			document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
+				// 			document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
+				// 			document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
+				// 			document.getElementById("update-instructor-message").innerText = "Instructor details updated successfully."
+				// 			document.getElementById("update-insturctor-heading").innerText = "Update Instructor"
+				// 		} else if (data.status === "error") {
+				// 			console.error("Error:", data.message);
+				// 			document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
+				// 			document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
+				// 			document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
+				// 			document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
+				// 			document.getElementById("update-instructor-message").innerText = data.message;
+				// 			document.getElementById("update-insturctor-heading").innerText = "Error"
+				// 		}
+				// 	})
+				// 	.catch(error => {
+				// 		console.error("Error:", error);
+				// 		document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
+				// 		document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
+				// 		document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
+				// 		document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
+				// 		document.getElementById("update-instructor-message").innerText = "Error updating instructor information."
+				// 	});
+				// } 
+				if (document.getElementById('add-instructor-btn').innerText === "Update") {
+    e.preventDefault();
+    const form = e.target; // Get the form element
+    const formData = new FormData(form); // Correctly create FormData
+
+    // Handle profile photo
+    const profilePhotoInput = document.getElementById("profilePhoto");
+    if (profilePhotoInput.files.length > 0) {
+        // Check if the file is the same as before
+        if (profilePhotoInput.getAttribute("data-name") && 
+            profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
+            formData.delete("profilePhoto");
+        }
+    }
+
+    // Handle document files
+    const documentInputs = [
+        { inputId: "adharcard", formName: "adharcard" },
+        { inputId: "aggrement", formName: "aggrement" },
+        { inputId: "policeVerification", formName: "policeVerification" }
+    ];
+
+    documentInputs.forEach(doc => {
+        const inputElement = document.getElementById(doc.inputId);
+        if (inputElement && inputElement.files.length > 0) {
+            // Get the data-name attribute which holds the original file path
+            const originalPath = inputElement.getAttribute("data-name");
+            
+            if (originalPath) {
+                // Extract the original filename
+                const originalFileName = originalPath.split('/').pop();
+                
+                // Check if the file is the same as before
+                if (inputElement.files[0].name === originalFileName) {
+                    // If unchanged, remove from FormData
+                    formData.delete(doc.formName);
+                }
+            }
+        }
+    });
+
+    fetch("/manage-instructor/", {
+        method: "POST", // Change to PUT if updating
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Success:", data);
+        if (data.status === "success") {
+            document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
+            document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
+            document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
+            document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
+            document.getElementById("update-instructor-message").innerText = "Instructor details updated successfully."
+            document.getElementById("update-insturctor-heading").innerText = "Update Instructor"
+        } else if (data.status === "error") {
+            console.error("Error:", data.message);
+            document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
+            document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
+            document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
+            document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
+            document.getElementById("update-instructor-message").innerText = data.message;
+            document.getElementById("update-insturctor-heading").innerText = "Error"
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        document.getElementById('add-instructor-modal').classList.remove('scale-100', 'opacity-100');
+        document.getElementById('add-instructor-modal').classList.add('scale-0', 'opacity-0');
+        document.getElementById("updated-instructor-modal").classList.remove('scale-0', 'opacity-0');
+        document.getElementById("updated-instructor-modal").classList.add('scale-100', 'opacity-100');
+        document.getElementById("update-instructor-message").innerText = "Error updating instructor information."
+    });
+} else {
 					e.preventDefault();
 					const form = e.target; // Get the form element
         				const formData = new FormData(form); // Correctly create FormData
@@ -423,6 +886,105 @@
 					});
 			});
 
+			// Helper function to handle document data from API
+function handleDocumentData(inputId, docData, uploadAreaId) {
+    const inputElement = document.getElementById(inputId);
+    const uploadArea = document.getElementById(uploadAreaId);
+    
+    if (!inputElement || !uploadArea) {
+        console.error(`Element not found: input=${inputId}, uploadArea=${uploadAreaId}`);
+        return;
+    }
+    
+    // Find the preview element inside the upload area
+    const preview = uploadArea.querySelector('.document-preview');
+    const docName = preview ? preview.querySelector('.document-name') : null;
+    
+    if (!preview || !docName) {
+        console.error(`Preview elements not found for ${uploadAreaId}`);
+        return;
+    }
+
+    console.log(docData);
+    
+
+    if (docData && docData.trim() !== "") {
+        // Extract filename from path
+        const fileName = docData.split('/').pop();
+        
+        // Show file name in preview
+        docName.textContent = fileName || "Document";
+        preview.classList.remove('hidden');
+        
+        // Change background color to indicate file selected
+        uploadArea.classList.add('bg-indigo-50', 'border-indigo-300');
+        uploadArea.classList.remove('bg-gray-100', 'border-gray-300');
+        
+        // Set data-name attribute to store the original file path
+        inputElement.setAttribute("data-name", docData);
+        
+        // Create a dummy file object to represent the existing file
+        const file = new File([], fileName, {
+            type: getFileType(fileName)
+        });
+        
+        // Add the file to the input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        inputElement.files = dataTransfer.files;
+    }
+}
+
+// Helper function to determine file type from filename
+function getFileType(fileName) {
+    const extension = fileName.split('.').pop().toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+        return "image/" + extension;
+    } else if (extension === 'pdf') {
+        return "application/pdf";
+    }
+    return "application/octet-stream";
+}
+
+// Setup event listeners for document file inputs
+function setupDocumentChangeEvents() {
+    // Use the correct IDs from your HTML
+    const documentInputs = ['adharcard', 'aggrement', 'policeVerification'];
+    
+    documentInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (!input) {
+            console.error(`Input element not found: ${inputId}`);
+            return;
+        }
+        
+        // Find the parent element correctly
+        const uploadArea = input.closest('.flex-col').closest('.flex');
+        const preview = uploadArea.querySelector('.document-preview');
+        const docName = preview ? preview.querySelector('.document-name') : null;
+        
+        if (!preview || !docName) {
+            console.error(`Preview elements not found for ${inputId}`);
+            return;
+        }
+        
+        input.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                // Show file name in preview
+                docName.textContent = this.files[0].name;
+                preview.classList.remove('hidden');
+                
+                // Change background color to indicate file selected
+                uploadArea.classList.add('bg-indigo-50', 'border-indigo-300');
+                uploadArea.classList.remove('bg-gray-100', 'border-gray-300');
+                
+                // Clear the data-name attribute to indicate this is a new file
+                input.removeAttribute("data-name");
+            }
+        });
+    });
+}
+
 			const instructorGrid = new gridjs.Grid({
 				search: true,
 				pagination: {
@@ -467,13 +1029,6 @@
 								`,
 								onClick: () => {
 									fetchInstructorData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${row.cells[0].data}`, "Edit Instructor Details", true, false);
-									document.getElementById("password-container").style.display = "none";
-									document.getElementById("cnfpassword").setAttribute("readonly", true);
-									document.getElementById("password").setAttribute("readonly", true);
-									document.getElementById("cnfpassword").style.display = "none";
-									document.getElementById("password").style.display = "none";
-									document.getElementById("cnfpassword").removeAttribute("required");
-									document.getElementById("password").removeAttribute("required");
 									document.getElementById("add-instructor-btn").innerText = "Update";
 
 									document.getElementById("add-instructor-form").innerHTML += `<input type="hidden" name="instructorId" id="instructorId" value="${row.cells[0].data}">`;
@@ -550,6 +1105,13 @@
 						document.getElementById("name").value = data.name || "No Data Found";
 						document.getElementById("branch").value = data.branch || "No Data Found";
 						document.getElementById("email").value = data.email || "No Data Found";
+						document.getElementById("mobile").value = data.phone || "No Data Found";
+						document.getElementById("bloodGroup").value = data.bloodGroup || "No Data Found";
+						document.getElementById("dob").value = data.dob || "No Data Found";
+						document.getElementById("vehicle").value = data.vehicle || "No Data Found";
+						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
+						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
+						document.getElementById("dlExpiry").value = data.dlExpiry || "No Data Found";
 						document.getElementById("instructor-image").classList.remove('hidden');
 						// add file to the profilePhoto input
 						if (data.profilePic === null || data.profilePic?.trim() === "") {
@@ -568,6 +1130,10 @@
 							instructorProfilePic.setAttribute("data-name", data.profilePic)
 						}
 
+						handleDocumentData("adharcard", data.adharCard, "aadhar-upload");
+						handleDocumentData("aggrement", data.aggrementDoc, "agreement-upload");
+						handleDocumentData("policeVerification", data.policeVerificationDoc, "police-upload");
+
 						const imageUpload = document.getElementById('image-upload');
 						const image = document.getElementById('profilePhoto');
 
@@ -583,9 +1149,160 @@
 							reader.readAsDataURL(file);
 						});
 
-						document.getElementById("mobile").value = data.phone || "No Data Found";
-						document.getElementById("bloodGroup").value = data.bloodGroup || "No Data Found";
-						document.getElementById("vehicle").value = data.vehicle || "No Data Found";
+						// Setup document change events
+						setupDocumentChangeEvents();
+
+						const steps = document.querySelectorAll('.form-step');
+						const progressStep = document.querySelectorAll('.progress-step');
+						const nextBtn = document.getElementById('next-step');
+						const prevBtn = document.getElementById('prev-step');
+						const addStudentBtn = document.getElementById('add-instructor-btn');
+
+						// Step button click handling
+						progressStep.forEach(button => {
+							button.addEventListener('click', function() {
+								const step = this.getAttribute('data-step');
+								goToStep(parseInt(step));
+							});
+						});
+
+						// Next button click handling
+						nextBtn.addEventListener('click', function() {					
+							if (validateCurrentStep() && currentStep < 3) {
+								if (currentStep < 3) {
+									currentStep++;
+									updateForm();
+								}
+							}
+						});
+
+						// Previous button click handling
+						prevBtn.addEventListener('click', function() {
+							if (currentStep > 1) {
+								currentStep--;
+								updateForm();
+							}
+						});
+
+						// Form validation for current step
+						function validateCurrentStep() {
+							const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+							const requiredFields = currentStepElement.querySelectorAll('[required]');
+							let isValid = true;
+							let firstInvalidField = null;
+
+							requiredFields.forEach(field => {
+								const isSelect = field.tagName.toLowerCase() === "select";
+								const isFileInput = field.type === "file";
+								const isUploadContainer = field.closest(".image-upload-container"); // Handle multiple image upload containers
+
+								const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+
+								const isEmpty = isFileInput 
+									? field.files.length === 0  // Check if file input is empty
+									: isSelect 
+										? !field.value || (selectedOption && selectedOption.disabled)  // Check if select has a disabled value
+										: !field.value.trim();  // Check normal input fields
+
+								const pattern = field.getAttribute('pattern');
+								const isPatternMismatch = !isSelect && !isFileInput && pattern 
+									? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+									: false;
+
+								const alreadyInvalid = field.classList.contains('outline-red-300');
+
+								if (isEmpty || isPatternMismatch) {
+									if (!alreadyInvalid) {
+										field.classList.remove("focus:outline-indigo-600", "bg-white");
+										field.classList.add("focus:outline-red-600", "bg-red-100");
+									}
+
+									// Special case: Highlight the image upload box if file input is empty
+									if (isFileInput && isUploadContainer) {
+										isUploadContainer.classList.add("border-red-500", "bg-red-500");
+									}
+
+									if (!firstInvalidField) firstInvalidField = field;
+									isValid = false;
+								} else {
+									if (alreadyInvalid) {
+										field.classList.add("focus:outline-indigo-600", "bg-white");
+										field.classList.remove("focus:outline-red-600", "bg-red-100");
+									}
+
+									// Remove error styles from image upload box if valid
+									if (isFileInput && isUploadContainer) {
+										isUploadContainer.classList.remove("border-red-500", "bg-red-500");
+									}
+								}
+							});
+
+							// If there's an invalid field, scroll and focus on it
+							if (firstInvalidField) {
+								firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+								firstInvalidField.focus();
+							}
+
+							return isValid;
+						}
+
+						// Update form function modified to include 5 steps
+						function updateForm() {
+							// Hide all steps
+							steps.forEach(step => step.classList.add('hidden'));
+							
+							// Show current step
+							document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+							// Update step buttons
+							progressStep.forEach(btn => {
+								btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+								btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+								if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+									btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+									btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+								}
+							});
+
+							// Manage navigation buttons
+							prevBtn.classList.toggle('hidden', currentStep === 1);
+							nextBtn.classList.toggle('hidden', currentStep === 3);
+							addStudentBtn.classList.toggle('hidden', currentStep !== 3);
+
+							// // Update summary if moving to summary step
+							// if (currentStep === 5) {
+							// 	updateSummary();
+							// }
+						}
+
+						function goToStep(step) {
+							currentStep = step;
+							updateForm();
+						}
+
+						// Initial form setup
+						updateForm();
+
+						const uploadContainers = document.querySelectorAll('.document-upload-container');
+
+						uploadContainers.forEach(container => {
+							const input = container.querySelector('input[type="file"]');
+							const preview = container.querySelector('.document-preview');
+							const docName = container.querySelector('.document-name');
+							
+							input.addEventListener('change', function() {
+								if (this.files && this.files[0]) {
+									// Show file name in preview
+									docName.textContent = this.files[0].name;
+									preview.classList.remove('hidden');
+									
+									// Change background color to indicate file selected
+									const uploadBox = this.parentElement;
+									uploadBox.classList.add('bg-indigo-50', 'border-indigo-300');
+									uploadBox.classList.remove('bg-gray-100', 'border-gray-300');
+								}
+							});
+						});
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});
 			}
@@ -615,10 +1332,6 @@
 				document.getElementById("branch").removeAttribute('disabled');
 				document.getElementById("vehicle").setAttribute("disabled", false);
 				document.getElementById("vehicle").removeAttribute('disabled');
-				document.getElementById("cnfpassword").setAttribute("readonly", true);
-				document.getElementById("password").setAttribute("readonly", true);
-				document.getElementById("cnfpassword").removeAttribute("required");
-				document.getElementById("password").removeAttribute("required");	
 			}
 		</script>
 	</body>
