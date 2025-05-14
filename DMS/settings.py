@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'AdminPanel',
     'Instructor',
     'Student',
+    'BranchAdmin',
 ]
 
 MIDDLEWARE = [

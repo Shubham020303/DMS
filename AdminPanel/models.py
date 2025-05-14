@@ -6,6 +6,7 @@ import uuid
 from django.db.models import F, Case, When, Value
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import datetime,timedelta
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phoneNo = models.CharField(max_length=10)
@@ -166,10 +167,28 @@ class Attendance(models.Model):
     timeOut = models.TimeField(null=True,blank=True)
     qr_code_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     
-
+    
     def __str__(self):
         return self.student.user.user.first_name + ' - ' + str(self.date)
-    
+
+# @receiver(post_save, sender=Attendance)
+# def update_student_cource_end_date(sender, instance, **kwargs):
+        
+#         if instance.status == 'Leave':
+#             print("ONLeave")
+#             try:
+#                 next_day = instance.date + timedelta(days=1)
+#                 if next_day.weekday() == 6:
+#                     next_day =  next_day + timedelta(days=1)
+#                 student = Student.objects.get(id=instance.student.id)
+#                 student.courceEndDate = next_day
+#                 student.save()   
+#             except Student.DoesNotExist:
+#             # Log error if student doesn't exist
+#                 print(f"Error: Student with ID {instance.student.id} not found")
+#             except Exception as e:
+#             # Catch any other exceptions
+#                 print(f"Error updating student course end date: {e}") 
     
 
 
@@ -208,3 +227,13 @@ class Payment(models.Model):
         return self.student.user.user.first_name
     
 
+class Notification(models.Model):
+    notificationTitle = models.CharField(max_length=100)
+    notificationDate = models.DateField()
+    notificationTime = models.TimeField(default=time(0, 0))
+    notificationBranch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
+    notificationIsRead = models.BooleanField(default=False)
+
+
+    def __str__(self):
+        return self.notificationTitle

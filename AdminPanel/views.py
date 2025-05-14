@@ -6,7 +6,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from datetime import datetime,timedelta
-from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment,AddOnService)
+from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment,AddOnService,Notification)
 from django.core.paginator import Paginator
 # Create your views here.
 
@@ -60,10 +60,10 @@ def getSlotWiseData(request):
         else:
             evening_slots.append(slot_data)
         
-        key = lambda x: x['slotTime']
-        morning_slots.sort(key=key)
-        evening_slots.sort(key=key)
-        data = {
+    key = lambda x: x['slotTime']
+    morning_slots.sort(key=key)
+    evening_slots.sort(key=key)
+    data = {
             'morning': morning_slots,
             'evening': evening_slots
         }   
@@ -104,7 +104,6 @@ def getEearningData(request):
     return JsonResponse(data, safe=False)
 
 def index(request):
-    
     return render(request, 'index.html')
 def signin(request):
     if request.method == 'POST':
@@ -287,6 +286,7 @@ def getStudentData(request):
                 'instructor': student.instructor.user.user.first_name,
                 'instructorId': student.instructor.user.id,
                 'slot': student.slot.slotName,
+                'slotTime': f'{student.slot.slotStart} - {student.slot.slotEnd}',
                 'slotId': student.slot.id,
                 'startDate': student.courceEnrollDate,
                 'endDate': student.courceEndDate,
@@ -295,7 +295,7 @@ def getStudentData(request):
                 'paymentDue': student.amountPending,
                 'paymentDueDate': student.paymentDueDate,
                 'status': student.student_staus,
-                'addOnService': [addOnService.id for addOnService in student.addOnService.all()],
+                'addOnService': [(addOnService.id, addOnService.serviceName, addOnService.serviceFee) for addOnService in student.addOnService.all()],
                 'dlNo': dlinfo.dlNo if dlinfo else '',
                 'dlIssueDate': dlinfo.dlIssueDate if dlinfo else '',
                 'dlExpiry': dlinfo.dlExpiry if dlinfo else '',
@@ -304,6 +304,7 @@ def getStudentData(request):
         paymetRecieved = Payment.objects.filter(student=student).order_by('-paymentDate').first()
         if paymetRecieved:
             data['paymentRecievedBy'] = paymetRecieved.paymentRecevedBy.id
+            data['paymentRecievedByName'] = paymetRecieved.paymentRecevedBy.user.first_name
         return JsonResponse(data)
     else:
         students = Student.objects.all()
@@ -454,10 +455,15 @@ def manage_student(request):
                     payment = Payment(student=student,paymentDate=datetime.today().date(),paymentAmount=paymentRecieved,paymentMethod='Cash',paymentRecevedBy=UserProfile.objects.get(id=paymentRecievedBy))
                     print(addOnService)
                     student.save()
+                    addontoatal = 0
                     for addOn in addOnService:
                         addOnService = AddOnService.objects.get(id=addOn)
                         student.addOnService.add(addOnService)
+                        addontoatal += addOnService.serviceFee
+                    
+                    student.amountPending = student.amountPending + addontoatal
                     student.save()
+
                     payment.save()
                     if dlNo:
                         print("DLINFO",dlNo)
@@ -1070,7 +1076,35 @@ def manageAttendance(request):
                         student = Student.objects.get(id=student)
                         student.attened_session = int(student.attened_session) + int(sessionCount)
                         student.save()
-                    return JsonResponse({'success': 'Attendance added successfully'})
+                        return JsonResponse({'success': 'Attendance added successfully'})
+                    if status == 'Leave':
+                        try:
+                            student = Student.objects.get(id=student)
+                            previous_date = student.courceEndDate
+                            next_day = student.courceEndDate + timedelta(days=1)
+                            if next_day.weekday() == 6:
+                                next_day = next_day + timedelta(days=1)
+                            student.courceEndDate = next_day
+                            student.save()
+                            previous_date = previous_date.strftime('%d-%m-%Y')
+                            courceEndDate = student.courceEndDate.strftime('%d-%m-%Y')
+                            notification = Notification.objects.create(
+                                notificationTitle = f"{student.user.user.first_name}'s Course End Date Changed from {previous_date} to {courceEndDate}",
+                                notificationDate = datetime.today().date(),
+                                notificationTime = datetime.today().time(),
+                                notificationBranch = student.Branch,
+
+                            )
+                            notification.save()
+
+                        except Exception as e:
+                            print(e)
+                            # delete the attendance 
+                            attendance.delete()
+
+                            return JsonResponse({'error': 'Attendance not added'}, status=404) 
+                        return JsonResponse({'success': 'Attendance added successfully'})
+                          
                 except Exception as e:
                     if "UNIQUE constraint failed" in str(e): #check for unique constraint violation.
                         return JsonResponse({'error': 'Attendance already Added'}, status=400)
@@ -1303,5 +1337,52 @@ def manageAddOnService(request):
                 return JsonResponse({'success': 'Add On Service deleted successfully'})
             else:
                 return JsonResponse({'error': 'No Add On Service ID provided'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
+
+def getNotificationData(request):
+
+    notifications = Notification.objects.all()
+    notificationData = []
+    for i in notifications:
+        if i.notificationIsRead == False:
+    
+            data = {
+                'id': i.id,
+                'notificationTitle': i.notificationTitle,
+                'notificationTime': i.notificationTime.strftime("%I:%M %p"),
+                'notificationDate': i.notificationDate.strftime("%Y-%m-%d"),
+                'notificationBranch': i.notificationBranch.branchName,
+            }
+            notificationData.append(data)
+    return JsonResponse(notificationData,safe=False)
+
+@csrf_exempt
+def manageNotification(request):
+    if request.method == 'POST':
+        notificationId = request.POST.get('notificationId',None)
+        if notificationId:
+            try:
+                notification = Notification.objects.get(id=notificationId)
+                notification.notificationIsRead = True
+                notification.save()
+                return JsonResponse({'success': 'Notification updated successfully'})
+            except Exception as e:
+                return JsonResponse({'error': 'Notification not updated'}, status=404)
+
+            
+
+    
+
+    if request.method == 'DELETE':
+        notificationId = request.GET.get('notificationId', None)
+        try:
+            if notificationId:
+                notification = Notification.objects.get(id=notificationId)
+                notification.delete()
+                return JsonResponse({'success': 'Notification deleted successfully'})
+            else:
+                return JsonResponse({'error': 'No Notification ID provided'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)

@@ -36,6 +36,8 @@ urlpatterns = [
     path('manage-payment/', views.managePayment, name='manage-payment/'),
     path('getAddOnServiceData/', views.getAddOnServiceData, name='getAddOnServiceData/'),
     path('manage-addOnService/', views.manageAddOnService, name='manage-addOnService/'),
+    path('getNotificationData/', views.getNotificationData, name='getNotificationData/'),
+    path('manage-Notification/', views.manageNotification, name='manage-notification/'),
     # path('DeleteALlComplain/', views.DeleteALlComplain, name='DeleteALlComplain/'),
     
     # path('getVehicleData/', views.getVehicleData, name='getVehicleData/'),
