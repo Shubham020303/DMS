@@ -391,12 +391,6 @@ def manage_student(request):
                     if dlNo:
                         dlinfo = DLInfo(dlUser=student.user,dlType=dlType,dlNo=dlNo,dlIssueDate=dlIssueDate,dlExpiry=dlExpiry)
                         dlinfo.save()
-                    # student.Dlinfo = dlinfo
-                # student.Dlinfo.dlType = dlType
-                # student.Dlinfo.dlNo = dlNo
-                # student.Dlinfo.dlIssueDate = dlIssueDate
-                # student.Dlinfo.dlExpiry = dlExpiry
-                # student.Dlinfo.save()
                 student.cource = Cource.objects.get(id=cource)
                 student.instructor = Instructor.objects.get(user_id=instructor)
                 student.Branch = Branch.objects.get(branchName=branch)
@@ -418,7 +412,6 @@ def manage_student(request):
                 student.paymentDueDate = paymentDueDate
                 student.addOnService.clear()
                 for addOnServiceId in addOnService:
-
                     student.addOnService.add(AddOnService.objects.get(id=addOnServiceId))
                 student.save()
                 
@@ -459,9 +452,9 @@ def manage_student(request):
                     for addOn in addOnService:
                         addOnService = AddOnService.objects.get(id=addOn)
                         student.addOnService.add(addOnService)
-                        addontoatal += addOnService.serviceFee
+                        addontoatal += int(addOnService.serviceFee)
                     
-                    student.amountPending = student.amountPending + addontoatal
+                    student.amountPending = int(student.amountPending) + addontoatal
                     student.save()
 
                     payment.save()
