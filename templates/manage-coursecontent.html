@@ -51,6 +51,25 @@
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                }
+
+			input[type="date"]::-webkit-calendar-picker-indicator {
+				background-position: right center;
+				background-size: auto;
+				cursor: pointer;
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			input[type="date"]::-webkit-datetime-edit,
+			input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+			input[type="date"]::-webkit-datetime-edit-text,
+			input[type="date"]::-webkit-datetime-edit-month-field,
+			input[type="date"]::-webkit-datetime-edit-day-field,
+			input[type="date"]::-webkit-datetime-edit-year-field {
+				color: transparent;
+			}
 		</style>
 	</head>
 	<body>
@@ -219,6 +238,65 @@
 			// 			document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.id}">${vehicle.vehicalName}</option>`).join('');
 			// 		})
 			// })
+
+			document.addEventListener('DOMContentLoaded', () => {
+				initializeDateInputs();
+			})
+
+			function initializeDateInputs() {
+				// Select all date inputs
+				const dateInputs = document.querySelectorAll('input[type="date"]');
+				
+				dateInputs.forEach(input => {
+					// Create a custom placeholder
+					const placeholder = document.createElement('span');
+					placeholder.textContent = 'dd-mm-yyyy';
+					placeholder.className = 'date-placeholder text-black text-sm pointer-events-none absolute left-3 top-1/2 -translate-y-1/2';
+					
+					// Wrap input in a relative positioned container
+					const wrapper = document.createElement('div');
+					wrapper.className = 'relative';
+					input.parentNode.insertBefore(wrapper, input);
+					wrapper.appendChild(input);
+					wrapper.appendChild(placeholder);
+					
+					// Function to format date for display
+					const formatDateForDisplay = (date) => {
+						if (!date) return '';
+						const [year, month, day] = date.split('-');
+						return `${day}-${month}-${year}`;
+					};
+					
+					// Function to handle date change
+					const handleDateChange = () => {
+						const value = input.value;
+						if (value) {
+							// Store the YYYY-MM-DD format in value attribute
+							input.setAttribute('data-value', value);
+							// Show formatted date as text
+							placeholder.textContent = formatDateForDisplay(value);
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						} else {
+							placeholder.textContent = 'dd-mm-yyyy';
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						}
+					};
+					
+					// Initial state
+					if (input.value) {
+						handleDateChange();
+					}
+					
+					// Event listeners
+					input.addEventListener('change', handleDateChange);
+					input.addEventListener('blur', handleDateChange);
+					
+					// Hide the default date input display
+					input.style.color = 'transparent';
+				});
+			}
 
                function showLoader() {
                     document.getElementById("loader-modal").classList.remove('hidden');

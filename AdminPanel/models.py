@@ -16,6 +16,7 @@ class UserProfile(models.Model):
     is_student = models.BooleanField(default=False)
     is_branchAdmin = models.BooleanField(default=False)
     is_superAdmin = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user.username
@@ -25,28 +26,49 @@ class Branch(models.Model):
     branchPhoneNo = models.CharField(max_length=10)
     branchEmail = models.EmailField()
     branchIncharge = models.OneToOneField(UserProfile, on_delete=models.CASCADE,null=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.branchName
 
+class Vehicle(models.Model):
+    vehicleName = models.CharField(max_length=50,blank=True,null=True)
+    vehicleType = models.CharField(max_length=50,blank=True,null=True)
+    vehicleNo = models.CharField(max_length=20,unique=True)
+    vehicleBranch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True,blank=True)
+    insuranceValidity = models.DateField()
+    pollutionValidity = models.DateField()
+    fitnessValidity = models.DateField()
+    is_active = models.BooleanField(default=True)
+
+
+
+    def __str__(self):
+        return self.vehicleNo
+    
+
 class Slot(models.Model):
-    slotName = models.CharField(max_length=50)
+    class Meta:
+        unique_together = ('vehicle','slotStart', 'slotEnd', 'slotBranch')
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE,null=True,blank=True)
     slotStart = models.TimeField()
     slotEnd = models.TimeField()
     slotBranch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     slotUsed = models.BooleanField(default=False)
     slotPreBooked = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
 
     def __str__(self):
-        return self.slotName
+        return str(self.slotStart) + ' - ' + str(self.slotEnd)
 
 
 # Create your models here.
 class AddOnService(models.Model):
     serviceName = models.CharField(max_length=50)
     serviceFee = models.IntegerField()
-    mandetory = models.BooleanField(default=False)
+    mandetory = models.BooleanField(default=False) 
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.serviceName
@@ -61,33 +83,22 @@ class DLInfo(models.Model):
     dlExpiry = models.DateField()
     dlType = models.CharField(max_length=20,choices=choises,blank=True,null=True)
     dlUser = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
 
     def __str__(self):
         return self.dlNo + ' - ' + self.dlUser.user.first_name
     
-class Vehicle(models.Model):
-    vehicleName = models.CharField(max_length=50,blank=True,null=True)
-    vehicleType = models.CharField(max_length=50,blank=True,null=True)
-    vehicleNo = models.CharField(max_length=20,unique=True)
-    insuranceValidity = models.DateField()
-    pollutionValidity = models.DateField()
-    fitnessValidity = models.DateField()
 
-
-
-    def __str__(self):
-        return self.vehicleNo
-    
 class Instructor(models.Model):
     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE,null=True,blank=True,related_name='instructor')
     dob = models.DateField(blank=True,null=True)
-    instructorVehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE,null=True,blank=True)
+    
     instructorBranch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True,blank=True)
     adharCard = models.FileField(upload_to='instructorDoc/',null=True,blank=True)
     aggreementDoc = models.FileField(upload_to='instructorDoc/',null=True,blank=True)
     policeVerificationDoc = models.FileField(upload_to='instructorDoc/',null=True,blank=True)
-    
+    is_active = models.BooleanField(default=True)    
     def __str__(self):
         return self.user.user.first_name
 
@@ -100,10 +111,10 @@ class Cource(models.Model):
     courceDescription = models.TextField(null=True,blank=True)
     courceDuration = models.IntegerField()
     courceFee = models.IntegerField()
-    courceInstructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE,null=True,blank=True)
     total_session = models.IntegerField(default=0,null=True,blank=True)
     Branch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
-
+    is_active = models.BooleanField(default=True)
     def __str__(self):
         return self.courceName
 
@@ -127,6 +138,7 @@ class Student(models.Model):
     attened_session = models.IntegerField(default=0,null=True,blank=True)
     addOnService = models.ManyToManyField(AddOnService)
     student_staus = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     def __str__(self):
         return self.user.user.first_name
 
@@ -166,7 +178,7 @@ class Attendance(models.Model):
     timeIn = models.TimeField(null=True,blank=True)
     timeOut = models.TimeField(null=True,blank=True)
     qr_code_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
-    
+    is_active = models.BooleanField(default=True)
     
     def __str__(self):
         return self.student.user.user.first_name + ' - ' + str(self.date)
@@ -211,7 +223,7 @@ class Complain(models.Model):
     complainTime = models.TimeField(default=time(0, 0))
     complainResolved = models.BooleanField(default=False)
     complainBranch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
-
+    is_active = models.BooleanField(default=True)
     def __str__(self):
         return self.compalainFor.user.first_name + ' - ' + self.compalainTitle
     
@@ -221,7 +233,7 @@ class Payment(models.Model):
     paymentAmount = models.IntegerField()
     paymentMethod = models.CharField(max_length=50)
     paymentRecevedBy = models.ForeignKey(UserProfile, on_delete=models.CASCADE,null=True,blank=True)
-
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.student.user.user.first_name

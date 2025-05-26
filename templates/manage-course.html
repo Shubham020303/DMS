@@ -31,6 +31,24 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+			input[type="date"]::-webkit-calendar-picker-indicator {
+				background-position: right center;
+				background-size: auto;
+				cursor: pointer;
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			input[type="date"]::-webkit-datetime-edit,
+			input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+			input[type="date"]::-webkit-datetime-edit-text,
+			input[type="date"]::-webkit-datetime-edit-month-field,
+			input[type="date"]::-webkit-datetime-edit-day-field,
+			input[type="date"]::-webkit-datetime-edit-year-field {
+				color: transparent;
+			}
 		</style>
 	</head>
 	<body>
@@ -101,9 +119,9 @@
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
-                                        <label for="courceInstructor" class="block font-semibold">Instructor</label>
-                                        <select name="courceInstructor" id="courceInstructor" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-                                             <option disabled selected>Select User</option>
+                                        <label for="courseVehicle" class="block font-semibold">Vehicle</label>
+                                        <select name="courseVehicle" id="courseVehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                                             <option disabled selected>Select Vehicle</option>
                                         </select>
                                    </div>
 							<div class="flex flex-col gap-2 w-1/2">
@@ -302,15 +320,72 @@
 						document.getElementById("courseBranch").innerHTML = "<option disabled selected>No Branch Found</option>";
 					})
 
-				fetch("http://127.0.0.1:8000/getInstructorData/")
+				fetch("http://127.0.0.1:8000/getVehicleData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("courceInstructor").innerHTML += data.map(user => `<option value="${user.id}">${user.name}</option>`).join('');
+						document.getElementById("courseVehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.id}">${vehicle.vehicalName}</option>`).join('');
 					}).catch(error => {
 						console.error('Error:', error);
-						document.getElementById("courceInstructor").innerHTML = "<option disabled selected>No Vehicle Found</option>";
+						document.getElementById("courseVehicle").innerHTML = "<option disabled selected>No Vehicle Found</option>";
 					})
+
+				initializeDateInputs();
 			})
+
+			function initializeDateInputs() {
+				// Select all date inputs
+				const dateInputs = document.querySelectorAll('input[type="date"]');
+				
+				dateInputs.forEach(input => {
+					// Create a custom placeholder
+					const placeholder = document.createElement('span');
+					placeholder.textContent = 'dd-mm-yyyy';
+					placeholder.className = 'date-placeholder text-black text-sm pointer-events-none absolute left-3 top-1/2 -translate-y-1/2';
+					
+					// Wrap input in a relative positioned container
+					const wrapper = document.createElement('div');
+					wrapper.className = 'relative';
+					input.parentNode.insertBefore(wrapper, input);
+					wrapper.appendChild(input);
+					wrapper.appendChild(placeholder);
+					
+					// Function to format date for display
+					const formatDateForDisplay = (date) => {
+						if (!date) return '';
+						const [year, month, day] = date.split('-');
+						return `${day}-${month}-${year}`;
+					};
+					
+					// Function to handle date change
+					const handleDateChange = () => {
+						const value = input.value;
+						if (value) {
+							// Store the YYYY-MM-DD format in value attribute
+							input.setAttribute('data-value', value);
+							// Show formatted date as text
+							placeholder.textContent = formatDateForDisplay(value);
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						} else {
+							placeholder.textContent = 'dd-mm-yyyy';
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						}
+					};
+					
+					// Initial state
+					if (input.value) {
+						handleDateChange();
+					}
+					
+					// Event listeners
+					input.addEventListener('change', handleDateChange);
+					input.addEventListener('blur', handleDateChange);
+					
+					// Hide the default date input display
+					input.style.color = 'transparent';
+				});
+			}
 
 			// Add Course Modal
 			document.getElementById('add-course').addEventListener('click', () => {
@@ -696,7 +771,7 @@
                               }
                          },
 					"Course Fee",
-					"Instructor",
+					"Vehicle",
 					"Branch",
 					{
 						name: "Action",
@@ -743,7 +818,7 @@
 				],
 				server: {
 					url: 'http://127.0.0.1:8000/getCourseData/',
-					then: data => data.map(course => [course.id, course.courseName, course.courseDuration, course.courseFee, course.courceInstructor, course.courseBranch])
+					then: data => data.map(course => [course.id, course.courseName, course.courseDuration, course.courseFee, course.courceVehicle, course.courseBranch])
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -862,7 +937,7 @@
 						document.getElementById("courceDescription").value = data.courceDescription || "No Data Found";
 						document.getElementById("courseFee").value = data.courseFee || "No Data Found";
 						document.getElementById("courseBranch").value = data.courseBranchId || "No Data Found";
-						document.getElementById("courceInstructor").value = data.courceInstructorId || "No Data Found";
+						document.getElementById("courseVehicle").value = data.courceVehicle || "No Data Found";
 						document.getElementById("courseSession").value = data.total_session || "No Data Found";
 						// document.getElementById("courceVehicle").value = data.courceVehicleId || "No Data Found";
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();

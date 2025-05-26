@@ -31,6 +31,24 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+			input[type="date"]::-webkit-calendar-picker-indicator {
+				background-position: right center;
+				background-size: auto;
+				cursor: pointer;
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			input[type="date"]::-webkit-datetime-edit,
+			input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+			input[type="date"]::-webkit-datetime-edit-text,
+			input[type="date"]::-webkit-datetime-edit-month-field,
+			input[type="date"]::-webkit-datetime-edit-day-field,
+			input[type="date"]::-webkit-datetime-edit-year-field {
+				color: transparent;
+			}
 		</style>
 	</head>
 	<body>
@@ -58,11 +76,18 @@
 				</div>
 				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-vehicle-form">
 					{%csrf_token%}
-					<div class="w-full">
-						<!-- <div class="mb-4 flex flex-col gap-2 w-full">
-							<label for="vehicleName" class="block font-semibold">Vehicle Name</label>
-							<input type="text" name="vehicleName" id="vehicleName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-						</div> -->
+					<!-- Step Indicator -->
+					<div class="w-full flex justify-around mb-4">
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="1">
+							<div class="progress-number w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1">1</div>
+							<span class="text-xs font-medium">Vehicle Info</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="2">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">2</div>
+							<span class="text-xs font-medium">Slot Details</span>
+						</div>
+					</div>
+					<div class="form-step" data-step="1">
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="vehicleName" class="block font-semibold">Vehicle Name</label>
@@ -99,14 +124,60 @@
 								<input type="date" name="fitnessValidity" id="fitnessValidity" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="vehicleBranch" class="block font-semibold">Branch</label>
+								<select name="vehicleBranch" id="vehicleBranch" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option disabled selected>Select Branch</option>
+								</select>
+							</div>
+						</div>
 					</div>
-					<div id="btns-container" class="flex justify-end">
-						<button id="add-vehicle-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
-							<p>Add</p>
+					<div class="form-step" data-step="2">
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="slotTimeStart" class="block font-semibold">Start Time</label>
+								<input type="time" name="slotTimeStart" id="slotTimeStart" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="slotTimeEnd" class="block font-semibold">End Time</label>
+								<input type="time" name="slotTimeEnd" id="slotTimeEnd" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="lunchTimeStart" class="block font-semibold">Lunch Start Time</label>
+								<input type="time" name="lunchTimeStart" id="lunchTimeStart" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="lunchTimeEnd" class="block font-semibold">Lunch End Time</label>
+								<input type="time" name="lunchTimeEnd" id="lunchTimeEnd" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="slotDuration" class="block font-semibold">Slot Timings</label>
+								<select name="slotDuration" id="slotDuration" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Slot Timings</option>
+									<option value="15">15 Minutes</option>
+									<option value="30">30 Minutes</option>
+									<option value="45">45 Minutes</option>
+									<option value="60">60 Minutes</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<!-- Navigation Buttons -->
+					<div id="btns-container" class="flex justify-between">
+						<button type="button" id="prev-step" class="bg-gray-500 text-white px-6 py-2 rounded cursor-pointer mr-2 hidden">
+							Previous
 						</button>
-						<botton id="close-add-vehicle-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
-							<p>Cancel</p>
-						</botton>
+						<button type="button" id="next-step" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer">
+							Next
+						</button>
+						<button id="add-vehicle-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
+							Add Vehicle
+						</button>
 					</div>
 				</form>
 			</div>
@@ -158,6 +229,183 @@
 		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
+			let currentStep = 1;
+			document.addEventListener('DOMContentLoaded', () => {
+				fetch("http://127.0.0.1:8000/getBranchData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("vehicleBranch").innerHTML += data.map(branch => `<option value="${branch.id}">${branch.branchName}</option>`).join('');
+					})
+				
+				const steps = document.querySelectorAll('.form-step');
+				const progressStep = document.querySelectorAll('.progress-step');
+				const nextBtn = document.getElementById('next-step');
+				const prevBtn = document.getElementById('prev-step');
+				const addStudentBtn = document.getElementById('add-vehicle-btn');
+
+				// Step button click handling
+				progressStep.forEach(button => {
+					button.addEventListener('click', function() {
+						const step = this.getAttribute('data-step');
+						goToStep(parseInt(step));
+					});
+				});
+
+				// Next button click handling
+				nextBtn.addEventListener('click', function() {					
+					if (validateCurrentStep() && currentStep < 2) {
+						if (currentStep < 2) {
+							currentStep++;
+							updateForm();
+						}
+					}
+				});
+
+				// Previous button click handling
+				prevBtn.addEventListener('click', function() {
+					if (currentStep > 1) {
+						currentStep--;
+						updateForm();
+					}
+				});
+
+				// Form validation for current step
+				function validateCurrentStep() {
+					const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+					const requiredFields = currentStepElement.querySelectorAll('[required]');
+					let isValid = true;
+					let firstInvalidField = null;
+
+					requiredFields.forEach(field => {
+						const isSelect = field.tagName.toLowerCase() === "select";
+						const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+						const isEmpty = isSelect 
+							? !field.value || (selectedOption && selectedOption.disabled) 
+							: !field.value.trim();
+						const pattern = field.getAttribute('pattern');
+						const isPatternMismatch = !isSelect && pattern 
+							? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+							: false;
+						const alreadyInvalid = field.classList.contains('outline-red-300');
+
+						if (isEmpty || isPatternMismatch) {
+							if (!alreadyInvalid) {
+								field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+								field.classList.add('outline-red-300', 'focus:outline-red-600');
+							}
+							if (!firstInvalidField) firstInvalidField = field;
+							isValid = false;
+						} else {
+							if (alreadyInvalid) {
+								field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+								field.classList.remove('outline-red-300', 'focus:outline-red-600');
+							}
+						}
+					});
+
+					// If there's an invalid field, scroll and focus on it
+					if (firstInvalidField) {
+						firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+						firstInvalidField.focus();
+					}
+
+					return isValid;
+				}
+
+				// Update form function modified to include 5 steps
+				function updateForm() {
+					// Hide all steps
+					steps.forEach(step => step.classList.add('hidden'));
+					
+					// Show current step
+					document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+					// Update step buttons
+					progressStep.forEach(btn => {
+						btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+						btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+						if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+							btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+							btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+						}
+					});
+
+					// Manage navigation buttons
+					prevBtn.classList.toggle('hidden', currentStep === 1);
+					nextBtn.classList.toggle('hidden', currentStep === 2);
+					addStudentBtn.classList.toggle('hidden', currentStep !== 2);
+
+					// Update summary if moving to summary step
+					if (currentStep === 5) {
+						updateSummary();
+					}
+				}
+
+				function goToStep(step) {
+					currentStep = step;
+					updateForm();
+				}
+
+				// Initial form setup
+				updateForm();
+				initializeDateInputs();
+			});
+
+			function initializeDateInputs() {
+				// Select all date inputs
+				const dateInputs = document.querySelectorAll('input[type="date"]');
+				
+				dateInputs.forEach(input => {
+					// Create a custom placeholder
+					const placeholder = document.createElement('span');
+					placeholder.textContent = 'dd-mm-yyyy';
+					placeholder.className = 'date-placeholder text-black text-sm pointer-events-none absolute left-3 top-1/2 -translate-y-1/2';
+					
+					// Wrap input in a relative positioned container
+					const wrapper = document.createElement('div');
+					wrapper.className = 'relative';
+					input.parentNode.insertBefore(wrapper, input);
+					wrapper.appendChild(input);
+					wrapper.appendChild(placeholder);
+					
+					// Function to format date for display
+					const formatDateForDisplay = (date) => {
+						if (!date) return '';
+						const [year, month, day] = date.split('-');
+						return `${day}-${month}-${year}`;
+					};
+					
+					// Function to handle date change
+					const handleDateChange = () => {
+						const value = input.value;
+						if (value) {
+							// Store the YYYY-MM-DD format in value attribute
+							input.setAttribute('data-value', value);
+							// Show formatted date as text
+							placeholder.textContent = formatDateForDisplay(value);
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						} else {
+							placeholder.textContent = 'dd-mm-yyyy';
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						}
+					};
+					
+					// Initial state
+					if (input.value) {
+						handleDateChange();
+					}
+					
+					// Event listeners
+					input.addEventListener('change', handleDateChange);
+					input.addEventListener('blur', handleDateChange);
+					
+					// Hide the default date input display
+					input.style.color = 'transparent';
+				});
+			}
+			
 			document.getElementById('add-vehicle').addEventListener('click', () => {
 				document.getElementById('add-vehicle-modal').classList.remove('scale-0', 'opacity-0');
 				document.getElementById('add-vehicle-modal').classList.add('scale-100', 'opacity-100');
@@ -174,10 +422,10 @@
 				document.getElementById('vehicleType').removeAttribute('disabled');
 			});
 
-			document.getElementById('close-add-vehicle-modal').addEventListener('click', () => {
-				document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
-				document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
-			});
+			// document.getElementById('close-add-vehicle-modal').addEventListener('click', () => {
+			// 	document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+			// 	document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+			// });
 
 			document.getElementById('close-vehicle-modal').addEventListener('click', () => {
 				document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
@@ -432,6 +680,121 @@
 						document.getElementById("insuranceValidity").value = data.insuranceValidity || "No Data Found";
 						document.getElementById("pollutionValidity").value = data.pollutionValidity || "No Data Found";
 						document.getElementById("fitnessValidity").value = data.fitnessValidity || "No Data Found";
+
+						const steps = document.querySelectorAll('.form-step');
+						const progressStep = document.querySelectorAll('.progress-step');
+						const nextBtn = document.getElementById('next-step');
+						const prevBtn = document.getElementById('prev-step');
+						const addStudentBtn = document.getElementById('add-vehicle-btn');
+						currentStep = 1;
+
+						// Step button click handling
+						progressStep.forEach(button => {
+							button.addEventListener('click', function() {
+								const step = this.getAttribute('data-step');
+								goToStep(parseInt(step));
+							});
+						});
+
+						// Next button click handling
+						nextBtn.addEventListener('click', function() {					
+							if (validateCurrentStep() && currentStep < 2) {
+								if (currentStep < 2) {
+									console.log(currentStep);
+									currentStep++;
+									updateForm();
+								}
+							}
+						});
+
+						// Previous button click handling
+						prevBtn.addEventListener('click', function() {
+							if (currentStep > 1) {
+								currentStep--;
+								updateForm();
+							}
+						});
+
+						// Form validation for current step
+						function validateCurrentStep() {
+							const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+							const requiredFields = currentStepElement.querySelectorAll('[required]');
+							let isValid = true;
+							let firstInvalidField = null;
+
+							requiredFields.forEach(field => {
+								const isSelect = field.tagName.toLowerCase() === "select";
+								const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+								const isEmpty = isSelect 
+									? !field.value || (selectedOption && selectedOption.disabled) 
+									: !field.value.trim();
+								const pattern = field.getAttribute('pattern');
+								const isPatternMismatch = !isSelect && pattern 
+									? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+									: false;
+								const alreadyInvalid = field.classList.contains('outline-red-300');
+
+								if (isEmpty || isPatternMismatch) {
+									if (!alreadyInvalid) {
+										field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+										field.classList.add('outline-red-300', 'focus:outline-red-600');
+									}
+									if (!firstInvalidField) firstInvalidField = field;
+									isValid = false;
+								} else {
+									if (alreadyInvalid) {
+										field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+										field.classList.remove('outline-red-300', 'focus:outline-red-600');
+									}
+								}
+							});
+
+							// If there's an invalid field, scroll and focus on it
+							if (firstInvalidField) {
+								firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+								firstInvalidField.focus();
+							}
+
+							return isValid;
+						}
+
+						// Update form function modified to include 5 steps
+						function updateForm() {
+							// Hide all steps
+							steps.forEach(step => step.classList.add('hidden'));
+							
+							// Show current step
+							document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+							// Update step buttons
+							progressStep.forEach(btn => {
+								btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+								btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+								if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+									btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+									btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+								}
+							});
+
+							// Manage navigation buttons
+							prevBtn.classList.toggle('hidden', currentStep === 1);
+							nextBtn.classList.toggle('hidden', currentStep === 2);
+							addStudentBtn.classList.toggle('hidden', currentStep !== 2);
+
+							// Update summary if moving to summary step
+							if (currentStep === 5) {
+								updateSummary();
+							}
+						}
+
+						function goToStep(step) {
+							currentStep = step;
+							updateForm();
+						}
+
+						// Initial form setup
+						updateForm();
+
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});
 			}

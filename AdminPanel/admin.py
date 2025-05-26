@@ -2,9 +2,9 @@ from django.contrib import admin
 from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Slot,Complain,CourceContent,Payment,AddOnService,Notification)
 # Register your models here.
 class slotAdmin(admin.ModelAdmin):
-    list_display = ['slotName','slotStart','slotEnd','slotBranch']
-    list_filter = ['slotBranch']
-    search_fields = ['slotName','slotBranch']
+    list_display = ['slotStart','slotEnd','slotBranch']
+    list_filter = ['slotBranch','vehicle']
+    search_fields = ['slotBranch']
     list_per_page = 10
 # admin.site.register(User)
 admin.site.register(DLInfo)

@@ -9,7 +9,7 @@ from datetime import datetime,timedelta
 from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment,AddOnService,Notification)
 from django.core.paginator import Paginator
 # Create your views here.
-
+@login_required(login_url='signin/')
 def getReamainingPaymentData(request):
     studentid= request.GET.get('studentId',None)
     if studentid:
@@ -31,43 +31,66 @@ def getReamainingPaymentData(request):
                 'courseName': student.cource.courceName,
                 'amountPending': student.amountPending,
                 'amountPaid': student.amountPaid,
-                'TotalAmount': student.cource.courceFee,
+                'TotalAmount': int(student.amountPending) + int(student.amountPaid),
                 'paymentDueDate': student.paymentDueDate
             })
         return JsonResponse(data, safe=False)
+    
+@login_required(login_url='signin/')
 def getSlotWiseData(request):
 
     slots = Slot.objects.all()
     today = datetime.today().date()
-    morning_slots = []
-    evening_slots = []
-    for slot in slots:
+    vehicle = Vehicle.objects.all()  
+    data = []
+    for i in vehicle:
+        if i.is_active == True:
+            tempData = {
+                'vehicleName': i.vehicleName,
+                }
+            slots = Slot.objects.filter(vehicle=i)
             
-        try:
-            student = Student.objects.get(slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
-            student_name = student.user.user.first_name
-        except Student.DoesNotExist:
-            student_name = None
-        slot_data = {
-            'slotName': slot.slotName,
-            'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
-            'studentName': student_name,
-            'branch': student.Branch.branchName if student_name else None,
-            'vehicle': student.instructor.instructorVehicle.vehicleName if student_name else None
-        }
-        if slot.slotStart < datetime.strptime('12:00', '%H:%M').time():
-            morning_slots.append(slot_data)
-        else:
-            evening_slots.append(slot_data)
-        
-    key = lambda x: x['slotTime']
-    morning_slots.sort(key=key)
-    evening_slots.sort(key=key)
-    data = {
-            'morning': morning_slots,
-            'evening': evening_slots
-        }   
+            temp_slot_data = []
+            for slot in slots:
+                if slot.is_active == True:
+                    student = Student.objects.filter(slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
+                    slot_data = {
+                        'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
+                        'branch': slot.slotBranch.branchName,
+                        'student': student.first().user.user.first_name if student.exists() else None,
+                    }
+                    temp_slot_data.append(slot_data)
+                tempData['slots'] = temp_slot_data
+            data.append(tempData)
     return JsonResponse(data, safe=False)
+            
+    # for slot in slots:
+    #         student = Student.objects.filter(slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
+    #         for i in student:
+
+    #             slot_data = {
+                
+    #                 'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
+    #                 'studentName': student_name,
+    #                 'branch': student.Branch.branchName if student_name else None,
+    #                 'vehicle':student.cource.vehicle.vehicleName if student_name else None,
+    #                 'vehicles': [{vehicle.vehicleName:'True' if student.cource.vehicle.id == vehicle.id else 'False'} for vehicle in Vehicle.objects.all()],
+    #                 # 'vehicle': student.instructor.instructorVehicle.vehicleName if student_name else None
+    #             }
+    #             if slot.slotStart < datetime.strptime('12:00', '%H:%M').time():
+    #                 morning_slots.append(slot_data)
+    #             else:
+    #                 evening_slots.append(slot_data)
+                
+    # key = lambda x: x['slotTime']
+    # morning_slots.sort(key=key)
+    # evening_slots.sort(key=key)
+    # data = {
+    #         'morning': morning_slots,
+    #         'evening': evening_slots
+    #     }   
+    # return JsonResponse(data, safe=False)
+@login_required(login_url='signin/')
 def getStudentOnLeaveData(request):
     next_day = datetime.today().date() + timedelta(days=1)
     today =datetime.today().date()
@@ -102,26 +125,37 @@ def getEearningData(request):
             'totalAmountRemaining': total_amount_remaining
         })
     return JsonResponse(data, safe=False)
-
+@login_required(login_url='signin/')
 def index(request):
     return render(request, 'index.html')
+
+@csrf_exempt
 def signin(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        next_url = request.POST.get('next') or request.GET.get('next') or 'index/'
         
         user = authenticate(username=username, password=password)
         if user is not None:
-            login(request, user)
-            return redirect('index')
+            # Check if the user is a is_superAdmin
+            userProf = UserProfile.objects.filter(user=user).first()
+            if not userProf.is_superAdmin:
+                return render(request, 'signin.html', {'error': 'You are not authorized to access this page.'})
+            else:
+                login(request, user)
+                return redirect(next_url)
         else:
             return render(request, 'signin.html', {'error': 'Invalid username or password'})
-    return render(request, 'signin.html')
+    # Pass 'next' to the template if present
+    next_url = request.GET.get('next', '')
+    return render(request, 'signin.html', {'next': next_url})
 @login_required(login_url='signin')
 def signout(request):
     logout(request)
-    return render(request, 'signin.html')
+    return redirect('signin/')
 
+@login_required(login_url='signin/')
 def getInstructorData(request):
     userid = request.GET.get('instructorId',None)
     if userid:
@@ -136,7 +170,7 @@ def getInstructorData(request):
                 'dob': instructor.dob,
                 'phone': instructor.user.phoneNo,
                 'branch': instructor.instructorBranch.branchName,
-                'vehicle': instructor.instructorVehicle.id,
+                # 'vehicle': instructor.instructorVehicle.id,
                 'bloodGroup': instructor.user.bloodGroup,
                 'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
                 'dlNo': DlInfo.dlNo,
@@ -154,21 +188,23 @@ def getInstructorData(request):
         instructors = Instructor.objects.all()
         data = []
         for instructor in instructors:
-            data.append({
-                'id': instructor.user.id,
-                'name': instructor.user.user.first_name,
-                'email': instructor.user.user.email,
-                'phone': instructor.user.phoneNo,
-                'branch': instructor.instructorBranch.branchName,
-                'vehicle': instructor.instructorVehicle.vehicleName,
-                'bloodGroup': instructor.user.bloodGroup,
-                'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
+            if instructor.user.is_active == True:
+                data.append({
+                    'id': instructor.user.id,
+                    'name': instructor.user.user.first_name,
+                    'email': instructor.user.user.email,
+                    'phone': instructor.user.phoneNo,
+                    'branch': instructor.instructorBranch.branchName,
+                    # 'vehicle': instructor.instructorVehicle.vehicleName,
+                    'bloodGroup': instructor.user.bloodGroup,
+                    'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
 
-            })
+                })
         return JsonResponse(data, safe=False)
         
     
 @csrf_exempt
+@login_required(login_url='signin/')
 def manage_instructor(request):
     if request.method == 'POST':
         instructorid= request.POST.get('instructorId',None)
@@ -201,7 +237,7 @@ def manage_instructor(request):
                         userProfile.profilePic = profilepic
                     userProfile.save()
                     instructor.instructorBranch = Branch.objects.get(branchName=branch)
-                    instructor.instructorVehicle = Vehicle.objects.get(id=vehicle)
+                    # instructor.instructorVehicle = Vehicle.objects.get(id=vehicle)
                     instructor.dob = dob
                     if adharcard:
                         instructor.adharCard = adharcard
@@ -231,8 +267,8 @@ def manage_instructor(request):
                     newuser.save()
                     userprofile.save()
                     branch = Branch.objects.get(branchName=branch)
-                    vehicle = Vehicle.objects.get(id=vehicle)
-                    instructor = Instructor(user=userprofile, instructorBranch=branch, instructorVehicle=vehicle,dob=dob)
+    
+                    instructor = Instructor(user=userprofile, instructorBranch=branch,dob=dob)
                     dlInfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
                     dlInfo.save()
                     if adharcard:
@@ -246,6 +282,15 @@ def manage_instructor(request):
                     # dlinfo.save()
                     return JsonResponse({'status': 'success'})
                 except Exception as e:
+                    if newuser:
+                        userprofile = UserProfile.objects.get(user=newuser)
+                        if userprofile:
+                            userprofile.delete()
+                        newuser.delete()
+                    if dlInfo:
+                        dlInfo.delete()
+                    if instructor:
+                        instructor.delete()
                     return JsonResponse({'status': 'error', 'message': str(e)})
         except Exception as e:
             return JsonResponse({'status': 'error', 'Main message': str(e)})
@@ -254,8 +299,9 @@ def manage_instructor(request):
             id = request.GET.get('instructorId')
             userProf = UserProfile.objects.get(id=id)
             user = User.objects.get(id=userProf.user.id)
-            
-            user.delete()
+            userProf.is_active = False
+            userProf.save()
+            # user.delete()
             return JsonResponse({'status': 'success'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
@@ -263,6 +309,7 @@ def manage_instructor(request):
     return render(request, 'manage-instructor.html')
 
 
+@login_required(login_url='signin/')
 def getStudentData(request):
     studentid = request.GET.get('studentId',None)
     if studentid:
@@ -285,12 +332,11 @@ def getStudentData(request):
                 'courceId': student.cource.id,
                 'instructor': student.instructor.user.user.first_name,
                 'instructorId': student.instructor.user.id,
-                'slot': student.slot.slotName,
                 'slotTime': f'{student.slot.slotStart} - {student.slot.slotEnd}',
                 'slotId': student.slot.id,
                 'startDate': student.courceEnrollDate,
                 'endDate': student.courceEndDate,
-                'totalAmount': student.cource.courceFee,
+                'totalAmount': int(student.amountPending) + int(student.amountPaid),
                 'paymentReceived': student.amountPaid,
                 'paymentDue': student.amountPending,
                 'paymentDueDate': student.paymentDueDate,
@@ -325,7 +371,6 @@ def getStudentData(request):
                 "bookingType": student.booking_Type,
                 'cource': student.cource.courceName,
                 'instructor': student.instructor.user.user.first_name,
-                'slot': student.slot.slotName,
                 'startDate': student.courceEnrollDate,
                 'endDate': student.courceEndDate,
                 'status': "Active" if student.student_staus else "Inactive",
@@ -335,6 +380,7 @@ def getStudentData(request):
         return JsonResponse(data, safe=False)
     
 @csrf_exempt
+@login_required(login_url='signin/')
 def manage_student(request):
     if request.method == 'POST':
         id = request.POST.get('studentId')
@@ -452,7 +498,7 @@ def manage_student(request):
                     for addOn in addOnService:
                         addOnService = AddOnService.objects.get(id=addOn)
                         student.addOnService.add(addOnService)
-                        addontoatal += int(addOnService.serviceFee)
+                        addontoatal= addontoatal + int(addOnService.serviceFee)
                     
                     student.amountPending = int(student.amountPending) + addontoatal
                     student.save()
@@ -501,7 +547,7 @@ def manage_student(request):
 
     return render(request, 'manage-student.html')
 
-
+@login_required(login_url='signin/')
 def getBranchAdminData(request):
     users = UserProfile.objects.filter(is_branchAdmin=True,is_student=False)
     data = []
@@ -512,7 +558,7 @@ def getBranchAdminData(request):
         })
     return JsonResponse(data, safe=False)
 
-
+@login_required(login_url='signin/')
 def getBranchData(request):
     branchid = request.GET.get('branchId',None)
     if branchid:
@@ -542,6 +588,7 @@ def getBranchData(request):
                 })
             return JsonResponse(data, safe=False)
 @csrf_exempt
+@login_required(login_url='signin/')
 def manage_branch(request):
     if request.method == 'POST':
         id = request.POST.get('branchId')
@@ -582,7 +629,7 @@ def manage_branch(request):
     
     return render(request, 'manage-branch.html')
 
-
+@login_required(login_url='signin/')
 def getVehicleData(request):
     vehicalId = request.GET.get('vehicleId', None)
     print(vehicalId)
@@ -616,14 +663,24 @@ def getVehicleData(request):
         
         return JsonResponse(vehicalData,safe=False)
 @csrf_exempt
+@login_required(login_url='signin/')
 def manage_vehicle(request):
     if request.method == 'POST':
         vehicleNo = request.POST.get('vehicleNo')
         vehicleName = request.POST.get('vehicleName')
         vehicleType = request.POST.get('vehicleType')
+        vehicleBranch = request.POST.get('vehicleBranch')
         insuranceValidity = request.POST.get('insuranceValidity')
         pollutionValidity = request.POST.get('pollutionValidity')
         fitnessValidity = request.POST.get('fitnessValidity')
+        slotTimeStrat = request.POST.get('slotTimeStart')
+        slotTimeEnd = request.POST.get('slotTimeEnd')
+        lunchTimeStart = request.POST.get('lunchTimeStart')
+        lunchTimeEnd = request.POST.get('lunchTimeEnd')
+        slotDuration = int(request.POST.get('slotDuration'))
+
+        
+        
 
         # Check if vehicle exists and update, otherwise create a new one
 
@@ -641,12 +698,60 @@ def manage_vehicle(request):
 
         else:
             try:
-                vehicle = Vehicle.objects.create(vehicleNo=vehicleNo,vehicleName=vehicleName,vehicleType=vehicleType,insuranceValidity=insuranceValidity,pollutionValidity=pollutionValidity,fitnessValidity=fitnessValidity)
+                
+                vehicle = Vehicle.objects.create(vehicleNo=vehicleNo,vehicleName=vehicleName,vehicleType=vehicleType,vehicleBranch=Branch.objects.get(id=vehicleBranch),insuranceValidity=insuranceValidity,pollutionValidity=pollutionValidity,fitnessValidity=fitnessValidity,is_active=True)
                 vehicle.save()
+                
+                start_time = datetime.strptime(slotTimeStrat, '%H:%M').time()
+                end_time = datetime.strptime(slotTimeEnd, '%H:%M').time()
+                lunch_start = datetime.strptime(lunchTimeStart, '%H:%M').time()
+                lunch_end = datetime.strptime(lunchTimeEnd, '%H:%M').time()
+                today = datetime.now().date()
+                current_time = datetime.combine(today, start_time)
+                end_datetime = datetime.combine(today, end_time)
+                lunch_start_datetime = datetime.combine(today, lunch_start)
+                lunch_end_datetime = datetime.combine(today, lunch_end)
+                
+                
+                
+                while current_time < end_datetime:
+                    # Calculate slot end time
+                    slot_end_time = current_time + timedelta(minutes=slotDuration)
+                    
+                    # Check if slot would go beyond the end time
+                    if slot_end_time > end_datetime:
+                        break
+                        
+                    # Check if slot overlaps with lunch time
+                    slot_overlaps_lunch = (
+                        (current_time < lunch_end_datetime and slot_end_time > lunch_start_datetime)
+                    )
+                    
+                    if not slot_overlaps_lunch:
+                        # Create the slot
+                        slot = Slot.objects.get_or_create(
+                            vehicle=vehicle,
+                            slotStart=current_time.time(),
+                            slotEnd=slot_end_time.time(),
+                            slotBranch=vehicle.vehicleBranch,
+                            defaults={
+                                'slotUsed': False,
+                                'slotPreBooked': False
+                            }
+                        )
+                    print(f"Slot created: {current_time.time()} to {slot_end_time.time()} for vehicle {vehicle.vehicleName}")
+                    # Move to next slot
+                    current_time = slot_end_time
+                    
+                    # If we just finished a slot before lunch, skip to after lunch
+                    if current_time <= lunch_start_datetime and current_time + timedelta(minutes=slotDuration) > lunch_start_datetime:
+                        current_time = lunch_end_datetime
                 return JsonResponse({'success': 'Vehicle Added successfully'})
                 
             except Exception as e:
                 print(e)
+                if vehicle:
+                    vehicle.delete()
                 return JsonResponse({'error': 'Error creating vehicle'}, status=400)
 
     if request.method == 'DELETE':
@@ -659,11 +764,12 @@ def manage_vehicle(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
     return render(request, 'manage-vehicle.html')
  
-
+@login_required(login_url='signin/')
 def manage_slot(request):
     return render(request, 'manage-slot.html')
 
 
+@login_required(login_url='signin/')
 def getCourseData(request):
     courseId = request.GET.get('courseId', None)
     if courseId:
@@ -674,10 +780,7 @@ def getCourseData(request):
             'courseDuration': course.courceDuration,
             'courceDescription': course.courceDescription,
             'courseFee': course.courceFee,
-            'courceInstructor': course.courceInstructor.user.user.first_name,
-            'courceInstructorId': course.courceInstructor.user.id,
-            'courceVehicle': course.courceInstructor.instructorVehicle.vehicleName,
-            'courceVehicleId': course.courceInstructor.instructorVehicle.id,
+            'courceVehicle': course.vehicle.id,
             'courseBranch': course.Branch.branchName,
             'courseBranchId': course.Branch.id,
             'total_session': course.total_session
@@ -692,13 +795,13 @@ def getCourseData(request):
                 'courseName': i.courceName,
                 'courseDuration': i.courceDuration,
                 'courseFee': i.courceFee,
-                'courceInstructor': i.courceInstructor.user.user.first_name,
-                'courceVehicle': i.courceInstructor.instructorVehicle.vehicleName,
+                'courceVehicle': i.vehicle.vehicleName,
                 'courseBranch': i.Branch.branchName
             })
         
         return JsonResponse(courseData,safe=False)
 @csrf_exempt
+@login_required(login_url='signin/')
 def manage_course(request):
     if request.method == 'POST':
         courceId = request.POST.get('courseId',None)
@@ -706,10 +809,10 @@ def manage_course(request):
         courseDuration = request.POST.get('courseDuration')
         courceDescription = request.POST.get('courceDescription')
         courseFee = request.POST.get('courseFee')
-        courceInstructor = request.POST.get('courceInstructor')
+        courseVehicle = request.POST.get('courseVehicle')
         courseBranch = request.POST.get('courseBranch')
         totalsession = request.POST.get('courseSession')
-        print(courceId,courceInstructor,courseBranch)
+        
         if Cource.objects.filter(id=courceId).exists():
             try:
                 course = Cource.objects.get(id=courceId)
@@ -718,12 +821,8 @@ def manage_course(request):
                 course.courceDescription = courceDescription
                 course.courceFee = courseFee
                 course.total_session = totalsession
-                try:
-                    course.courceInstructor = Instructor.objects.get(user=UserProfile.objects.get(id=courceInstructor))
-                except Instructor.DoesNotExist:
-                    return JsonResponse({'error': 'Instructor not found'}, status=404)
-                course.Branch = Branch.objects.filter(id=courseBranch).first()
-                
+                course.vehicle = Vehicle.objects.get(id=courseVehicle)
+                course.Branch = Branch.objects.get(id=courseBranch)
                 course.save()
                 return JsonResponse({'success': 'Course updated successfully'})
             except Exception as e:
@@ -736,7 +835,7 @@ def manage_course(request):
                     courceDuration=courseDuration,
                     courceDescription=courceDescription,
                     courceFee=courseFee,
-                    courceInstructor=Instructor.objects.get(user=UserProfile.objects.get(id=courceInstructor)),
+                    vehicle=Vehicle.objects.get(id=courseVehicle),
                     Branch=Branch.objects.filter(id=courseBranch).first(),
                     total_session = totalsession
                 )
@@ -761,7 +860,7 @@ def manage_course(request):
 
     return render(request, 'manage-course.html')
 
-
+@login_required(login_url='signin/')
 def getComplainData(request):
     complainId = request.GET.get('complainId', None)
     if complainId:
@@ -794,6 +893,7 @@ def getComplainData(request):
         
         return JsonResponse(complainData,safe=False)
 @csrf_exempt
+@login_required(login_url='signin/')
 def manage_complain(request):
     if request.method == 'POST':
         complainId = request.POST.get('complainId',None)
@@ -811,7 +911,7 @@ def manage_complain(request):
 #     complain = Complain.objects.all()
 #     complain.delete()
 #     return JsonResponse({'status': 'success'})
-
+@login_required(login_url='signin/')
 def getcourceContentData(request):
     courceContentId = request.GET.get('courceContentId', None)
     if courceContentId:
@@ -837,6 +937,7 @@ def getcourceContentData(request):
         return JsonResponse(courceContentData,safe=False)
     
 @csrf_exempt
+@login_required(login_url='signin/')
 def manageCourseContent(request):
     if request.method == 'POST':
         courceContentId = request.POST.get('courceContentId',None)
@@ -876,15 +977,35 @@ def manageCourseContent(request):
            return JsonResponse({'error': 'No courceContent ID provided'}, status=400)     
     return render(request, 'manage-coursecontent.html')
 
-
+@login_required(login_url='signin/')
 def getSlotsData(request):
     slotsId = request.GET.get('slotId', None)
+    courseId = request.GET.get('courseId', None)
     bookingType = request.GET.get('bookingType', None)
+    course = Cource.objects.filter(id=courseId).first()
+    if course:
+        slots = Slot.objects.filter(vehicle=course.vehicle).all()
+        slotData = []
+        for i in slots:
+            if not i.slotUsed:
+                slotData.append({
+                    'id': i.id,
+                    'slotStartTime': i.slotStart,
+                    'slotEndTime': i.slotEnd,
+                    'slotBranch': i.slotBranch.branchName,
+                    'slotUsed': i.slotUsed,
+                    'slotPreBooked': i.slotPreBooked
+                })
+                if bookingType == "Pre-Booking":
+                    slotData[-1]['UsedTill'] = "" if i.slotUsed == False else Student.objects.filter(slot__id=i.id).last().courceEndDate
+        return JsonResponse(slotData,safe=False)
+
+
+    
     if slotsId:
         slots = Slot.objects.get(id=slotsId)
         slotsData = {
             'id': slots.id,
-            'slotName': slots.slotName,
             'slotStartTime': slots.slotStart,
             'slotEndTime': slots.slotEnd,
             'slotBranch': slots.slotBranch.branchName,
@@ -896,7 +1017,6 @@ def getSlotsData(request):
         for i in slots:
             slotsData.append({
             'id': i.id,
-            'slotName': i.slotName,
             'slotStartTime': i.slotStart,
             'slotEndTime': i.slotEnd,
             'UsedTill':"" if i.slotUsed == False else Student.objects.filter(slot__id=i.id).last().courceEndDate,
@@ -911,7 +1031,6 @@ def getSlotsData(request):
         for i in slots:
                 slotsData.append({
                 'id': i.id,
-                'slotName': i.slotName,
                 'slotStartTime': i.slotStart,
                 'slotEndTime': i.slotEnd,
                 'slotBranch': i.slotBranch.branchName,
@@ -920,6 +1039,7 @@ def getSlotsData(request):
         
         return JsonResponse(slotsData,safe=False)
 @csrf_exempt
+@login_required(login_url='signin/')
 def manageSlots(request):
     if request.method == 'POST':
         slotsId = request.POST.get('slotId',None)
@@ -963,7 +1083,7 @@ def manageSlots(request):
     return render(request, 'manage-slots.html')
 
 
-
+@login_required(login_url='signin/')
 def getAttendanceData(request):
     attendanceId = request.GET.get('attendanceId', None)
     VehicleName = request.GET.get('vehicleName', None)
@@ -1034,6 +1154,7 @@ def getAttendanceData(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 @csrf_exempt
+@login_required(login_url='signin/')
 def manageAttendance(request):
     if request.method == 'POST':
         attendanceId = request.POST.get('attendanceId',None)
@@ -1119,7 +1240,7 @@ def manageAttendance(request):
             return JsonResponse({'error': str(e)}, status=400)
 
     return render(request, 'manage-attendance.html')
-
+@login_required(login_url='signin/')
 def getUserProfileData(request):
     users = UserProfile.objects.all()
     userData = []
@@ -1130,7 +1251,7 @@ def getUserProfileData(request):
         }
         userData.append(data)
     return JsonResponse(userData,safe=False)
-
+@login_required(login_url='signin/')
 def getDlInfoData(request):
     dlinfo = request.GET.get('dlId', None)
     if dlinfo:
@@ -1164,7 +1285,7 @@ def getDlInfoData(request):
         dlInfoData.append(data)
     return JsonResponse(dlInfoData,safe=False)
 
-
+@login_required(login_url='signin/')
 @csrf_exempt
 def manageDlInfo(request):
     if request.method == 'POST':
@@ -1215,7 +1336,7 @@ def manageDlInfo(request):
         
     return render(request, 'manage-DlInfo.html')
 
-
+@login_required(login_url='signin/')
 def getPaymentData(request):
     payments = Payment.objects.all()
     paymentData = []
@@ -1232,7 +1353,7 @@ def getPaymentData(request):
         }
         paymentData.append(data)
     return JsonResponse(paymentData,safe=False)
-
+@login_required(login_url='signin/')
 def managePayment(request):
     if request.method == 'POST':
         paymentId = request.POST.get('paymentId',None)
@@ -1264,7 +1385,7 @@ def managePayment(request):
             
             return JsonResponse({'success': 'Payment added successfully'})
         
-
+@login_required(login_url='signin/')
 def getAddOnServiceData(request):
     addOnServiceId = request.GET.get('serviceId', None)
     if addOnServiceId:
@@ -1290,6 +1411,7 @@ def getAddOnServiceData(request):
         return JsonResponse(addOnServiceData,safe=False)
     
 @csrf_exempt
+@login_required(login_url='signin/')
 def manageAddOnService(request):
     if request.method == 'POST':
         addOnServiceId = request.POST.get('serviceId',None)
@@ -1333,7 +1455,7 @@ def manageAddOnService(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
         
-
+@login_required(login_url='signin/')
 def getNotificationData(request):
 
     notifications = Notification.objects.all()
@@ -1352,6 +1474,7 @@ def getNotificationData(request):
     return JsonResponse(notificationData,safe=False)
 
 @csrf_exempt
+@login_required(login_url='signin/')
 def manageNotification(request):
     if request.method == 'POST':
         notificationId = request.POST.get('notificationId',None)

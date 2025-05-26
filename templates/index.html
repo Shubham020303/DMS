@@ -105,7 +105,10 @@
 				<div>
 					<p class="text-3xl font-semibold">Daily Schedule</p>
 				</div>
-				<div class="flex items-center justify-between gap-5">
+				<div class="w-full">
+					<div id="daily-time-slots" class="w-full"></div>
+				</div>
+				<!-- <div class="flex items-center justify-between gap-5">
 					<div class="flex items-center gap-5">
 						<div class="flex flex-col gap-2 w-[200px]">
 							<label for="vehicle" class="block font-semibold">Select Vehicle</label>
@@ -127,7 +130,7 @@
 				<div class="flex items-start justify-between gap-5">
 					<div id="appointment-table-before-lunch" class="w-1/2"></div>
 					<div id="appointment-table-after-lunch" class="w-1/2"></div>
-				</div>
+				</div> -->
 			</div>
 			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
 				<div>
@@ -347,17 +350,17 @@
 		// });
 
 		document.addEventListener('DOMContentLoaded', () => {
-			fetch("http://127.0.0.1:8000/getVehicleData/")
-				.then(response => response.json())
-				.then(data => {
-					document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
-				})
+			// fetch("http://127.0.0.1:8000/getVehicleData/")
+			// 	.then(response => response.json())
+			// 	.then(data => {
+			// 		document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
+			// 	})
 
-			fetch("http://127.0.0.1:8000/getBranchData/")
-				.then(response => response.json())
-				.then(data => {
-					document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
-				})
+			// fetch("http://127.0.0.1:8000/getBranchData/")
+			// 	.then(response => response.json())
+			// 	.then(data => {
+			// 		document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+			// 	})
 
 			fetch("http://127.0.0.1:8000/getInstructorData/")
 				.then(response => response.json())
@@ -510,92 +513,92 @@
 			document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
 		});
 
-		const vehicleSelect = document.getElementById("vehicle");
-		const branchSelect = document.getElementById("branch");
+		// const vehicleSelect = document.getElementById("vehicle");
+		// const branchSelect = document.getElementById("branch");
 
-		let slotData = { morning: [], evening: [] }; // Store API data globally
+		// let slotData = { morning: [], evening: [] }; // Store API data globally
 
-		// Fetch data once and store it
-		function fetchSlotsDataOnce() {
-			fetch(`http://127.0.0.1:8000/getSlotWiseData/`)
-				.then(response => response.json())
-				.then(data => {
-					slotData = data; // Store fetched data
-					applyFilters(); // Apply filters after fetching data
-				})
-				.catch(error => console.error('Error fetching data:', error));
-		}
+		// // Fetch data once and store it
+		// function fetchSlotsDataOnce() {
+		// 	fetch(`http://127.0.0.1:8000/getSlotWiseData/`)
+		// 		.then(response => response.json())
+		// 		.then(data => {
+		// 			slotData = data; // Store fetched data
+		// 			applyFilters(); // Apply filters after fetching data
+		// 		})
+		// 		.catch(error => console.error('Error fetching data:', error));
+		// }
 
-		// Apply filters to stored data
-		function applyFilters() {
-			const vehicle = vehicleSelect.value;
-			const branch = branchSelect.value;
+		// // Apply filters to stored data
+		// function applyFilters() {
+		// 	const vehicle = vehicleSelect.value;
+		// 	const branch = branchSelect.value;
 
-			let morningData = [...slotData.morning]; // Copy stored data
-			let eveningData = [...slotData.evening];
+		// 	let morningData = [...slotData.morning]; // Copy stored data
+		// 	let eveningData = [...slotData.evening];
 
-			console.log("vehicle", vehicle);
-			console.log("branch", branch);
+		// 	console.log("vehicle", vehicle);
+		// 	console.log("branch", branch);
 
-			// Apply filters only if values are selected
-			if (vehicle && vehicle !== "Select Vehicle") {
-				morningData = morningData.filter(slot => slot.vehicle === vehicle);
-				eveningData = eveningData.filter(slot => slot.vehicle === vehicle);
-			}
+		// 	// Apply filters only if values are selected
+		// 	if (vehicle && vehicle !== "Select Vehicle") {
+		// 		morningData = morningData.filter(slot => slot.vehicle === vehicle);
+		// 		eveningData = eveningData.filter(slot => slot.vehicle === vehicle);
+		// 	}
 
-			if (branch && branch !== "Select Branch") {
-				morningData = morningData.filter(slot => slot.branch === branch);
-				eveningData = eveningData.filter(slot => slot.branch === branch);
-			}
+		// 	if (branch && branch !== "Select Branch") {
+		// 		morningData = morningData.filter(slot => slot.branch === branch);
+		// 		eveningData = eveningData.filter(slot => slot.branch === branch);
+		// 	}
 
-			console.log("morningData", morningData);
-			console.log("eveningData", eveningData);
+		// 	console.log("morningData", morningData);
+		// 	console.log("eveningData", eveningData);
 
-			// ⚡ Destroy old tables by resetting their container
-			document.getElementById("appointment-table-before-lunch").innerHTML = '<div id="grid-morning"></div>';
-			document.getElementById("appointment-table-after-lunch").innerHTML = '<div id="grid-evening"></div>';
+		// 	// ⚡ Destroy old tables by resetting their container
+		// 	document.getElementById("appointment-table-before-lunch").innerHTML = '<div id="grid-morning"></div>';
+		// 	document.getElementById("appointment-table-after-lunch").innerHTML = '<div id="grid-evening"></div>';
 
-			// Create and render morning table
-			new gridjs.Grid({
-				search: false,
-				sort: true,
-				fixedHeader: true,
-				columns: ["Slot", "Name"],
-				data: morningData.map(slot => [slot.slotTime, slot.studentName != null ? slot.studentName : "-"]),
-				className: {
-					th: '!bg-black !text-white',
-					sort: '!bg-black !text-white',
-					search: '!float-right !w-[25%]',
-				}
-			}).render(document.getElementById("grid-morning"));
+		// 	// Create and render morning table
+		// 	new gridjs.Grid({
+		// 		search: false,
+		// 		sort: true,
+		// 		fixedHeader: true,
+		// 		columns: ["Slot", "Name"],
+		// 		data: morningData.map(slot => [slot.slotTime, slot.studentName != null ? slot.studentName : "-"]),
+		// 		className: {
+		// 			th: '!bg-black !text-white',
+		// 			sort: '!bg-black !text-white',
+		// 			search: '!float-right !w-[25%]',
+		// 		}
+		// 	}).render(document.getElementById("grid-morning"));
 
-			// Create and render evening table
-			new gridjs.Grid({
-				search: false,
-				sort: true,
-				fixedHeader: true,
-				columns: ["Slot", "Name"],
-				data: eveningData.map(slot => [slot.slotTime, slot.studentName != null ? slot.studentName : "-"]),
-				className: {
-					th: '!bg-black !text-white',
-					sort: '!bg-black !text-white',
-					search: '!float-right !w-[25%]',
-				}
-			}).render(document.getElementById("grid-evening"));
-		}
+		// 	// Create and render evening table
+		// 	new gridjs.Grid({
+		// 		search: false,
+		// 		sort: true,
+		// 		fixedHeader: true,
+		// 		columns: ["Slot", "Name"],
+		// 		data: eveningData.map(slot => [slot.slotTime, slot.studentName != null ? slot.studentName : "-"]),
+		// 		className: {
+		// 			th: '!bg-black !text-white',
+		// 			sort: '!bg-black !text-white',
+		// 			search: '!float-right !w-[25%]',
+		// 		}
+		// 	}).render(document.getElementById("grid-evening"));
+		// }
 
-		// Event listeners for dropdown changes
-		vehicleSelect.addEventListener("change", applyFilters);
-		branchSelect.addEventListener("change", applyFilters);
+		// // Event listeners for dropdown changes
+		// vehicleSelect.addEventListener("change", applyFilters);
+		// branchSelect.addEventListener("change", applyFilters);
 
-		// Initial API fetch
-		fetchSlotsDataOnce();
+		// // Initial API fetch
+		// fetchSlotsDataOnce();
 
-		document.getElementById("clear-filters").addEventListener("click", function () {
-			vehicleSelect.value = "Select Vehicle";
-			branchSelect.value = "Select Branch";
-			applyFilters();
-		})
+		// document.getElementById("clear-filters").addEventListener("click", function () {
+		// 	vehicleSelect.value = "Select Vehicle";
+		// 	branchSelect.value = "Select Branch";
+		// 	applyFilters();
+		// })
 
 		document.getElementById("add-payment-form").addEventListener("submit", (e) => {
 			if (document.getElementById('add-payment-btn').innerText === "Update") {
@@ -846,6 +849,104 @@
 			}
 		})
 
+		// Function to initialize the grid with dynamic columns
+		async function initializeDailyTimeSlotsGrid() {
+			try {
+				// First fetch the data to get vehicle names
+				const response = await fetch('http://127.0.0.1:8000/getSlotWiseData/');
+				const data = await response.json();
+				
+				// Get unique vehicle names for columns
+				const vehicleNames = [...new Set(data.map(vehicle => vehicle.vehicleName))];
+				
+				// Create the grid with dynamic columns
+				const dailyTimeSlotsGrid = new gridjs.Grid({
+					search: true,
+					// pagination: {
+					// 	limit: 5,
+					// 	summary: false
+					// },
+					sort: true,
+					fixedHeader: true,
+					columns: ["Slot", ...vehicleNames],
+					data: () => {
+						// Transform the data to group by slot time
+						const slotMap = new Map();
+						
+						// Process each vehicle's slots
+						data.forEach(vehicle => {
+							vehicle.slots.forEach(slot => {
+								if (!slotMap.has(slot.slotTime)) {
+									slotMap.set(slot.slotTime, {
+										slotTime: slot.slotTime,
+										vehicleData: {}
+									});
+								}
+								
+								// Add vehicle info to this slot
+								slotMap.get(slot.slotTime).vehicleData[vehicle.vehicleName] = {
+									student: slot.student,
+									branch: slot.branch
+								};
+							});
+						});
+						
+						// Convert to grid format
+						return Array.from(slotMap.values()).map(slotData => {
+							const row = [slotData.slotTime];
+							
+							// Add data for each vehicle column
+							vehicleNames.forEach(vehicleName => {
+								const vehicleInfo = slotData.vehicleData[vehicleName];
+								if (vehicleInfo) {
+									row.push(vehicleInfo.student || '--');
+								} else {
+									row.push('Slot Not Available'); // No slot for this vehicle at this time
+								}
+							});
+							
+							return row;
+						});
+					},
+					className: {
+						th: '!bg-black !text-white',
+						sort: '!bg-black !text-white',
+						search: '!float-right !w-[25%]',
+					}
+				});
+				
+				return dailyTimeSlotsGrid;
+				
+			} catch (error) {
+				console.error('Error initializing grid:', error);
+				
+				// Fallback grid with static columns
+				return new gridjs.Grid({
+					search: true,
+					sort: true,
+					fixedHeader: true,
+					columns: ["Slot", "Error loading vehicles"],
+					data: [["Error", "Could not load data"]],
+					className: {
+						th: '!bg-black !text-white',
+						sort: '!bg-black !text-white',
+						search: '!float-right !w-[25%]',
+					}
+				});
+			}
+		}
+
+		// Initialize and render the grid
+		initializeDailyTimeSlotsGrid().then(grid => {
+			grid.render(document.getElementById('daily-time-slots'));
+		});
+
+		// Or with async/await
+		async function setupGrid() {
+			const dailyTimeSlotsGrid = await initializeDailyTimeSlotsGrid();
+			dailyTimeSlotsGrid.render(document.getElementById('daily-time-slots'));
+		}
+
 		const earningGrid = new gridjs.Grid({
 			search: true,
 			// pagination: {
@@ -899,6 +1000,7 @@
 
 		// appointmentBeforeLunchGrid.render(document.getElementById("appointment-table-before-lunch"))
 		// appointmentAfterLunchGrid.render(document.getElementById("appointment-table-after-lunch"))
+		// dailyTimeSlotsGrid.render(document.getElementById("daily-time-slots"))
 		receivedPaymentGrid.render(document.getElementById("received-payment-table"))
 		paymentGrid.render(document.getElementById("payment-status-table"))
 		earningGrid.render(document.getElementById("earnings-table"))

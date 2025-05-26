@@ -31,6 +31,24 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+			input[type="date"]::-webkit-calendar-picker-indicator {
+				background-position: right center;
+				background-size: auto;
+				cursor: pointer;
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			input[type="date"]::-webkit-datetime-edit,
+			input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+			input[type="date"]::-webkit-datetime-edit-text,
+			input[type="date"]::-webkit-datetime-edit-month-field,
+			input[type="date"]::-webkit-datetime-edit-day-field,
+			input[type="date"]::-webkit-datetime-edit-year-field {
+				color: transparent;
+			}
 		</style>
 	</head>
 	<body>
@@ -968,6 +986,8 @@
 				updateForm();
 
 				fetchServices()
+
+				initializeDateInputs();
 			})
 
 			// Function to update summary stage
@@ -1076,6 +1096,62 @@
 
 			// 	reader.readAsDataURL(file);
 			// });
+
+			function initializeDateInputs() {
+				// Select all date inputs
+				const dateInputs = document.querySelectorAll('input[type="date"]');
+				
+				dateInputs.forEach(input => {
+					console.log(input);
+					// Create a custom placeholder
+					const placeholder = document.createElement('span');
+					placeholder.textContent = 'dd-mm-yyyy';
+					placeholder.className = `date-placeholder date-${input.id} text-black text-sm pointer-events-none absolute left-3 top-1/2 -translate-y-1/2`;
+					
+					// Wrap input in a relative positioned container
+					const wrapper = document.createElement('div');
+					wrapper.className = 'relative';
+					input.parentNode.insertBefore(wrapper, input);
+					wrapper.appendChild(input);
+					wrapper.appendChild(placeholder);
+					
+					// Function to format date for display
+					const formatDateForDisplay = (date) => {
+						if (!date) return '';
+						const [year, month, day] = date.split('-');
+						return `${day}-${month}-${year}`;
+					};
+					
+					// Function to handle date change
+					const handleDateChange = () => {
+						const value = input.value;
+						if (value) {
+							// Store the YYYY-MM-DD format in value attribute
+							input.setAttribute('data-value', value);
+							// Show formatted date as text
+							placeholder.textContent = formatDateForDisplay(value);
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						} else {
+							placeholder.textContent = 'dd-mm-yyyy';
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						}
+					};
+					
+					// Initial state
+					if (input.value) {
+						handleDateChange();
+					}
+					
+					// Event listeners
+					input.addEventListener('change', handleDateChange);
+					input.addEventListener('blur', handleDateChange);
+					
+					// Hide the default date input display
+					input.style.color = 'transparent';
+				});
+			}
 
 			document.getElementById('add-student').addEventListener('click', () => {
 				currentStep = 1
@@ -1188,6 +1264,18 @@
                          })
 				}
 			});
+
+			document.getElementById("studentCourse").addEventListener("change", () => {
+				const selectedCourse = document.getElementById("studentCourse").value;
+				const baseURL = "http://127.0.0.1:8000/getSlotsData/"
+				fetch(baseURL + "?courseId=" + selectedCourse)
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("studentSlot").innerHTML = "";
+						document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
+						document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
+					})
+			})
 
 			document.getElementById("studentSlot").addEventListener("change", () => {
 				const selectedSlot = document.getElementById("studentSlot").value;
