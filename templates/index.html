@@ -101,37 +101,14 @@
 					</div>
 				</div>
 			</div>
-			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
+			<!-- <div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
 				<div>
 					<p class="text-3xl font-semibold">Daily Schedule</p>
 				</div>
 				<div class="w-full">
 					<div id="daily-time-slots" class="w-full"></div>
 				</div>
-				<!-- <div class="flex items-center justify-between gap-5">
-					<div class="flex items-center gap-5">
-						<div class="flex flex-col gap-2 w-[200px]">
-							<label for="vehicle" class="block font-semibold">Select Vehicle</label>
-							<select name="vehicle" id="vehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-								<option disabled selected>Select Vehicle</option>
-							</select>
-						</div>
-						<div class="flex flex-col gap-2 w-[200px]">
-							<label for="branch" class="block font-semibold">Select Branch</label>
-							<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-								<option disabled selected>Select Branch</option>
-							</select>
-						</div>
-					</div>
-					<div id="clear-filters" class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer flex items-center gap-2">
-						<p>Clear Filter</p>
-					</div>
-				</div>
-				<div class="flex items-start justify-between gap-5">
-					<div id="appointment-table-before-lunch" class="w-1/2"></div>
-					<div id="appointment-table-after-lunch" class="w-1/2"></div>
-				</div> -->
-			</div>
+			</div> -->
 			<div class="my-5 flex flex-col gap-5 bg-white p-5 rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
 				<div>
 					<p class="text-3xl font-semibold">On Leave Students</p>
@@ -849,103 +826,103 @@
 			}
 		})
 
-		// Function to initialize the grid with dynamic columns
-		async function initializeDailyTimeSlotsGrid() {
-			try {
-				// First fetch the data to get vehicle names
-				const response = await fetch('http://127.0.0.1:8000/getSlotWiseData/');
-				const data = await response.json();
+		// // Function to initialize the grid with dynamic columns
+		// async function initializeDailyTimeSlotsGrid() {
+		// 	try {
+		// 		// First fetch the data to get vehicle names
+		// 		const response = await fetch('http://127.0.0.1:8000/getSlotWiseData/');
+		// 		const data = await response.json();
 				
-				// Get unique vehicle names for columns
-				const vehicleNames = [...new Set(data.map(vehicle => vehicle.vehicleName))];
+		// 		// Get unique vehicle names for columns
+		// 		const vehicleNames = [...new Set(data.map(vehicle => vehicle.vehicleName))];
 				
-				// Create the grid with dynamic columns
-				const dailyTimeSlotsGrid = new gridjs.Grid({
-					search: true,
-					// pagination: {
-					// 	limit: 5,
-					// 	summary: false
-					// },
-					sort: true,
-					fixedHeader: true,
-					columns: ["Slot", ...vehicleNames],
-					data: () => {
-						// Transform the data to group by slot time
-						const slotMap = new Map();
+		// 		// Create the grid with dynamic columns
+		// 		const dailyTimeSlotsGrid = new gridjs.Grid({
+		// 			search: true,
+		// 			// pagination: {
+		// 			// 	limit: 5,
+		// 			// 	summary: false
+		// 			// },
+		// 			sort: true,
+		// 			fixedHeader: true,
+		// 			columns: ["Slot", ...vehicleNames],
+		// 			data: () => {
+		// 				// Transform the data to group by slot time
+		// 				const slotMap = new Map();
 						
-						// Process each vehicle's slots
-						data.forEach(vehicle => {
-							vehicle.slots.forEach(slot => {
-								if (!slotMap.has(slot.slotTime)) {
-									slotMap.set(slot.slotTime, {
-										slotTime: slot.slotTime,
-										vehicleData: {}
-									});
-								}
+		// 				// Process each vehicle's slots
+		// 				data.forEach(vehicle => {
+		// 					vehicle.slots.forEach(slot => {
+		// 						if (!slotMap.has(slot.slotTime)) {
+		// 							slotMap.set(slot.slotTime, {
+		// 								slotTime: slot.slotTime,
+		// 								vehicleData: {}
+		// 							});
+		// 						}
 								
-								// Add vehicle info to this slot
-								slotMap.get(slot.slotTime).vehicleData[vehicle.vehicleName] = {
-									student: slot.student,
-									branch: slot.branch
-								};
-							});
-						});
+		// 						// Add vehicle info to this slot
+		// 						slotMap.get(slot.slotTime).vehicleData[vehicle.vehicleName] = {
+		// 							student: slot.student,
+		// 							branch: slot.branch
+		// 						};
+		// 					});
+		// 				});
 						
-						// Convert to grid format
-						return Array.from(slotMap.values()).map(slotData => {
-							const row = [slotData.slotTime];
+		// 				// Convert to grid format
+		// 				return Array.from(slotMap.values()).map(slotData => {
+		// 					const row = [slotData.slotTime];
 							
-							// Add data for each vehicle column
-							vehicleNames.forEach(vehicleName => {
-								const vehicleInfo = slotData.vehicleData[vehicleName];
-								if (vehicleInfo) {
-									row.push(vehicleInfo.student || '--');
-								} else {
-									row.push('Slot Not Available'); // No slot for this vehicle at this time
-								}
-							});
+		// 					// Add data for each vehicle column
+		// 					vehicleNames.forEach(vehicleName => {
+		// 						const vehicleInfo = slotData.vehicleData[vehicleName];
+		// 						if (vehicleInfo) {
+		// 							row.push(vehicleInfo.student || '--');
+		// 						} else {
+		// 							row.push('Slot Not Available'); // No slot for this vehicle at this time
+		// 						}
+		// 					});
 							
-							return row;
-						});
-					},
-					className: {
-						th: '!bg-black !text-white',
-						sort: '!bg-black !text-white',
-						search: '!float-right !w-[25%]',
-					}
-				});
+		// 					return row;
+		// 				});
+		// 			},
+		// 			className: {
+		// 				th: '!bg-black !text-white',
+		// 				sort: '!bg-black !text-white',
+		// 				search: '!float-right !w-[25%]',
+		// 			}
+		// 		});
 				
-				return dailyTimeSlotsGrid;
+		// 		return dailyTimeSlotsGrid;
 				
-			} catch (error) {
-				console.error('Error initializing grid:', error);
+		// 	} catch (error) {
+		// 		console.error('Error initializing grid:', error);
 				
-				// Fallback grid with static columns
-				return new gridjs.Grid({
-					search: true,
-					sort: true,
-					fixedHeader: true,
-					columns: ["Slot", "Error loading vehicles"],
-					data: [["Error", "Could not load data"]],
-					className: {
-						th: '!bg-black !text-white',
-						sort: '!bg-black !text-white',
-						search: '!float-right !w-[25%]',
-					}
-				});
-			}
-		}
+		// 		// Fallback grid with static columns
+		// 		return new gridjs.Grid({
+		// 			search: true,
+		// 			sort: true,
+		// 			fixedHeader: true,
+		// 			columns: ["Slot", "Error loading vehicles"],
+		// 			data: [["Error", "Could not load data"]],
+		// 			className: {
+		// 				th: '!bg-black !text-white',
+		// 				sort: '!bg-black !text-white',
+		// 				search: '!float-right !w-[25%]',
+		// 			}
+		// 		});
+		// 	}
+		// }
 
-		// Initialize and render the grid
-		initializeDailyTimeSlotsGrid().then(grid => {
-			grid.render(document.getElementById('daily-time-slots'));
-		});
+		// // Initialize and render the grid
+		// initializeDailyTimeSlotsGrid().then(grid => {
+		// 	grid.render(document.getElementById('daily-time-slots'));
+		// });
 
-		// Or with async/await
-		async function setupGrid() {
-			const dailyTimeSlotsGrid = await initializeDailyTimeSlotsGrid();
-			dailyTimeSlotsGrid.render(document.getElementById('daily-time-slots'));
-		}
+		// // Or with async/await
+		// async function setupGrid() {
+		// 	const dailyTimeSlotsGrid = await initializeDailyTimeSlotsGrid();
+		// 	dailyTimeSlotsGrid.render(document.getElementById('daily-time-slots'));
+		// }
 
 		const earningGrid = new gridjs.Grid({
 			search: true,

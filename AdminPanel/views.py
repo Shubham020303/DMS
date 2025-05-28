@@ -53,7 +53,7 @@ def getSlotWiseData(request):
             temp_slot_data = []
             for slot in slots:
                 if slot.is_active == True:
-                    student = Student.objects.filter(slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
+                    student = Student.objects.filter(cource__vehicle=i,slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
                     slot_data = {
                         'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
                         'branch': slot.slotBranch.branchName,
@@ -467,10 +467,10 @@ def manage_student(request):
                 userprofile = None
                 Dlinfo = None
                 try:
-                    if User.objects.filter(email=email).exists():
-                        newuser = User.objects.get(email=email)    
+                    if User.objects.filter(username=phone).exists():
+                        newuser = User.objects.get(username=phone)    
                     else:
-                        newuser = User.objects.create_user(username=email, email=email, password=dob, first_name=name)
+                        newuser = User.objects.create_user(username=phone, password=dob, first_name=name)
                     userprofile = UserProfile(user=newuser, phoneNo=phone, is_student=True, profilePic=profilepic ,bloodGroup=bloodGroup)
                     userprofile.save()
                     branch = Branch.objects.get(branchName=branch)
@@ -495,12 +495,13 @@ def manage_student(request):
                     print(addOnService)
                     student.save()
                     addontoatal = 0
-                    for addOn in addOnService:
-                        addOnService = AddOnService.objects.get(id=addOn)
-                        student.addOnService.add(addOnService)
-                        addontoatal= addontoatal + int(addOnService.serviceFee)
-                    
-                    student.amountPending = int(student.amountPending) + addontoatal
+                    if addOnService:
+                        for addOn in addOnService:
+                            addOnService = AddOnService.objects.get(id=addOn)
+                            student.addOnService.add(addOnService)
+                            addontoatal= addontoatal + int(addOnService.serviceFee)
+                        
+                    # student.amountPending = int(student.amountPending) + addontoatal
                     student.save()
 
                     payment.save()
@@ -512,10 +513,10 @@ def manage_student(request):
                 except Exception as e:
                     print(e)
                     if newuser:
-                        if userprofile:
-                            userprofile.delete()
-                        if Dlinfo:
-                            Dlinfo.delete()
+                        # if userprofile:
+                        #     userprofile.delete()
+                        # if Dlinfo:
+                        #     Dlinfo.delete()
                         newuser.delete()
                         slot.slotPreBooked = False
                         slot.slotUsed = False
@@ -979,65 +980,42 @@ def manageCourseContent(request):
 
 @login_required(login_url='signin/')
 def getSlotsData(request):
-    slotsId = request.GET.get('slotId', None)
+    # slotsId = request.GET.get('slotId', None)
     courseId = request.GET.get('courseId', None)
     bookingType = request.GET.get('bookingType', None)
     course = Cource.objects.filter(id=courseId).first()
     if course:
         slots = Slot.objects.filter(vehicle=course.vehicle).all()
         slotData = []
-        for i in slots:
-            if not i.slotUsed:
-                slotData.append({
-                    'id': i.id,
-                    'slotStartTime': i.slotStart,
-                    'slotEndTime': i.slotEnd,
-                    'slotBranch': i.slotBranch.branchName,
-                    'slotUsed': i.slotUsed,
-                    'slotPreBooked': i.slotPreBooked
-                })
-                if bookingType == "Pre-Booking":
-                    slotData[-1]['UsedTill'] = "" if i.slotUsed == False else Student.objects.filter(slot__id=i.id).last().courceEndDate
+        if not bookingType:
+            for i in slots:
+                if not i.slotUsed:
+                    slotData.append({
+                        'id': i.id,
+                        'slotStartTime': i.slotStart,
+                        'slotEndTime': i.slotEnd,
+                        'slotBranch': i.slotBranch.branchName,
+                        'slotUsed': i.slotUsed,
+                        'slotPreBooked': i.slotPreBooked
+                    })
+        if bookingType == 'Pre-Booking':
+            slots =  Slot.objects.filter(vehicle=course.vehicle).all()
+            # print(slots)
+            for i in slots:
+                    slotData.append({
+                        'id': i.id,
+                        'slotStartTime': i.slotStart,
+                        'slotEndTime': i.slotEnd,
+                        'slotBranch': i.slotBranch.branchName,
+                        'slotUsed': i.slotUsed,
+                        'slotPreBooked': i.slotPreBooked,
+                        'UsedTill': Student.objects.filter(slot=i).last().courceEndDate if Student.objects.filter(slot=i).exists() else None
+                    })
+
         return JsonResponse(slotData,safe=False)
-
-
     
-    if slotsId:
-        slots = Slot.objects.get(id=slotsId)
-        slotsData = {
-            'id': slots.id,
-            'slotStartTime': slots.slotStart,
-            'slotEndTime': slots.slotEnd,
-            'slotBranch': slots.slotBranch.branchName,
-        }
-        return JsonResponse(slotsData)
-    if bookingType == "Pre-Booking":
-        slots = Slot.objects.all()
-        slotsData = []
-        for i in slots:
-            slotsData.append({
-            'id': i.id,
-            'slotStartTime': i.slotStart,
-            'slotEndTime': i.slotEnd,
-            'UsedTill':"" if i.slotUsed == False else Student.objects.filter(slot__id=i.id).last().courceEndDate,
-            "slotUsed": i.slotUsed,
-            'slotPreBooked': i.slotPreBooked
-            })
-        
-        return JsonResponse(slotsData,safe=False)
-    else:
-        slots = Slot.objects.all()
-        slotsData = []
-        for i in slots:
-                slotsData.append({
-                'id': i.id,
-                'slotStartTime': i.slotStart,
-                'slotEndTime': i.slotEnd,
-                'slotBranch': i.slotBranch.branchName,
-                'slotUsed': i.slotUsed
-                })
-        
-        return JsonResponse(slotsData,safe=False)
+    return JsonResponse({'error': 'No slots found for this course'}, status=404)
+
 @csrf_exempt
 @login_required(login_url='signin/')
 def manageSlots(request):
