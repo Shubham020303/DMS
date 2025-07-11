@@ -555,6 +555,32 @@
 						</div>
 					</div>
 				</div>
+
+				<div class="mt-8 flex justify-center gap-4">
+					<!-- Fuel Efficient Certificate Button -->
+					<button class="px-6 py-3 bg-indigo-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-indigo-700 transition-colors" 
+							onclick="generateCertificate(this.getAttribute('data-id'))" 
+							id="fuel-certificate-btn">
+						<svg viewBox="0 0 32 32" width="16" height="16">
+							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="25" y1="28" x2="7" y2="28"/>
+							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="16" y1="23" x2="16" y2="4"/>
+							<polyline fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" points="9,16 16,23 23,16"/>
+						</svg>
+						<span>Download Form 14</span>
+					</button>
+
+					<!-- Course Completion Certificate Button -->
+					<button class="px-6 py-3 bg-green-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-green-700 transition-colors" 
+							onclick="generateCompletionCertificate(this.getAttribute('data-id'))" 
+							id="completion-certificate-btn">
+						<svg viewBox="0 0 32 32" width="16" height="16">
+							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="25" y1="28" x2="7" y2="28"/>
+							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="16" y1="23" x2="16" y2="4"/>
+							<polyline fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" points="9,16 16,23 23,16"/>
+						</svg>
+						<span>Download Form 15</span>
+					</button>
+				</div>
 			</div>
 		</section>
 		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
@@ -2259,6 +2285,10 @@
 			studentGrid.on('cellClick', (...args) => {
 				if (args[2]["id"] === "name") {
 					studentId = args[3]["_cells"][0]["data"];
+
+					document.getElementById("fuel-certificate-btn").setAttribute("data-id", studentId);
+					document.getElementById("completion-certificate-btn").setAttribute("data-id", studentId);
+
 					fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
 						.then(response => response.json())
 						.then(data => {
@@ -2341,6 +2371,357 @@
 				};
 
 				return `${day}${ordinal(day)} ${month}, ${year}`;
+			}
+
+			function generateCertificate(studentId) {
+				// Fetch student data first
+				fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
+				.then(response => response.json())
+				.then(data => {
+					const htmlContent = `
+						<!DOCTYPE html>
+						<html>
+						<head>
+							<style>
+							@page {
+								size: A4;
+								margin: 0;
+							}
+							body {
+								margin: 20mm;
+								font-family: Arial, sans-serif;
+							}
+							.certificate {
+								border: 2px solid #615FFF;
+								padding: 20px;
+								position: relative;
+							}
+							.header {
+								text-align: center;
+								margin-bottom: 30px;
+							}
+							.logo {
+								width: 100px;
+								margin-bottom: 10px;
+							}
+							.title {
+								font-size: 24px;
+								color: #615FFF;
+								margin-bottom: 5px;
+								font-weight: bold;
+							}
+							.subtitle {
+								font-size: 18px;
+								color: #444;
+								margin-bottom: 20px;
+							}
+							.content {
+								font-size: 14px;
+								line-height: 1.6;
+							}
+							.field {
+								margin-bottom: 15px;
+							}
+							.label {
+								color: #666;
+							}
+							.value {
+								color: #000;
+								font-weight: 500;
+							}
+							.signature {
+								margin-top: 50px;
+								text-align: right;
+							}
+							.sig-line {
+								width: 200px;
+								border-top: 1px solid #000;
+								margin-left: auto;
+								margin-bottom: 5px;
+							}
+							</style>
+						</head>
+						<body>
+							<div class="certificate">
+							<div class="header">
+								<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" class="logo" alt="IDEA Logo">
+								<div class="title">CERTIFICATE OF FUEL EFFICIENT TRAINING</div>
+								<div class="subtitle">ISSUED BY IDEA DRIVING SCHOOL</div>
+							</div>
+							
+							<div class="content">
+								<div class="field">
+									This is to certify that <span class="value">${data.name}</span>
+									has enrolled in our driving school for fuel efficient training.
+								</div>
+								
+								<div class="field">
+									<span class="label">Registration Number:</span>
+									<span class="value">${data.applicationNo}</span>
+								</div>
+								
+								<div class="field">
+									<span class="label">Course Duration:</span>
+									<span class="value">${formatDate(data.startDate)} to ${formatDate(data.endDate)}</span>
+								</div>
+								
+								<div class="field">
+									<span class="label">Course Type:</span>
+									<span class="value">${data.cource}</span>
+								</div>
+								
+								<div class="field">
+									<span class="label">Branch:</span>
+									<span class="value">${data.branch}</span>
+								</div>
+							</div>
+							
+							<div class="signature">
+								<div class="sig-line"></div>
+								<div>Authorized Signature</div>
+								<div>IDEA Driving School</div>
+							</div>
+							</div>
+						</body>
+						</html>
+					`;
+
+					const printWindow = window.open('', '_blank');
+					printWindow.document.write(htmlContent);
+					printWindow.document.close();
+
+					// Wait for content to load then print
+					printWindow.onload = function() {
+						// Generate filename
+						const timestamp = new Date().toISOString().split('T')[0];
+						const sanitizedName = data.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+						const filename = `${sanitizedName}_certificate_${timestamp}.pdf`;
+						
+						printWindow.document.title = filename;
+						setTimeout(() => {
+							printWindow.print();
+							printWindow.onafterprint = function() {
+							printWindow.close();
+							};
+						}, 500);
+					};
+				});
+			}
+
+			function generateCompletionCertificate(studentId) {
+				// Fetch both student and attendance data
+				Promise.all([
+					fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`),
+					fetch(`http://127.0.0.1:8000/getAttendanceData/?studentId=${studentId}`)
+				])
+				.then(responses => Promise.all(responses.map(r => r.json())))
+				.then(([studentData, attendanceData]) => {
+					const htmlContent = `
+						<!DOCTYPE html>
+						<html>
+						<head>
+							<style>
+								@page {
+								size: A4;
+								margin: 0;
+								}
+								body {
+								margin: 20mm;
+								font-family: Arial, sans-serif;
+								}
+								.document {
+								border: 2px solid #615FFF;
+								padding: 20px;
+								position: relative;
+								}
+								.header {
+								text-align: center;
+								margin-bottom: 30px;
+								}
+								.logo {
+								width: 100px;
+								margin-bottom: 10px;
+								}
+								.title {
+								font-size: 24px;
+								color: #615FFF;
+								margin-bottom: 5px;
+								font-weight: bold;
+								}
+								.subtitle {
+								font-size: 18px;
+								color: #444;
+								margin-bottom: 20px;
+								}
+								.student-info {
+								margin-bottom: 30px;
+								padding: 15px;
+								background-color: #f8f9fa;
+								border-radius: 5px;
+								}
+								.student-info p {
+								margin: 5px 0;
+								font-size: 14px;
+								}
+								.attendance-table {
+								width: 100%;
+								border-collapse: collapse;
+								margin: 20px 0;
+								}
+								.attendance-table th {
+								background-color: #615FFF;
+								color: white;
+								padding: 10px;
+								text-align: left;
+								font-size: 12px;
+								}
+								.attendance-table td {
+								padding: 8px 10px;
+								border-bottom: 1px solid #ddd;
+								font-size: 12px;
+								}
+								.attendance-table tr:nth-child(even) {
+								background-color: #f9f9f9;
+								}
+								.attendance-summary {
+								margin: 20px 0;
+								padding: 15px;
+								background-color: #f8f9fa;
+								border-radius: 5px;
+								}
+								.attendance-summary p {
+								margin: 5px 0;
+								font-size: 13px;
+								}
+								.signature {
+								margin-top: 50px;
+								text-align: right;
+								}
+								.sig-line {
+								width: 200px;
+								border-top: 1px solid #000;
+								margin-left: auto;
+								margin-bottom: 5px;
+								}
+								.status-present {
+								color: #059669;
+								font-weight: 500;
+								}
+								.status-absent {
+								color: #DC2626;
+								font-weight: 500;
+								}
+							</style>
+						</head>
+						<body>
+							<div class="document">
+								<div class="header">
+								<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" class="logo" alt="IDEA Logo">
+								<div class="title">ATTENDANCE RECORD</div>
+								<div class="subtitle">IDEA DRIVING SCHOOL</div>
+								</div>
+								
+								<div class="student-info">
+								<p><strong>Student Name:</strong> ${studentData.name}</p>
+								<p><strong>Registration Number:</strong> ${studentData.applicationNo}</p>
+								<p><strong>Course:</strong> ${studentData.cource}</p>
+								<p><strong>Duration:</strong> ${formatDate(studentData.startDate)} to ${formatDate(studentData.endDate)}</p>
+								<p><strong>Branch:</strong> ${studentData.branch}</p>
+								</div>
+
+								<div class="attendance-summary">
+								<p><strong>Total Classes:</strong> ${attendanceData.length}</p>
+								<p><strong>Present:</strong> ${attendanceData.filter(a => a.status === 'Present').length}</p>
+								<p><strong>Total Training Hours:</strong> ${calculateTotalHours(attendanceData)} hours</p>
+								</div>
+
+								<table class="attendance-table">
+								<thead>
+									<tr>
+										<th>Date</th>
+										<th>Time In</th>
+										<th>Time Out</th>
+										<th>Duration</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									${attendanceData.map(attendance => `
+										<tr>
+											<td>${formatDate(attendance.date)}</td>
+											<td>${formatTime(attendance.timeIn)}</td>
+											<td>${formatTime(attendance.timeOut)}</td>
+											<td>${formatDuration(attendance.duration)}</td>
+											<td class="status-${attendance.status.toLowerCase()}">${attendance.status}</td>
+										</tr>
+									`).join('')}
+								</tbody>
+								</table>
+								
+								<div class="signature">
+								<div class="sig-line"></div>
+								<div>Authorized Signature</div>
+								<div>IDEA Driving School</div>
+								</div>
+							</div>
+						</body>
+						</html>
+					`;
+
+					const printWindow = window.open('', '_blank');
+					printWindow.document.write(htmlContent);
+					printWindow.document.close();
+					
+					printWindow.onload = function() {
+						const timestamp = new Date().toISOString().split('T')[0];
+						const sanitizedName = studentData.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+						const filename = `${sanitizedName}_attendance_record_${timestamp}.pdf`;
+						
+						printWindow.document.title = filename;
+						setTimeout(() => {
+							printWindow.print();
+							printWindow.onafterprint = function() {
+								printWindow.close();
+							};
+						}, 500);
+					};
+				});
+			}
+
+			// Helper functions
+			function formatTime(timeStr) {
+				if (!timeStr) return "";
+				const time = new Date(`2000-01-01T${timeStr}`);
+				return time.toLocaleTimeString('en-US', { 
+					hour: '2-digit', 
+					minute: '2-digit',
+					hour12: true 
+				});
+			}
+
+			function formatDuration(duration) {
+				if (!duration) return "";
+				// Parse ISO 8601 duration
+				const matches = duration.match(/P(\d+D)?T(\d+H)?(\d+M)?(\d+S)?/);
+				if (!matches) return "";
+
+				const days = (matches[1] || '').replace('D', '') || 0;
+				const hours = (matches[2] || '').replace('H', '') || 0;
+				const minutes = (matches[3] || '').replace('M', '') || 0;
+				
+				let result = [];
+				if (parseInt(days)) result.push(`${days}d`);
+				if (parseInt(hours)) result.push(`${hours}h`);
+				if (parseInt(minutes)) result.push(`${minutes}m`);
+				
+				return result.join(' ');
+			}
+
+			function calculateTotalHours(attendanceData) {
+				const totalMinutes = attendanceData
+					.filter(a => a.status === 'Present')
+					.reduce((acc, curr) => acc + (curr.totalTime || 0), 0);
+				return (totalMinutes / 60).toFixed(1);
 			}
 
 			function fetchStudentData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
