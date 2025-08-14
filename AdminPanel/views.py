@@ -33,7 +33,7 @@ def getReamainingPaymentData(request):
                 'amountPaid': student.amountPaid,
                 'TotalAmount': int(student.amountPending) + int(student.amountPaid),
                 'paymentDueDate': student.paymentDueDate
-            })
+            })  
         return JsonResponse(data, safe=False)
     
 @login_required(login_url='signin/')
@@ -1316,8 +1316,9 @@ def manageDlInfo(request):
 
 @login_required(login_url='signin/')
 def getPaymentData(request):
-    payments = Payment.objects.all()
-    paymentData = []
+    three_days_ago = datetime.today() - timedelta(days=3)
+    payments = Payment.objects.filter(paymentDate__gte=three_days_ago)
+    paymentData = []s
     for i in payments:
         data = {
             'id': i.id,
