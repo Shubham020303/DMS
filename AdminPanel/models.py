@@ -2,11 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from datetime import time,datetime
-import uuid
 from django.db.models import F, Case, When, Value
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime,timedelta
+import uuid
+import qrcode
+from io import BytesIO
+from django.core.files.base import ContentFile
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phoneNo = models.CharField(max_length=10)
@@ -39,13 +43,28 @@ class Vehicle(models.Model):
     insuranceValidity = models.DateField()
     pollutionValidity = models.DateField()
     fitnessValidity = models.DateField()
+    qrCodeData = models.CharField(max_length=64,blank=True,null=True)
+    qrCodeImage = models.ImageField(upload_to='vehicle_qrcodes/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
-
+   
 
 
     def __str__(self):
         return self.vehicleNo
-    
+
+    def generate_qrcode(self):
+        if not self.qrCodeData:
+            self.qrCodeData = str(uuid.uuid4())
+        qr = qrcode.make(self.qrCodeData)
+        buffer = BytesIO()
+        qr.save(buffer, format='PNG')
+        file_name = f'vehicle_qrcode_{self.vehicleNo}.png'
+        self.qrCodeImage.save(file_name, ContentFile(buffer.getvalue()), save=False)
+
+    def save(self, *args, **kwargs):
+        if not self.qrCodeData or not self.qrCodeImage:
+            self.generate_qrcode()
+        super().save(*args, **kwargs)
 
 class Slot(models.Model):
     class Meta:
@@ -177,7 +196,7 @@ class Attendance(models.Model):
     status = models.CharField(max_length=10,choices=choices,null=True,blank=True)
     timeIn = models.TimeField(null=True,blank=True)
     timeOut = models.TimeField(null=True,blank=True)
-    qr_code_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
+    
     is_active = models.BooleanField(default=True)
     
     def __str__(self):
@@ -249,3 +268,4 @@ class Notification(models.Model):
 
     def __str__(self):
         return self.notificationTitle
+

@@ -226,6 +226,26 @@
 				</div>
 			</div>
 		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="qr-code-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">QR Code</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-qr-code-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex justify-center">
+					<img id="qr-code-image" src="" alt="QR Code" class="w-64 h-64 object-contain">
+				</div>
+				<div class="flex justify-end">
+					<div id="download-qr-code-btn" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Download QR Code</p>
+					</div>
+				</div>
+			</div>
+		</section>
 		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
@@ -456,6 +476,42 @@
 				window.location.reload()
 			});
 
+			document.getElementById('close-qr-code-btn').addEventListener('click', () => {
+				document.getElementById('qr-code-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('qr-code-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('download-qr-code-btn').addEventListener('click', async function() {
+    const qrImageSrc = document.getElementById("qr-code-image").src;
+    const vehicleId = getCurrentVehicleId();
+    
+    if (qrImageSrc) {
+        try {
+            // Fetch the image as blob
+            const response = await fetch(qrImageSrc);
+            const blob = await response.blob();
+            
+            // Create blob URL
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            // Create temporary anchor and trigger download
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `vehicle-${vehicleId}-qrcode.png`;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up blob URL
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error('Download failed:', error);
+            alert('Failed to download QR code. Please try again.');
+        }
+    }
+});
+
 			document.getElementById("add-vehicle-form").addEventListener("submit", (e) => {
 				if (document.getElementById('add-vehicle-btn').innerText === "Update") {
 					e.preventDefault();
@@ -619,6 +675,27 @@
 									document.getElementById('add-vehicle-modal').classList.add('scale-100', 'opacity-100');
 								}
 							}, '');
+							let qrCodeBtn = gridjs.h('button', {
+								className: 'p-3 bg-green-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-qr-code" viewBox="0 0 16 16">
+										<path d="M2 2h2v2H2z"/>
+										<path d="M6 0v6H0V0zM5 1H1v4h4zM4 12H2v2h2z"/>
+										<path d="M6 10v6H0v-6zm-5 1v4h4v-4zm11-9h2v2h-2z"/>
+										<path d="M10 0v6h6V0zm5 1v4h-4V1zM8 1V0h1v2H8v2H7V1zm0 5V4h1v2zM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8zm0 0v1H2V8H1v1H0V7h3v1zm10 1h-1V7h1zm-1 0h-1v2h2v-1h-1zm-4 0h2v1h-1v1h-1zm2 3v-1h-1v1h-1v1H9v1h3v-2zm0 0h3v1h-2v1h-1zm-4-1v1h1v-2H7v1z"/>
+										<path d="M7 12h1v3h4v1H7zm9 2v2h-3v-1h2v-1z"/>
+									</svg>
+								`,
+								onClick: () => {
+									const vehicleId = row.cells[0].data;
+									const qrCodeUrl = `http://127.0.0.1:8000/getVehicleData/?vehicleId=${vehicleId}`;
+									window.currentVehicleId = vehicleId;
+
+									document.getElementById("qr-code-image").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=200x200`;
+									document.getElementById('qr-code-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('qr-code-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
 							let deleteBtn = gridjs.h('button', {
 								className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
 								innerHTML: `
@@ -637,9 +714,9 @@
 							}, '');
 							return gridjs.h('div', {
 								className: 'flex gap-4'
-							}, editBtn, deleteBtn);
+							}, editBtn, qrCodeBtn, deleteBtn);
 						},
-						width: '11%'
+						width: '16%'
 					}
 				],
 				server: {
@@ -652,6 +729,10 @@
 					search: '!float-right !w-[25%]',
 				}
 			})
+
+			function getCurrentVehicleId() {
+				return window.currentVehicleId || 'unknown';
+			}
 
 			vehicleGrid.render(document.getElementById("wrapper"))
 

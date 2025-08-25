@@ -21,7 +21,7 @@ urlpatterns = [
     path('manage-branch/', views.manage_branch, name='manage-branch/'),
     path('getVehicleData/', views.getVehicleData, name='getVehicleData/'),
     path('manage-vehicle/', views.manage_vehicle, name='manage-vehicle/'),
-    path('manage-slot/', views.manage_slot, name='manage-slot/'),
+    
     path('getCourseData/', views.getCourseData, name='getCourseData/'),
     path('manage-course/', views.manage_course, name='manage-course/'),
     path('getComplainData/', views.getComplainData, name='getComplainData/'),
@@ -40,6 +40,7 @@ urlpatterns = [
     path('manage-addOnService/', views.manageAddOnService, name='manage-addOnService/'),
     path('getNotificationData/', views.getNotificationData, name='getNotificationData/'),
     path('manage-Notification/', views.manageNotification, name='manage-notification/'),
+    
     # path('DeleteALlComplain/', views.DeleteALlComplain, name='DeleteALlComplain/'),
     
     # path('getVehicleData/', views.getVehicleData, name='getVehicleData/'),

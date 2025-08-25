@@ -7,6 +7,8 @@
 	<title>Dashboard | DMS</title>
 	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+	<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 	<style>
 		::-webkit-scrollbar {
 			width: 8px;
@@ -172,8 +174,15 @@
 			</nav>
 		</div>
 		<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-			<div class="w-full flex items-center justify-between">
-				<h1 class="text-3xl font-bold">Attendance</h1>
+			<div class="flex items-center justify-between">
+				<div class="w-full flex items-center justify-between">
+					<h1 class="text-3xl font-bold">Attendance</h1>
+				</div>
+				<div>
+					<button id="scanQrBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors whitespace-nowrap cursor-pointer">
+						Scan QR Code
+					</button>
+				</div>
 			</div>
 
 			<div class="my-5 flex items-start justify-between gap-5 bg-white rounded-xl shadow-[3px_8px_20px_-10px_#00000015] overflow-hidden">
@@ -214,8 +223,36 @@
 				</table>
 			</div>
 		</div>
+
+		<div id="qrModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+			<div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+				<div class="flex items-center justify-between mb-4">
+					<h3 class="text-xl font-semibold">Scan QR Code</h3>
+					<button id="closeModal" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+				</div>
+				
+				<div id="qrReader" class="w-full bg-gray-100 rounded-lg mb-4 flex flex-col items-center justify-center">
+					<!-- <video id="qrVideo" class="w-full h-full object-cover rounded-lg" autoplay></video> -->
+				</div>
+				
+				<div id="qrResult" class="hidden">
+					<div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+						<p class="text-sm text-green-800">QR Code detected successfully!</p>
+						<p class="text-xs text-gray-600 mt-1">Code: <span id="qrCodeValue"></span></p>
+					</div>
+					<button id="submitAttendance" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+						Submit Attendance
+					</button>
+				</div>
+				
+				<div id="qrError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3">
+					<p class="text-sm text-red-800">Camera access denied or not available.</p>
+				</div>
+			</div>
+		</div>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 		<script>
 			document.addEventListener('DOMContentLoaded', function () {
 				const links = [...document.querySelectorAll('a')];
@@ -226,6 +263,101 @@
 					}
 				});
 			});
+		</script>
+		<script>
+		// QR Code scanning functionality
+		let html5QrCodeScanner = null;
+		let qrCodeData = null;
+
+		document.getElementById('scanQrBtn').addEventListener('click', function() {
+			document.getElementById('qrModal').classList.remove('hidden');
+			document.getElementById('qrModal').classList.add('flex');
+			startQrScanner();
+			document.getElementById("qrReader").querySelectorAll("div")[0].style.display = "none";
+		});
+
+		document.getElementById('closeModal').addEventListener('click', function() {
+			closeQrModal();
+		});
+
+		document.getElementById('qrModal').addEventListener('click', function(e) {
+			if (e.target === this) {
+				closeQrModal();
+			}
+		});
+
+		document.getElementById('submitAttendance').addEventListener('click', function() {
+			if (qrCodeData) {
+				// Here you would typically send the QR code data to your server
+				console.log('Submitting attendance with QR code:', qrCodeData);
+				
+				// Show success message
+				alert('Attendance submitted successfully!');
+				
+				// Close modal and reset
+				closeQrModal();
+				resetQrScanner();
+			}
+		});
+
+		function startQrScanner() {
+			const qrResult = document.getElementById('qrResult');
+			const qrError = document.getElementById('qrError');
+			
+			// Reset states
+			qrResult.classList.add('hidden');
+			qrError.classList.add('hidden');
+			
+			function onScanSuccess(decodedText, decodedResult) {
+				qrCodeData = decodedText;
+				document.getElementById('qrCodeValue').textContent = decodedText;
+				document.getElementById('qrResult').classList.remove('hidden');
+				
+				// Stop scanning after successful detection
+				if (html5QrCodeScanner) {
+					html5QrCodeScanner.clear();
+				}
+			}
+			
+			function onScanFailure(error) {
+				// Handle scan failure silently - this fires continuously while scanning
+			}
+			
+			const config = {
+				fps: 10,
+				qrbox: { width: 250, height: 250 },
+				aspectRatio: 1.0
+			};
+			
+			try {
+				html5QrCodeScanner = new Html5QrcodeScanner("qrReader", config, false);
+				html5QrCodeScanner.render(onScanSuccess, onScanFailure);
+			} catch (error) {
+				console.error('QR Scanner error:', error);
+				qrError.classList.remove('hidden');
+			}
+		}
+
+		function closeQrModal() {
+			document.getElementById('qrModal').classList.add('hidden');
+			document.getElementById('qrModal').classList.remove('flex');
+			
+			// Stop scanner
+			if (html5QrCodeScanner) {
+				html5QrCodeScanner.clear().then(() => {
+					html5QrCodeScanner = null;
+				}).catch(error => {
+					console.error('Error clearing scanner:', error);
+					html5QrCodeScanner = null;
+				});
+			}
+		}
+
+		function resetQrScanner() {
+			qrCodeData = null;
+			document.getElementById('qrResult').classList.add('hidden');
+			document.getElementById('qrError').classList.add('hidden');
+		}
 		</script>
 	</section>
 </body>

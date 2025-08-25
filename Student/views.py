@@ -34,9 +34,8 @@ def student_signin(request):
 @login_required(login_url='student_signin/')
 def index(request):
     student = Student.objects.get(user__user=request.user)
-    # dlinfo = DLInfo.objects.get(dlUser = student.user)
-
-
+    dlinfo = DLInfo.objects.filter(dlUser=student.user).first()
+   
     studentData = {
                 "id":student.id,
                 "name":student.user.user.first_name,
@@ -51,10 +50,10 @@ def index(request):
                 "dueamount":student.amountPending if student.amountPending > 0 else None,
                 "dueDate":student.paymentDueDate.strftime('%d/%m/%Y') if student.paymentDueDate else '',
                 "phone":student.user.phoneNo,
-                # "DlNo":dlinfo.dlNo,
-                # "DlIssueDate":dlinfo.dlIssueDate.strftime('%d/%m/%Y') if student.paymentDueDate else '',
-                # "DlExpiry":dlinfo.dlExpiry.strftime('%d/%m/%Y') if student.paymentDueDate else '',
-                # "DlType":dlinfo.dlType
+                "DlNo":dlinfo.dlNo if dlinfo and dlinfo.dlNo else None,
+                "DlIssueDate":dlinfo.dlIssueDate.strftime('%d/%m/%Y') if dlinfo and dlinfo.dlIssueDate else None,
+                "DlExpiry":dlinfo.dlExpiry.strftime('%d/%m/%Y') if dlinfo and dlinfo.dlExpiry else None,
+                "DlType":dlinfo.dlType if dlinfo and dlinfo.dlType else None
 
             }
     

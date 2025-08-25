@@ -2397,7 +2397,6 @@
 						document.getElementById("studentGender").value = data.gender || "No Data Found";
 						document.getElementById("studentInstructor").value = data.instructorId || "No Data Found";
 						document.getElementById("bookingType").value = data.bookingType || "No Data Found";
-						document.getElementById("studentSlot").value = data.slotId || "No Data Found";
 						document.getElementById("courseStartDate").value = data.startDate || "No Data Found";
 						document.getElementById("courseEndDate").value = data.endDate || "No Data Found";
 						document.getElementById("dob").value = data.dob || "No Data Found";
@@ -2405,18 +2404,16 @@
 						document.getElementById("address").value = data.address || "No Data Found";
 						// document.getElementById("totalAmount").value = data.totalAmount || "No Data Found";
 						document.getElementById("paymentDueDate").value = data.paymentDueDate || "No Data Found";
-						// document.getElementById("paymentReceived").value = data.paymentReceived || "No Data Found";
+						document.getElementById("paymentReceived").value = data.paymentReceived || "No Data Found";
 						document.getElementById("paymentRecievedBy").value = data.paymentRecievedBy || "No Data Found";
-						// document.getElementById("paymentDue").value = data.paymentDue || "No Data Found";
+						document.getElementById("paymentDue").value = data.paymentDue || "No Data Found";
 						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
 						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
 						document.getElementById("dlExpiry").value = data.dlExpiry || "No Data Found";
 						document.getElementById("dlType").value = data.dlType || "No Data Found";
 						data.addOnService.map((item,index) => {
 							document.querySelectorAll("#services-container input").forEach((checkbox) => {
-								console.log(parseInt(checkbox.value), parseInt(item));
 								if (parseInt(checkbox.value) === parseInt(item)) {
-									console.log(checkbox);
 									checkbox.setAttribute("checked", true);
 								}
 							})
@@ -2453,6 +2450,127 @@
 
 							reader.readAsDataURL(file);
 						});
+
+						const bookingType = document.getElementById("bookingType").value;
+						const selectedCourse = document.getElementById("studentCourse").value;
+						const slotId = data.slotId || "0";
+						
+						// Reset baseURL to original
+						baseURL = "http://127.0.0.1:8000/getSlotsData/";
+						
+						// Add parameters based on available values
+						if (selectedCourse) {
+							baseURL += `?courseId=${selectedCourse}`;
+							if (bookingType === "Pre-Booking") {
+								baseURL += "&bookingType=Pre-Booking";
+							}
+						} else if (bookingType === "Pre-Booking") {
+							baseURL += "?bookingType=Pre-Booking";
+						}
+
+						// Reset and fetch slots
+						document.getElementById("studentSlot").innerHTML = "";
+						document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">Select Slot</option>`;
+						fetch(baseURL)
+							.then(response => response.json())
+							.then(timeSlotData => {
+								document.getElementById("studentSlot").innerHTML += timeSlotData.map(slot => {
+									const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
+										`data-UsedTill='${slot.UsedTill}'` : "";
+									const style = slot.UsedTill && slot.UsedTill !== null ? 
+										"font-weight: 600; color: red;" : "";
+									return `<option ${usedTillAttr} value="${slot.id}" style="${style}">
+										${slot.slotStartTime} - ${slot.slotEndTime}${slot.UsedTill ? ` | ${slot.UsedTill}` : ""}
+									</option>`;
+								}).join('');
+
+								const slotExists = Array.from(document.getElementById("studentSlot").options).some(option => option.value == slotId);
+								if (!slotExists) {
+									document.getElementById("studentSlot").value = "0";
+								} else {
+									document.getElementById("studentSlot").value = slotId;
+								}
+
+								document.getElementById("studentCourse").addEventListener("change", () => {
+									const selectedCourse = document.getElementById("studentCourse").value;
+									const bookingType = document.getElementById("bookingType").value;
+									
+									// Reset baseURL to original
+									baseURL = "http://127.0.0.1:8000/getSlotsData/";
+									
+									// Add courseId and bookingType parameters
+									baseURL += `?courseId=${selectedCourse}`;
+									if (bookingType === "Pre-Booking") {
+										baseURL += "&bookingType=Pre-Booking";
+									}
+
+									// Reset and fetch slots
+									document.getElementById("studentSlot").innerHTML = "";
+									document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">Select Slot</option>`;
+									fetch(baseURL)
+										.then(response => response.json())
+										.then(courseTimeSlotData => {
+											document.getElementById("studentSlot").innerHTML += courseTimeSlotData.map(slot => {
+												const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
+													`data-UsedTill='${slot.UsedTill}'` : "";
+												const style = slot.UsedTill && slot.UsedTill !== null ? 
+													"font-weight: 600; color: red;" : "";
+												return `<option ${usedTillAttr} value="${slot.id}" style="${style}">
+													${slot.slotStartTime} - ${slot.slotEndTime}${slot.UsedTill ? ` | ${slot.UsedTill}` : ""}
+												</option>`;
+											}).join('');
+
+											const slotExists = Array.from(document.getElementById("studentSlot").options).some(option => option.value == slotId);
+											if (!slotExists) {
+												document.getElementById("studentSlot").value = "0"; // Reset to "Select Slot"
+											} else {
+												document.getElementById("studentSlot").value = slotId;
+											}
+										});
+								});
+
+								document.getElementById("bookingType").addEventListener("change", () => {
+									const bookingType = document.getElementById("bookingType").value;
+									const selectedCourse = document.getElementById("studentCourse").value;
+									
+									// Reset baseURL to original
+									baseURL = "http://127.0.0.1:8000/getSlotsData/";
+									
+									// Add parameters based on available values
+									if (selectedCourse) {
+										baseURL += `?courseId=${selectedCourse}`;
+										if (bookingType === "Pre-Booking") {
+											baseURL += "&bookingType=Pre-Booking";
+										}
+									} else if (bookingType === "Pre-Booking") {
+										baseURL += "?bookingType=Pre-Booking";
+									}
+
+									// Reset and fetch slots
+									document.getElementById("studentSlot").innerHTML = "";
+									document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">Select Slot</option>`;
+									fetch(baseURL)
+										.then(response => response.json())
+										.then(bookingTypeTimeSlotData => {
+											document.getElementById("studentSlot").innerHTML += bookingTypeTimeSlotData.map(slot => {
+												const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
+													`data-UsedTill='${slot.UsedTill}'` : "";
+												const style = slot.UsedTill && slot.UsedTill !== null ? 
+													"font-weight: 600; color: red;" : "";
+												return `<option ${usedTillAttr} value="${slot.id}" style="${style}">
+													${slot.slotStartTime} - ${slot.slotEndTime}${slot.UsedTill ? ` | ${slot.UsedTill}` : ""}
+												</option>`;
+											}).join('');
+
+											const slotExists = Array.from(document.getElementById("studentSlot").options).some(option => option.value == slotId);
+											if (!slotExists) {
+												document.getElementById("studentSlot").value = "0"; // Reset to "Select Slot"
+											} else {
+												document.getElementById("studentSlot").value = slotId;
+											}
+										});
+								});
+							});
 
 						// document.getElementById("studentCourse").addEventListener("change", () => {
 						// 	const selectedCourse = document.getElementById("studentCourse").value;

@@ -22,7 +22,9 @@ def getReamainingPaymentData(request):
         }
         return JsonResponse(data, safe=False)
     else:
-        students = Student.objects.filter(amountPending__gt=0)
+        three_days_ago = datetime.today() - timedelta(days=3)
+        students = Student.objects.filter(amountPending__gt=0, paymentDueDate__lte=three_days_ago)
+        print("Students with pending payments:", students)
         data = []
         for student in students:
             data.append({
@@ -645,6 +647,7 @@ def getVehicleData(request):
             'insuranceValidity': vehicle.insuranceValidity.strftime('%Y-%m-%d'),
             'pollutionValidity': vehicle.pollutionValidity.strftime('%Y-%m-%d'),
             'fitnessValidity': vehicle.fitnessValidity.strftime('%Y-%m-%d'),
+            'qrCodeImage': vehicle.qrCodeImage.url if vehicle.qrCodeImage else None
         }
         print(vehicalData)
         return JsonResponse(vehicalData)
@@ -660,6 +663,8 @@ def getVehicleData(request):
                 'insuranceValidity': i.insuranceValidity.strftime('%Y-%m-%d'),
                 'pollutionValidity': i.pollutionValidity.strftime('%Y-%m-%d'),
                 'fitnessValidity': i.fitnessValidity.strftime('%Y-%m-%d'),
+                'branch': i.vehicleBranch.branchName,
+                'qrCodeImage': i.qrCodeImage.url if i.qrCodeImage else None
             })
         
         return JsonResponse(vehicalData,safe=False)
@@ -765,9 +770,6 @@ def manage_vehicle(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
     return render(request, 'manage-vehicle.html')
  
-@login_required(login_url='signin/')
-def manage_slot(request):
-    return render(request, 'manage-slot.html')
 
 
 @login_required(login_url='signin/')
@@ -1318,7 +1320,7 @@ def manageDlInfo(request):
 def getPaymentData(request):
     three_days_ago = datetime.today() - timedelta(days=3)
     payments = Payment.objects.filter(paymentDate__gte=three_days_ago)
-    paymentData = []s
+    paymentData = []
     for i in payments:
         data = {
             'id': i.id,
