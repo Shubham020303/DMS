@@ -1,11 +1,1096 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Manage Attendance</title>
-</head>
-<body>
-    <h1>Manage Attendance</h1>
-    <!-- Add form and table for attendance here -->
-    <div id="attendance-list"></div>
-</body>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Manage Attendance | DMS</title>
+		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<style>
+			::-webkit-scrollbar {
+				width: 8px;
+			}
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+			::-webkit-scrollbar-thumb {
+				background: #888;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+			input.gridjs-input{
+				box-shadow: 0 0 0 1px #141414;
+			}
+			input.gridjs-input:focus {
+				border-color: #615FFF;
+				box-shadow: 0 0 0 3px #615FFF80;
+			}
+			.gridjs-search-input{
+				width: 100%;
+			}
+			input[type="date"]::-webkit-calendar-picker-indicator {
+				background-position: right center;
+				background-size: auto;
+				cursor: pointer;
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			input[type="date"]::-webkit-datetime-edit,
+			input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+			input[type="date"]::-webkit-datetime-edit-text,
+			input[type="date"]::-webkit-datetime-edit-month-field,
+			input[type="date"]::-webkit-datetime-edit-day-field,
+			input[type="date"]::-webkit-datetime-edit-year-field {
+				color: transparent;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="flex h-screen">
+			{% include 'navbar.html' %}
+			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+				<div class="w-full flex justify-between items-center">
+                        <div class="flex items-end gap-4">
+                            <h1 class="text-3xl font-bold">Manage Attendance</h1>
+                        </div>
+					<div class="flex items-center gap-4">
+						<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-attendance">
+							<p>Add Attendance</p>
+						</div>
+						<!-- <div id="export-to-excel" class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer flex items-center gap-2">
+							<p>Export Attendance</p>
+							<svg fill="currentColor" class="w-4 h-4 text-white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<polyline id="primary" points="17 3 21 3 21 7" style="fill: none; stroke: rgb(255, 255, 255); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></polyline>
+								<line id="primary-2" data-name="primary" x1="11" y1="13" x2="21" y2="3" style="fill: none; stroke: rgb(255, 255, 255); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></line>
+								<path id="primary-3" data-name="primary" d="M19,13.89V20a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V6A1,1,0,0,1,4,5h6.11" style="fill: none; stroke: rgb(255, 255, 255); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+							</svg>
+						</div> -->
+					</div>
+				</div>
+                    <div class="flex items-center justify-between gap-4 my-8">
+					<div class="flex items-center gap-4">
+						<div class="flex flex-col gap-2 w-[200px]">
+							<label for="vehicle" class="block font-semibold">Vehicle</label>
+							<select name="vehicle" id="vehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<option disabled selected value="">Select Vehicle</option>
+							</select>
+						</div>
+						<div class="flex flex-col gap-2 w-[200px]">
+							<label for="branch" class="block font-semibold">Branch</label>
+							<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+								<option disabled selected value="">Select Branch</option>
+							</select>
+						</div>
+						<!-- <div class="flex flex-col gap-2 w-[200px]">
+							<label for="startDate" class="block font-semibold">Start Date</label>
+							<input type="date" name="startDate" id="startDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div>
+						<div class="flex flex-col gap-2 w-[200px]">
+							<label for="endDate" class="block font-semibold">End Date</label>
+							<input type="date" name="endDate" id="endDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div> -->
+					</div>
+					<div id="clear-filters" class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer flex items-center gap-2">
+						<p>Clear Filter</p>
+					</div>
+                    </div>
+				<div id="wrapper" class="w-full"></div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-attendance-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="attendance-model-heading" class="text-3xl font-bold">Add Attendance</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-attendance-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-attendance-form">
+					{%csrf_token%}
+					<div class="w-full">
+						<div class="mb-4 flex items-start gap-4 w-full">
+							<div class="flex items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-1/2">
+                                            <label for="studentName" class="block font-semibold">Student</label>
+                                            <select name="studentName" id="studentName" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                                                <option disabled selected>Select Student</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex flex-col gap-2 w-1/2">
+                                            <label for="attendanceDate" class="block font-semibold">Date</label>
+                                            <input type="date" name="attendanceDate" id="attendanceDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                        </div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="inTime" class="block font-semibold">In Time</label>
+								<input type="time" name="inTime" id="inTime" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="outTime" class="block font-semibold">Out Time</label>
+								<input type="time" name="outTime" id="outTime" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="session" class="block font-semibold">Session</label>
+								<input type="number" name="session" id="session" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+                                <div class="flex flex-col gap-2 w-1/2">
+								<label for="attendanceStatus" class="block font-semibold">Status</label>
+								<select name="attendanceStatus" id="attendanceStatus" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Status</option>
+									<option value="Present">Present</option>
+									<option value="Absent">Absent</option>
+									<option value="Leave">Leave</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div id="btns-container" class="flex justify-end">
+						<button id="add-attendance-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+							<p>Add</p>
+						</button>
+						<botton id="close-add-attendance-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+							<p>Cancel</p>
+						</botton>
+					</div>
+				</form>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-attendance-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="update-attendance-heading" class="text-2xl font-bold">Update Attendance</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-attendance-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<p id="update-attendance-message">Attendance details updated successfully.</p>
+				</div>
+				<div class="flex justify-end">
+					<botton id="close-update-attendance-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Close</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-attendance-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">Delete Attendance</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-attendance-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div id="delete-attendance-message-container" class="flex flex-col gap-2">
+					<p id="delete-attendance-message">Are you sure you want to delete this attendance?</p>
+					<p>This action cannot be undone.</p>
+				</div>
+				<div class="flex justify-end">
+					<button id="delete-attendance-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Delete</p>
+					</button>
+					<botton id="close-delete-attendance-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="view-attendance-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-5 relative">
+				<div class="flex gap-2 items-center justify-between w-full">
+					<h1 class="text-2xl font-bold">Attendance</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-view-attendance-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-1">
+					<h3 id="view-attendance-name" class="font-semibold">Shubham Bhogayata</h3>
+				</div>
+				<!-- Calendar Component Start -->
+				<div class="border rounded-lg">
+					<!-- Calendar Navigation -->
+					<div class="flex justify-between items-center p-4 bg-gray-50 border-b rounded-t-lg">
+						<button id="prev-month" class="p-2 hover:bg-gray-200 rounded-full">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+								<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+							</svg>
+						</button>
+						<h2 id="calendar-month-year" class="text-lg font-medium"></h2>
+						<button id="next-month" class="p-2 hover:bg-gray-200 rounded-full">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+								<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+							</svg>
+						</button>
+					</div>
+					
+					<!-- Calendar Header (Days of Week) -->
+					<div class="grid grid-cols-7 text-center py-2 border-b bg-gray-50">
+						<div class="text-sm font-medium text-gray-500">Sun</div>
+						<div class="text-sm font-medium text-gray-500">Mon</div>
+						<div class="text-sm font-medium text-gray-500">Tue</div>
+						<div class="text-sm font-medium text-gray-500">Wed</div>
+						<div class="text-sm font-medium text-gray-500">Thu</div>
+						<div class="text-sm font-medium text-gray-500">Fri</div>
+						<div class="text-sm font-medium text-gray-500">Sat</div>
+					</div>
+					
+					<!-- Calendar Days Grid -->
+					<div id="calendar-days" class="grid grid-cols-7"></div>
+					
+					<!-- Legend -->
+					<div class="flex justify-center gap-4 p-3 border-t bg-gray-50 rounded-b-lg">
+						<div class="flex items-center gap-1">
+							<div class="w-3 h-3 bg-green-500 rounded-full"></div>
+							<span class="text-xs">Present</span>
+						</div>
+						<div class="flex items-center gap-1">
+							<div class="w-3 h-3 bg-red-500 rounded-full"></div>
+							<span class="text-xs">Absent</span>
+						</div>
+						<div class="flex items-center gap-1">
+							<div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+							<span class="text-xs">Leave</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				fetch("http://127.0.0.1:8000/getStudentData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("studentName").innerHTML += data.map(student => `<option value="${student.id}">${student.name}</option>`).join('');
+					})
+
+				fetch("http://127.0.0.1:8000/getVehicleData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
+					})
+
+				fetch("http://127.0.0.1:8000/getBranchData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+					})
+
+				initializeDateInputs();
+			})
+
+			document.getElementById('add-attendance').addEventListener('click', () => {
+				document.getElementById('add-attendance-modal').classList.remove('scale-0', 'opacity-0');
+				document.getElementById('add-attendance-modal').classList.add('scale-100', 'opacity-100');
+				document.getElementById("attendance-model-heading").innerText = "Add Attendance";
+				document.getElementById("btns-container").style.display = "flex";
+				document.getElementById("add-attendance-btn").innerText = "Add";
+				document.getElementById('add-attendance-modal').querySelector('form').reset();
+				document.getElementById('add-attendance-modal').querySelectorAll('input').forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+				document.getElementById("add-attendance-modal").querySelectorAll('select').forEach(select => select.removeAttribute('disabled'));
+			});
+
+			document.getElementById('close-add-attendance-modal').addEventListener('click', () => {
+				document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-attendance-modal').addEventListener('click', () => {
+				document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-delete-attendance-modal').addEventListener('click', () => {
+				document.getElementById('delete-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-attendance-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-delete-attendance-btn').addEventListener('click', () => {
+				document.getElementById('delete-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-attendance-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-attendance-btn').addEventListener('click', () => {
+				document.getElementById('updated-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-attendance-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-attendance-modal').addEventListener('click', () => {
+				document.getElementById('updated-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-attendance-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-view-attendance-btn').addEventListener('click', () => {
+				document.getElementById('view-attendance-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('view-attendance-modal').classList.add('scale-0', 'opacity-0');
+				// window.location.reload()
+			});
+
+			function initializeDateInputs() {
+				// Select all date inputs
+				const dateInputs = document.querySelectorAll('input[type="date"]');
+				
+				dateInputs.forEach(input => {
+					// Create a custom placeholder
+					const placeholder = document.createElement('span');
+					placeholder.textContent = 'dd-mm-yyyy';
+					placeholder.className = 'date-placeholder text-black text-sm pointer-events-none absolute left-3 top-1/2 -translate-y-1/2';
+					
+					// Wrap input in a relative positioned container
+					const wrapper = document.createElement('div');
+					wrapper.className = 'relative';
+					input.parentNode.insertBefore(wrapper, input);
+					wrapper.appendChild(input);
+					wrapper.appendChild(placeholder);
+					
+					// Function to format date for display
+					const formatDateForDisplay = (date) => {
+						if (!date) return '';
+						const [year, month, day] = date.split('-');
+						return `${day}-${month}-${year}`;
+					};
+					
+					// Function to handle date change
+					const handleDateChange = () => {
+						const value = input.value;
+						if (value) {
+							// Store the YYYY-MM-DD format in value attribute
+							input.setAttribute('data-value', value);
+							// Show formatted date as text
+							placeholder.textContent = formatDateForDisplay(value);
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						} else {
+							placeholder.textContent = 'dd-mm-yyyy';
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						}
+					};
+					
+					// Initial state
+					if (input.value) {
+						handleDateChange();
+					}
+					
+					// Event listeners
+					input.addEventListener('change', handleDateChange);
+					input.addEventListener('blur', handleDateChange);
+					
+					// Hide the default date input display
+					input.style.color = 'transparent';
+				});
+			}
+
+			document.getElementById("outTime").addEventListener("change", () => {
+				const inTime = document.getElementById("inTime").value;
+				const outTime = document.getElementById("outTime").value;
+				const session = document.getElementById("session");
+				
+				if (inTime && outTime) {
+					const inTimeParts = inTime.split(':');
+					const outTimeParts = outTime.split(':');
+
+					const inHours = parseInt(inTimeParts[0]);
+					const inMinutes = parseInt(inTimeParts[1]);
+
+					const outHours = parseInt(outTimeParts[0]);
+					const outMinutes = parseInt(outTimeParts[1]);
+
+					const totalMinutes = (outHours - inHours) * 60 + (outMinutes - inMinutes);
+
+					if (totalMinutes < 30) {
+						session.value = 1;
+					} else if (totalMinutes >= 30 && totalMinutes <= 45) {
+						session.value = 1;
+					} else if (totalMinutes >= 45 && totalMinutes <= 90) {
+						session.value = 2;
+					} else if (totalMinutes >= 90 && totalMinutes <= 135) {
+						session.value = 3;
+					} else if (totalMinutes >= 135 && totalMinutes <= 180) {
+						session.value = 4;
+					} else if (totalMinutes >= 180 && totalMinutes <= 225) {
+						session.value = 5;
+					} else if (totalMinutes >= 225 && totalMinutes <= 270) {
+						session.value = 6;
+					} else if (totalMinutes >= 270 && totalMinutes <= 315) {
+						session.value = 7;
+					}
+				}
+			});
+
+			document.getElementById("attendanceStatus").addEventListener("change", () => {
+				const status = document.getElementById("attendanceStatus").value;
+				const session = document.getElementById("session");
+				const inTime = document.getElementById("inTime");
+				const outTime = document.getElementById("outTime");
+				if (status === "Present") {
+					session.value = "";
+					inTime.setAttribute('required', true);
+					outTime.setAttribute('required', true);
+					session.setAttribute('required', true);
+				} else if (status === "Absent") {
+					session.value = 0;
+					inTime.removeAttribute('required');
+					outTime.removeAttribute('required');
+					session.removeAttribute('required');
+				} else if (status === "Leave") {
+					session.value = 0;
+					inTime.removeAttribute('required');
+					outTime.removeAttribute('required');
+					session.removeAttribute('required');
+				}
+			});
+
+			document.getElementById("add-attendance-form").addEventListener("submit", (e) => {
+				if (document.getElementById('add-attendance-btn').innerText === "Update") {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					const inTime = document.getElementById("inTime");
+					const outTime = document.getElementById("outTime");
+
+					if (inTime.value === "") {
+						formData.delete("inTime");
+					}
+
+					if (outTime.value === "") {
+						formData.delete("outTime");
+					}
+
+					fetch("/manage-attendance/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-attendance-message").innerText = "Attendance details updated successfully."
+							document.getElementById("update-attendance-heading").innerText = "Update Attendance"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-attendance-message").innerText = data.error;
+							document.getElementById("update-attendance-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-attendance-message").innerText = "Error updating attendance information."
+					});
+				} else {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					const inTime = document.getElementById("inTime");
+					const outTime = document.getElementById("outTime");
+
+					if (inTime.value === "") {
+						formData.delete("inTime");
+					}
+
+					if (outTime.value === "") {
+						formData.delete("outTime");
+					}
+
+					fetch("/manage-attendance/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-attendance-message").innerText = "Attendance details added successfully."
+							document.getElementById("update-attendance-heading").innerText = "Add Attendance"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-attendance-message").innerText = data.error;
+							document.getElementById("update-attendance-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-attendance-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-attendance-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-attendance-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-attendance-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-attendance-message").innerText = "Error adding attendance information."
+					});
+				}
+			})
+
+			document.getElementById('delete-attendance-btn').addEventListener('click', () => {
+				const studentId = document.getElementById('delete-attendance-btn').getAttribute('data-id');
+				fetch(`http://127.0.0.1:8000/manage-attendance/?studentId=${studentId}`, {
+						method: 'DELETE',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if (data.success) {
+							document.getElementById("delete-attendance-message-container").innerHTML = `<p>Deleted successfully</p>`;
+							document.getElementById("delete-attendance-btn").style.display = "none";
+							document.getElementById("close-delete-attendance-modal").innerText = "Close";
+						} else if (data.error) {
+							document.getElementById("delete-attendance-message-container").innerHTML = `<p>${data.error}</p>`;
+							document.getElementById("delete-attendance-btn").style.display = "none";
+							document.getElementById("close-delete-attendance-modal").innerText = "Close";
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			});
+
+			const attendanceGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [
+					{
+						id: "id",
+						name: "ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					{
+						id: "studentId",
+						name: "Student ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					"Name",
+					"Course",
+					"Course Start Date",
+					"Course End Date",
+					"Attended Sessions",
+					"Total Sessions",
+                         // "Out Time",
+                         // {
+                         //      name: "Total Time",
+                         //      formatter: (cell, row) => {
+                         //           if (cell === "No Data Found") {
+                         //                return gridjs.html(cell);
+                         //           }
+                         //           let hours = Math.floor(cell / 60);
+                         //           let minutes = cell % 60;
+                         //           let formattedTime = hours > 0 
+                         //                ? `${hours} hours ${minutes} minutes` 
+                         //                : `${minutes} minutes`;
+                         //           return gridjs.html(formattedTime);
+                         //      }
+                         // },
+                         // {
+                         //      name: "Status",
+                         //      formatter: (cell, row) => {
+                         //           if (cell !== "No Data Found") {
+                         //                let statusClass = 
+                         //                     cell === "Present" ? "bg-green-600" :
+                         //                     cell === "Absent" ? "bg-red-600" :
+                         //                     "bg-yellow-500"; // For "On Leave"
+                         //                let displayText = 
+                         //                     cell === "Present" ? "Present" :
+                         //                     cell === "Absent" ? "Absent" :
+                         //                     "On Leave";
+                         //                return gridjs.html(`<span class="text-white px-4 py-1 rounded-full ${statusClass}">${displayText}</span>`);
+                         //           } else {
+                         //                return gridjs.html(cell);
+                         //           }
+                         //      }
+                         // },
+					{
+						name: "Action",
+						formatter: (cell, row) => {
+                                if (cell === "No Data Found") {
+                                    return gridjs.html(cell);
+                                }
+							let editBtn = gridjs.h('button', {
+								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+										<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+										<path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+									</svg>
+								`,
+								onClick: () => {
+									// fetchAttendanceData(`http://127.0.0.1:8000/getAttendanceData/?attendanceId=${row.cells[0].data}`, "Edit Attendance Details", true, false);
+									// Get the Grid.js data from the server
+									fetch("http://127.0.0.1:8000/getAttendanceData/?studentId=" + row.cells[1].data)
+									.then(response => response.json())
+									.then(data => {
+										// Define column headers
+										let headers = ["SR No.", "Name", "Date", "In Time", "Out Time", "Total Time", "Status"];
+
+										function formatTotalTime(minutes) {
+											if (!minutes || isNaN(minutes)) return "No Data Found"; 
+											let hours = Math.floor(minutes / 60);
+											let remainingMinutes = minutes % 60;
+											return hours > 0 
+												? `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` 
+												: `${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`;
+										}
+										
+										// Format data for Excel
+										let formattedData = data.map((row, index) => [
+											index + 1,
+											row.student,
+											row.date,
+											row.timeIn,
+											row.timeOut,
+											formatTotalTime(row.totalTime), // Convert total time
+											row.status
+										]);
+
+										// Add headers as the first row
+										formattedData.unshift(headers);
+
+										// Create a worksheet
+										let ws = XLSX.utils.aoa_to_sheet(formattedData);
+
+										// Create a workbook and append the worksheet
+										let wb = XLSX.utils.book_new();
+										XLSX.utils.book_append_sheet(wb, ws, `Attendance Data`);
+
+										// Save as an Excel file
+										XLSX.writeFile(wb, "attendance_data.xlsx");
+									})
+									.catch(error => console.error("Error exporting data:", error));
+								}
+							}, '');
+							let deleteBtn = gridjs.h('button', {
+								className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+										<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+										<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+									</svg>
+								`,
+								onClick: () => {
+									studentId = row.cells[1].data;
+									document.getElementById("delete-attendance-btn").setAttribute("data-id", studentId);
+									document.getElementById("delete-attendance-message").innerHTML = `Are you sure you want to delete <b>${row.cells[2].data}</b>'s attendance details?`;
+									document.getElementById('delete-attendance-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('delete-attendance-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							return gridjs.h('div', {
+								className: 'flex gap-4'
+							}, editBtn, deleteBtn);
+						},
+						width: '11%'
+					}
+				],
+				server: {
+					url: 'http://127.0.0.1:8000/getAttendanceData/',
+					then: data => data.map(attendance => [attendance.id, attendance.studentId, attendance.student, attendance.courceName, attendance.startDate, attendance.endDate, attendance.attened_session, attendance.total_session])
+				},
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
+
+			attendanceGrid.render(document.getElementById("wrapper"))
+
+			document.querySelector(".gridjs-search-input").placeholder = "Search Student";
+
+            const branchSelect = document.getElementById("branch");
+            const vehicleSelect = document.getElementById("vehicle");
+               // const startDate = document.getElementById("startDate");
+               // const endDate = document.getElementById("endDate");
+			let apiURL = "http://127.0.0.1:8000/getAttendanceData/";
+
+            function fetchFilteredAttendanceData() {
+				let url = new URL(apiURL);
+				let params = new URLSearchParams(url.search);
+
+				const branchName = branchSelect.value;
+				const vehicleName = vehicleSelect.value;
+				// const attendanceStartDate = startDate.value;
+				// const attendanceEndDate = endDate.value;
+
+				// Update query parameters dynamically
+				if (branchName) params.set("branchName", branchName);
+				else params.delete("branchName");
+
+				if (vehicleName) params.set("vehicleName", vehicleName);
+				else params.delete("vehicleName");
+
+				// if (attendanceStartDate) params.set("startDate", attendanceStartDate);
+				// else params.delete("startDate");
+
+				// if (attendanceEndDate) params.set("endDate", attendanceEndDate);
+				// else params.delete("endDate");
+
+				let finalAPI = `${url.origin}${url.pathname}?${params.toString()}`;
+				
+				console.log(finalAPI); // Debugging: Check the final API URL
+
+				attendanceGrid.updateConfig({
+					server: {
+						url: finalAPI,
+						then: data => {
+							if (data.length === 0) {
+								document.querySelector(".gridjs-tbody").innerHTML = `
+								<tr class="gridjs-tr"><td role="alert" colspan="5" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
+								`;
+								return [];
+							}
+							return data.map(attendance => [
+								attendance.id,
+								attendance.studentId,
+								attendance.student, 
+								attendance.courceName, 
+								attendance.startDate, 
+								attendance.endDate,
+							]);
+						}
+					}
+				}).forceRender();
+			}
+
+            // Attach event listeners
+            branchSelect.addEventListener("change", fetchFilteredAttendanceData);
+            vehicleSelect.addEventListener("change", fetchFilteredAttendanceData);
+			// startDate.addEventListener("change", fetchFilteredAttendanceData);
+			// endDate.addEventListener("change", fetchFilteredAttendanceData);
+
+			// document.getElementById("export-to-excel").addEventListener('click', () => {
+			// 	// Get the Grid.js data from the server
+			// 	fetch(apiURL)
+			// 	.then(response => response.json())
+			// 	.then(data => {
+			// 		// Define column headers
+			// 		let headers = ["ID", "Name", "Date", "In Time", "Out Time", "Total Time", "Status"];
+
+			// 		function formatTotalTime(minutes) {
+			// 			if (!minutes || isNaN(minutes)) return "No Data Found"; 
+			// 			let hours = Math.floor(minutes / 60);
+			// 			let remainingMinutes = minutes % 60;
+			// 			return hours > 0 
+			// 				? `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minutes${remainingMinutes > 1 ? 's' : ''}` 
+			// 				: `${remainingMinutes} minutes${remainingMinutes > 1 ? 's' : ''}`;
+			// 		}
+					
+			// 		// Format data for Excel
+			// 		let formattedData = data.map(row => [
+			// 			row.id,
+			// 			row.student,
+			// 			row.date,
+			// 			row.inTime,
+			// 			row.outTime,
+			// 			formatTotalTime(row.totalTime), // Convert total time
+			// 			row.status
+			// 		]);
+
+			// 		// Add headers as the first row
+			// 		formattedData.unshift(headers);
+
+			// 		// Create a worksheet
+			// 		let ws = XLSX.utils.aoa_to_sheet(formattedData);
+
+			// 		// Create a workbook and append the worksheet
+			// 		let wb = XLSX.utils.book_new();
+			// 		XLSX.utils.book_append_sheet(wb, ws, "Attendance Data");
+
+			// 		// Save as an Excel file
+			// 		XLSX.writeFile(wb, "attendance_data.xlsx");
+			// 	})
+			// 	.catch(error => console.error("Error exporting data:", error));
+			// })
+
+			document.getElementById("clear-filters").addEventListener('click', () => {
+				branchSelect.value = "";
+				vehicleSelect.value = "";
+				// startDate.value = "";
+				// endDate.value = "";
+				apiURL = "http://127.0.0.1:8000/getAttendanceData/";
+				fetchFilteredAttendanceData();
+			})
+
+			attendanceGrid.on('cellClick', (...args) => {
+				console.log(args);
+				if (args[2]["id"] === "name") {
+					studentId = args[3]["_cells"][1]["data"];
+					fetch(`http://127.0.0.1:8000/getAttendanceData/?studentId=${studentId}`)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+
+							document.getElementById("view-attendance-name").innerText = data[0].student;
+
+							// Calendar state
+							let currentDate = new Date();
+							let currentMonth = currentDate.getMonth();
+							let currentYear = currentDate.getFullYear();
+							
+							// // Sample attendance data (can be replaced with actual data)
+							// // Format: YYYY-MM-DD: status (present, absent, late)
+							const attendanceData = {};
+
+							data.map(attendance => {
+								attendanceData[attendance.date] = {
+									status: attendance.status,
+									inTime: attendance.timeIn || 'N/A',
+									outTime: attendance.timeOut || 'N/A',
+									totalTime: attendance.totalTime || 'N/A'
+								};
+							});
+							
+							// Initialize calendar
+							renderCalendar();
+							
+							// Event listeners for navigation
+							document.getElementById('prev-month').addEventListener('click', function() {
+								currentMonth--;
+								if (currentMonth < 0) {
+									currentMonth = 11;
+									currentYear--;
+								}
+								renderCalendar();
+							});
+							
+							document.getElementById('next-month').addEventListener('click', function() {
+								currentMonth++;
+								if (currentMonth > 11) {
+									currentMonth = 0;
+									currentYear++;
+								}
+								renderCalendar();
+							});
+							
+							// Close modal event listener
+							document.getElementById('close-view-attendance-btn').addEventListener('click', function() {
+								document.getElementById('view-attendance-modal').classList.remove('scale-100', 'opacity-100');
+								document.getElementById('view-attendance-modal').classList.add('scale-0', 'opacity-0');
+							});
+							
+							// Function to render the calendar
+							function renderCalendar() {
+								const monthYearElement = document.getElementById('calendar-month-year');
+								const daysContainer = document.getElementById('calendar-days');
+								
+								// Update month and year display
+								const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
+												'August', 'September', 'October', 'November', 'December'];
+								monthYearElement.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+								
+								// Clear previous days
+								daysContainer.innerHTML = '';
+								
+								// Get first day of the month
+								const firstDay = new Date(currentYear, currentMonth, 1);
+								const startingDay = firstDay.getDay(); // 0 = Sunday
+								
+								// Get number of days in the month
+								const lastDay = new Date(currentYear, currentMonth + 1, 0);
+								const totalDays = lastDay.getDate();
+								
+								// Create empty cells for days before the first day of the month
+								for (let i = 0; i < startingDay; i++) {
+									const emptyCell = document.createElement('div');
+									emptyCell.className = 'h-12 border-l first:border-l-0 p-1 text-center text-gray-400';
+									daysContainer.appendChild(emptyCell);
+								}
+								
+								// Create cells for all days of the month
+								for (let day = 1; day <= totalDays; day++) {
+									const dayCell = document.createElement('div');
+									dayCell.className = 'h-12 border-t border-l last:border-r p-1 relative group cursor-pointer';	
+									
+									// Add right border to Saturday cells
+									// if ((day + startingDay) % 7 === 0) {
+									// 	dayCell.classList.add('border-r');
+									// }
+									// Add bottom border to last row cells
+									if (day > totalDays - 7) {
+										dayCell.classList.add('border-b');
+									}
+									
+									// Day number
+									const dayNumber = document.createElement('span');
+									dayNumber.className = 'text-sm';
+									dayNumber.textContent = day;
+									dayCell.appendChild(dayNumber);
+
+									const tooltip = document.createElement('div');
+									tooltip.className = 'absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-200 bg-black/80 text-white text-xs rounded p-2 -mt-16 left-1/2 bottom-full transform -translate-x-1/2 w-max';
+									tooltip.style.pointerEvents = 'none'; // Prevent tooltip from interfering with mouse events
+									
+									// Check attendance for this day
+									const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+									if (attendanceData[dateString]) {
+										const attendanceInfo = attendanceData[dateString];
+										const status = attendanceInfo.status;
+										
+										// Status indicator
+										const statusIndicator = document.createElement('div');
+										statusIndicator.className = 'absolute bottom-1 right-1 w-4 h-4 rounded-full';
+										
+										// Color based on status
+										if (status === 'Present') {
+											statusIndicator.classList.add('bg-green-500');
+										} else if (status === 'Absent') {
+											statusIndicator.classList.add('bg-red-500');
+										} else if (status === 'Leave') {
+											statusIndicator.classList.add('bg-yellow-500');
+										}
+										
+										dayCell.appendChild(statusIndicator);
+
+										let hours = Math.floor(attendanceInfo.totalTime / 60);
+										let minutes = attendanceInfo.totalTime % 60;
+										let formattedTime = hours > 0 
+											? `${hours} hours ${minutes} minutes` 
+											: `${minutes} minutes`;
+
+										tooltip.innerHTML = `
+											<div class="flex flex-col gap-1">
+												<div class="font-bold text-center text-white border-b border-gray-200 pb-1 mb-1">${dateString}</div>
+												<div class="flex justify-between gap-2">
+													<span class="font-semibold">Status:</span>
+													<span class="${status === 'Present' ? 'text-green-600' : status === 'Absent' ? 'text-red-600' : 'text-yellow-600'} font-medium">${attendanceInfo.status}</span>
+												</div>
+												<div class="flex justify-between gap-2">
+													<span class="font-semibold">In Time:</span>
+													<span>${attendanceInfo.inTime}</span>
+												</div>
+												<div class="flex justify-between gap-2">
+													<span class="font-semibold">Out Time:</span>
+													<span>${attendanceInfo.outTime}</span>
+												</div>
+												<div class="flex justify-between gap-2 border-t border-gray-200 pt-1 mt-1">
+													<span class="font-semibold">Total:&nbsp;</span>
+													<span class="font-medium">${formattedTime}</span>
+												</div>
+											</div>
+											<div class="absolute w-3 h-3 bg-white transform rotate-45 left-1/2 -ml-1.5 -bottom-1.5 border-r border-b border-gray-200"></div>
+										`;
+									} else {
+										// For days without attendance data
+										tooltip.innerHTML = `
+											<div class="flex flex-col gap-1">
+												<div class="font-bold text-center text-white border-b border-gray-200 pb-1 mb-1">${dateString}</div>
+												<div class="text-center text-gray-500 py-1">No attendance record</div>
+											</div>
+											<div class="absolute w-3 h-3 bg-white transform rotate-45 left-1/2 -ml-1.5 -bottom-1.5 border-r border-b border-gray-200"></div>
+										`;
+									}
+
+									dayCell.appendChild(tooltip);
+									daysContainer.appendChild(dayCell);
+								}
+							}
+						})
+					// fetchAttendanceData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
+					document.getElementById('view-attendance-modal').classList.remove('scale-0', 'opacity-0');
+					document.getElementById('view-attendance-modal').classList.add('scale-100', 'opacity-100');
+				}
+			});
+
+			function fetchAttendanceData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						document.getElementById("attendance-model-heading").innerText = headingText;
+						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
+						document.getElementById("studentName").value = data.studentId || "No Data Found";
+						document.getElementById("attendanceDate").value = data.date || "No Data Found";
+						document.getElementById("inTime").value = data.inTime || "No Data Found";
+						document.getElementById("outTime").value = data.outTime || "No Data Found";
+						document.getElementById("attendanceStatus").value = data.status || "No Data Found";
+						
+						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
+					});
+			}
+
+			function makeInputReadOnly() {
+				document.getElementById('add-attendance-modal').querySelectorAll('input').forEach(input => {
+                        input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+                        input.setAttribute('readonly', true);
+                        input.setAttribute('disabled', true);
+                        input.removeAttribute('required');
+                    })
+                    document.getElementById("add-attendance-modal").querySelectorAll('select').forEach(select => select.setAttribute('disabled', true));
+			}
+
+			function makeInputEditable() {
+				document.getElementById('add-attendance-modal').querySelectorAll('input').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				document.getElementById("add-attendance-modal").querySelectorAll('select').forEach(select => select.removeAttribute('disabled'));
+			}
+		</script>
+	</body>
 </html>

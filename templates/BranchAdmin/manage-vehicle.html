@@ -1,11 +1,904 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Manage Vehicles</title>
-</head>
-<body>
-    <h1>Manage Vehicles</h1>
-    <!-- Add form and table for vehicles here -->
-    <div id="vehicle-list"></div>
-</body>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Manage Vehicles | DMS</title>
+		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<style>
+			::-webkit-scrollbar {
+				width: 8px;
+			}
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+			::-webkit-scrollbar-thumb {
+				background: #888;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+			input.gridjs-input{
+				box-shadow: 0 0 0 1px #141414;
+			}
+			input.gridjs-input:focus {
+				border-color: #615FFF;
+				box-shadow: 0 0 0 3px #615FFF80;
+			}
+			.gridjs-search-input{
+				width: 100%;
+			}
+			input[type="date"]::-webkit-calendar-picker-indicator {
+				background-position: right center;
+				background-size: auto;
+				cursor: pointer;
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			input[type="date"]::-webkit-datetime-edit,
+			input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+			input[type="date"]::-webkit-datetime-edit-text,
+			input[type="date"]::-webkit-datetime-edit-month-field,
+			input[type="date"]::-webkit-datetime-edit-day-field,
+			input[type="date"]::-webkit-datetime-edit-year-field {
+				color: transparent;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="flex h-screen">
+			{% include 'navbar.html' %}
+			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+				<div class="w-full flex justify-between items-center">
+					<h1 class="text-3xl font-bold">Manage Vehicles</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-vehicle">
+						<p>Add Vehicle</p>
+					</div>
+				</div>
+				<div id="wrapper" class="w-full mt-8"></div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-vehicle-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="vehicle-model-heading" class="text-3xl font-bold">Add Vehicle</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-vehicle-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-vehicle-form">
+					{%csrf_token%}
+					<!-- Step Indicator -->
+					<div class="w-full flex justify-around mb-4">
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="1">
+							<div class="progress-number w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1">1</div>
+							<span class="text-xs font-medium">Vehicle Info</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="2">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">2</div>
+							<span class="text-xs font-medium">Slot Details</span>
+						</div>
+					</div>
+					<div class="form-step" data-step="1">
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="vehicleName" class="block font-semibold">Vehicle Name</label>
+								<input type="text" name="vehicleName" id="vehicleName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="vehicleType" class="block font-semibold">Vehicle Type</label>
+								<select name="vehicleType" id="vehicleType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Vehicle Type</option>
+									<option value="Sedan">Sedan</option>
+									<option value="SUV">SUV</option>
+									<option value="Hatchback">Hatchback</option>
+									<option value="Micro">Micro</option>
+								</select>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="vehicleNo" class="block font-semibold">Vehicle Number</label>
+								<input type="text" name="vehicleNo" id="vehicleNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="insuranceValidity" class="block font-semibold">Insurance Validity</label>
+								<input type="date" name="insuranceValidity" id="insuranceValidity" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div id="password-container" class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="pollutionValidity" class="block font-semibold">Pollution Validity</label>
+								<input type="date" name="pollutionValidity" id="pollutionValidity" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="fitnessValidity" class="block font-semibold">Fitness Validity</label>
+								<input type="date" name="fitnessValidity" id="fitnessValidity" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="vehicleBranch" class="block font-semibold">Branch</label>
+								<select name="vehicleBranch" id="vehicleBranch" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option disabled selected>Select Branch</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="form-step" data-step="2">
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="slotTimeStart" class="block font-semibold">Start Time</label>
+								<input type="time" name="slotTimeStart" id="slotTimeStart" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="slotTimeEnd" class="block font-semibold">End Time</label>
+								<input type="time" name="slotTimeEnd" id="slotTimeEnd" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="lunchTimeStart" class="block font-semibold">Lunch Start Time</label>
+								<input type="time" name="lunchTimeStart" id="lunchTimeStart" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="lunchTimeEnd" class="block font-semibold">Lunch End Time</label>
+								<input type="time" name="lunchTimeEnd" id="lunchTimeEnd" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="slotDuration" class="block font-semibold">Slot Timings</label>
+								<select name="slotDuration" id="slotDuration" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+									<option disabled selected>Select Slot Timings</option>
+									<option value="15">15 Minutes</option>
+									<option value="30">30 Minutes</option>
+									<option value="45">45 Minutes</option>
+									<option value="60">60 Minutes</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<!-- Navigation Buttons -->
+					<div id="btns-container" class="flex justify-between">
+						<button type="button" id="prev-step" class="bg-gray-500 text-white px-6 py-2 rounded cursor-pointer mr-2 hidden">
+							Previous
+						</button>
+						<button type="button" id="next-step" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer">
+							Next
+						</button>
+						<button id="add-vehicle-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
+							Add Vehicle
+						</button>
+					</div>
+				</form>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-vehicle-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="update-vehicle-heading" class="text-2xl font-bold">Update Vehicle</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-vehicle-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<p id="update-vehicle-message">Vehicle details updated successfully.</p>
+				</div>
+				<div class="flex justify-end">
+					<botton id="close-update-vehicle-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Close</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-vehicle-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">Delete Vehicle</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-vehicle-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div id="delete-vehicle-message-container" class="flex flex-col gap-2">
+					<p id="delete-vehicle-message">Are you sure you want to delete this vehicle?</p>
+					<p>This action cannot be undone.</p>
+				</div>
+				<div class="flex justify-end">
+					<button id="delete-vehicle-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Delete</p>
+					</button>
+					<botton id="close-delete-vehicle-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="qr-code-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">QR Code</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-qr-code-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex justify-center">
+					<img id="qr-code-image" src="" alt="QR Code" class="w-64 h-64 object-contain">
+				</div>
+				<div class="flex justify-end">
+					<div id="download-qr-code-btn" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Download QR Code</p>
+					</div>
+				</div>
+			</div>
+		</section>
+		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script>
+			let currentStep = 1;
+			document.addEventListener('DOMContentLoaded', () => {
+				fetch("http://127.0.0.1:8000/getBranchData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("vehicleBranch").innerHTML += data.map(branch => `<option value="${branch.id}">${branch.branchName}</option>`).join('');
+					})
+				
+				const steps = document.querySelectorAll('.form-step');
+				const progressStep = document.querySelectorAll('.progress-step');
+				const nextBtn = document.getElementById('next-step');
+				const prevBtn = document.getElementById('prev-step');
+				const addStudentBtn = document.getElementById('add-vehicle-btn');
+
+				// Step button click handling
+				progressStep.forEach(button => {
+					button.addEventListener('click', function() {
+						const step = this.getAttribute('data-step');
+						goToStep(parseInt(step));
+					});
+				});
+
+				// Next button click handling
+				nextBtn.addEventListener('click', function() {					
+					if (validateCurrentStep() && currentStep < 2) {
+						if (currentStep < 2) {
+							currentStep++;
+							updateForm();
+						}
+					}
+				});
+
+				// Previous button click handling
+				prevBtn.addEventListener('click', function() {
+					if (currentStep > 1) {
+						currentStep--;
+						updateForm();
+					}
+				});
+
+				// Form validation for current step
+				function validateCurrentStep() {
+					const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+					const requiredFields = currentStepElement.querySelectorAll('[required]');
+					let isValid = true;
+					let firstInvalidField = null;
+
+					requiredFields.forEach(field => {
+						const isSelect = field.tagName.toLowerCase() === "select";
+						const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+						const isEmpty = isSelect 
+							? !field.value || (selectedOption && selectedOption.disabled) 
+							: !field.value.trim();
+						const pattern = field.getAttribute('pattern');
+						const isPatternMismatch = !isSelect && pattern 
+							? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+							: false;
+						const alreadyInvalid = field.classList.contains('outline-red-300');
+
+						if (isEmpty || isPatternMismatch) {
+							if (!alreadyInvalid) {
+								field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+								field.classList.add('outline-red-300', 'focus:outline-red-600');
+							}
+							if (!firstInvalidField) firstInvalidField = field;
+							isValid = false;
+						} else {
+							if (alreadyInvalid) {
+								field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+								field.classList.remove('outline-red-300', 'focus:outline-red-600');
+							}
+						}
+					});
+
+					// If there's an invalid field, scroll and focus on it
+					if (firstInvalidField) {
+						firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+						firstInvalidField.focus();
+					}
+
+					return isValid;
+				}
+
+				// Update form function modified to include 5 steps
+				function updateForm() {
+					// Hide all steps
+					steps.forEach(step => step.classList.add('hidden'));
+					
+					// Show current step
+					document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+					// Update step buttons
+					progressStep.forEach(btn => {
+						btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+						btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+						if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+							btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+							btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+						}
+					});
+
+					// Manage navigation buttons
+					prevBtn.classList.toggle('hidden', currentStep === 1);
+					nextBtn.classList.toggle('hidden', currentStep === 2);
+					addStudentBtn.classList.toggle('hidden', currentStep !== 2);
+
+					// Update summary if moving to summary step
+					if (currentStep === 5) {
+						updateSummary();
+					}
+				}
+
+				function goToStep(step) {
+					currentStep = step;
+					updateForm();
+				}
+
+				// Initial form setup
+				updateForm();
+				initializeDateInputs();
+			});
+
+			function initializeDateInputs() {
+				// Select all date inputs
+				const dateInputs = document.querySelectorAll('input[type="date"]');
+				
+				dateInputs.forEach(input => {
+					// Create a custom placeholder
+					const placeholder = document.createElement('span');
+					placeholder.textContent = 'dd-mm-yyyy';
+					placeholder.className = 'date-placeholder text-black text-sm pointer-events-none absolute left-3 top-1/2 -translate-y-1/2';
+					
+					// Wrap input in a relative positioned container
+					const wrapper = document.createElement('div');
+					wrapper.className = 'relative';
+					input.parentNode.insertBefore(wrapper, input);
+					wrapper.appendChild(input);
+					wrapper.appendChild(placeholder);
+					
+					// Function to format date for display
+					const formatDateForDisplay = (date) => {
+						if (!date) return '';
+						const [year, month, day] = date.split('-');
+						return `${day}-${month}-${year}`;
+					};
+					
+					// Function to handle date change
+					const handleDateChange = () => {
+						const value = input.value;
+						if (value) {
+							// Store the YYYY-MM-DD format in value attribute
+							input.setAttribute('data-value', value);
+							// Show formatted date as text
+							placeholder.textContent = formatDateForDisplay(value);
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						} else {
+							placeholder.textContent = 'dd-mm-yyyy';
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						}
+					};
+					
+					// Initial state
+					if (input.value) {
+						handleDateChange();
+					}
+					
+					// Event listeners
+					input.addEventListener('change', handleDateChange);
+					input.addEventListener('blur', handleDateChange);
+					
+					// Hide the default date input display
+					input.style.color = 'transparent';
+				});
+			}
+			
+			document.getElementById('add-vehicle').addEventListener('click', () => {
+				document.getElementById('add-vehicle-modal').classList.remove('scale-0', 'opacity-0');
+				document.getElementById('add-vehicle-modal').classList.add('scale-100', 'opacity-100');
+				document.getElementById("vehicle-model-heading").innerText = "Add Vehicle";
+				document.getElementById("btns-container").style.display = "flex";
+				document.getElementById("add-vehicle-btn").innerText = "Add";
+				document.getElementById('add-vehicle-modal').querySelector('form').reset();
+				document.getElementById('add-vehicle-modal').querySelectorAll('input').forEach(input => {
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+				document.getElementById('vehicleType').removeAttribute('disabled');
+			});
+
+			// document.getElementById('close-add-vehicle-modal').addEventListener('click', () => {
+			// 	document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+			// 	document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+			// });
+
+			document.getElementById('close-vehicle-modal').addEventListener('click', () => {
+				document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-delete-vehicle-modal').addEventListener('click', () => {
+				document.getElementById('delete-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-vehicle-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-delete-vehicle-btn').addEventListener('click', () => {
+				document.getElementById('delete-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-vehicle-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-vehicle-btn').addEventListener('click', () => {
+				document.getElementById('updated-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-vehicle-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-vehicle-modal').addEventListener('click', () => {
+				document.getElementById('updated-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-vehicle-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-qr-code-btn').addEventListener('click', () => {
+				document.getElementById('qr-code-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('qr-code-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('download-qr-code-btn').addEventListener('click', async function() {
+    const qrImageSrc = document.getElementById("qr-code-image").src;
+    const vehicleId = getCurrentVehicleId();
+    
+    if (qrImageSrc) {
+        try {
+            // Fetch the image as blob
+            const response = await fetch(qrImageSrc);
+            const blob = await response.blob();
+            
+            // Create blob URL
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            // Create temporary anchor and trigger download
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `vehicle-${vehicleId}-qrcode.png`;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up blob URL
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error('Download failed:', error);
+            alert('Failed to download QR code. Please try again.');
+        }
+    }
+});
+
+			document.getElementById("add-vehicle-form").addEventListener("submit", (e) => {
+				if (document.getElementById('add-vehicle-btn').innerText === "Update") {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					// const profilePhotoInput = document.getElementById("profilePhoto");
+					
+					// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
+					// 	formData.delete("profilePhoto");
+					// } else if (profilePhotoInput.files.length > 0) {
+					// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
+					// }
+
+					fetch("/manage-vehicle/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-vehicle-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-vehicle-message").innerText = "Vehicle details updated successfully."
+							document.getElementById("update-vehicle-heading").innerText = "Update Vehicle"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-vehicle-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-vehicle-message").innerText = "Error updating vehicle information."
+							document.getElementById("update-vehicle-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-vehicle-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-vehicle-message").innerText = "Error updating vehicle information."
+					});
+				} else {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+
+					// const profilePhotoInput = document.getElementById("profilePhoto");
+					
+					// if (profilePhotoInput.files[0].name === profilePhotoInput.getAttribute("data-name")) {
+					// 	formData.delete("profilePhoto");
+					// } else if (profilePhotoInput.files.length > 0) {
+					// 	formData.append("profilePhoto", profilePhotoInput.files[0]);
+					// }
+
+					fetch("/manage-vehicle/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.success) {
+							document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-vehicle-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-vehicle-message").innerText = "Vehicle details added successfully."
+							document.getElementById("update-vehicle-heading").innerText = "Add Vehicle"
+						} else if (data.error) {
+							console.error("Error:", data.error);
+							document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-vehicle-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-vehicle-message").innerText = "Error adding vehicle information."
+							document.getElementById("update-vehicle-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-vehicle-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-vehicle-message").innerText = "Error adding vehicle information."
+					});
+				}
+			})
+
+			document.getElementById('delete-vehicle-btn').addEventListener('click', () => {
+				const vehicleId = document.getElementById('delete-vehicle-btn').getAttribute('data-id');
+				fetch(`http://127.0.0.1:8000/manage-vehicle/?vehicleId=${vehicleId}`, {
+						method: 'DELETE',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if (data.status === "success") {
+							document.getElementById("delete-vehicle-message-container").innerHTML = `<p>Deleted successfully</p>`;
+							document.getElementById("delete-vehicle-btn").style.display = "none";
+							document.getElementById("close-delete-vehicle-modal").innerText = "Close";
+						} else if (data.status === "error") {
+							document.getElementById("delete-vehicle-message-container").innerHTML = `<p>${data.message}</p>`;
+							document.getElementById("delete-vehicle-btn").style.display = "none";
+							document.getElementById("close-delete-vehicle-modal").innerText = "Close";
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			});
+
+			const vehicleGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [{
+						id: "id",
+						name: "ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					"Vehicle Name",
+					"Vehicle Number",
+					"Insurance Validity",
+					"Pollution Validity",
+					"Fitness Validity",
+					{
+						name: "Action",
+						formatter: (cell, row) => {
+							let editBtn = gridjs.h('button', {
+								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+									</svg>
+								`,
+								onClick: () => {
+									fetchVehicleData(`http://127.0.0.1:8000/getVehicleData/?vehicleId=${row.cells[0].data}`, "Edit Vehicle Details", true, false);
+									document.getElementById("add-vehicle-btn").innerText = "Update";
+
+									// document.getElementById("add-vehicle-form").innerHTML += `<input type="hidden" name="instructorId" id="instructorId" value="${row.cells[0].data}">`;
+									document.getElementById('add-vehicle-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('add-vehicle-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							let qrCodeBtn = gridjs.h('button', {
+								className: 'p-3 bg-green-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-qr-code" viewBox="0 0 16 16">
+										<path d="M2 2h2v2H2z"/>
+										<path d="M6 0v6H0V0zM5 1H1v4h4zM4 12H2v2h2z"/>
+										<path d="M6 10v6H0v-6zm-5 1v4h4v-4zm11-9h2v2h-2z"/>
+										<path d="M10 0v6h6V0zm5 1v4h-4V1zM8 1V0h1v2H8v2H7V1zm0 5V4h1v2zM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8zm0 0v1H2V8H1v1H0V7h3v1zm10 1h-1V7h1zm-1 0h-1v2h2v-1h-1zm-4 0h2v1h-1v1h-1zm2 3v-1h-1v1h-1v1H9v1h3v-2zm0 0h3v1h-2v1h-1zm-4-1v1h1v-2H7v1z"/>
+										<path d="M7 12h1v3h4v1H7zm9 2v2h-3v-1h2v-1z"/>
+									</svg>
+								`,
+								onClick: () => {
+									const vehicleId = row.cells[0].data;
+									const qrCodeUrl = `http://127.0.0.1:8000/getVehicleData/?vehicleId=${vehicleId}`;
+									window.currentVehicleId = vehicleId;
+
+									document.getElementById("qr-code-image").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=200x200`;
+									document.getElementById('qr-code-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('qr-code-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							let deleteBtn = gridjs.h('button', {
+								className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+										<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+										<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+									</svg>
+								`,
+								onClick: () => {
+									vehicleId = row.cells[0].data;
+									document.getElementById("delete-vehicle-btn").setAttribute("data-id", vehicleId);
+									document.getElementById("delete-vehicle-message").innerHTML = `Are you sure you want to delete <b>${row.cells[2].data}</b>'s details?`;
+									document.getElementById('delete-vehicle-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('delete-vehicle-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							return gridjs.h('div', {
+								className: 'flex gap-4'
+							}, editBtn, qrCodeBtn, deleteBtn);
+						},
+						width: '16%'
+					}
+				],
+				server: {
+					url: 'http://127.0.0.1:8000/getVehicleData/',
+					then: data => data.map(vehicle => [vehicle.id, vehicle.vehicalName, vehicle.vehicleNo, vehicle.insuranceValidity, vehicle.pollutionValidity, vehicle.fitnessValidity])
+				},
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
+
+			function getCurrentVehicleId() {
+				return window.currentVehicleId || 'unknown';
+			}
+
+			vehicleGrid.render(document.getElementById("wrapper"))
+
+			document.querySelector(".gridjs-search-input").placeholder = "Search...";
+
+			// vehicleGrid.on('cellClick', (...args) => {
+			// 	console.log(args);
+			// 	if (args[2]["id"] === "name") {
+			// 		instructorId = args[3]["_cells"][0]["data"];
+			// 		fetchVehicleData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Vehicle Details", false, true);
+			// 		document.getElementById('add-vehicle-modal').classList.remove('scale-0', 'opacity-0');
+			// 		document.getElementById('add-vehicle-modal').classList.add('scale-100', 'opacity-100');
+			// 	}
+			// });
+
+			function fetchVehicleData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						document.getElementById("vehicle-model-heading").innerText = headingText;
+						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
+						document.getElementById("vehicleName").value = data.vehicalName || "No Data Found";
+						document.getElementById("vehicleType").value = data.vehicleType || "No Data Found";
+						document.getElementById("vehicleNo").value = data.vehicleNo || "No Data Found";
+						document.getElementById("insuranceValidity").value = data.insuranceValidity || "No Data Found";
+						document.getElementById("pollutionValidity").value = data.pollutionValidity || "No Data Found";
+						document.getElementById("fitnessValidity").value = data.fitnessValidity || "No Data Found";
+
+						const steps = document.querySelectorAll('.form-step');
+						const progressStep = document.querySelectorAll('.progress-step');
+						const nextBtn = document.getElementById('next-step');
+						const prevBtn = document.getElementById('prev-step');
+						const addStudentBtn = document.getElementById('add-vehicle-btn');
+						currentStep = 1;
+
+						// Step button click handling
+						progressStep.forEach(button => {
+							button.addEventListener('click', function() {
+								const step = this.getAttribute('data-step');
+								goToStep(parseInt(step));
+							});
+						});
+
+						// Next button click handling
+						nextBtn.addEventListener('click', function() {					
+							if (validateCurrentStep() && currentStep < 2) {
+								if (currentStep < 2) {
+									console.log(currentStep);
+									currentStep++;
+									updateForm();
+								}
+							}
+						});
+
+						// Previous button click handling
+						prevBtn.addEventListener('click', function() {
+							if (currentStep > 1) {
+								currentStep--;
+								updateForm();
+							}
+						});
+
+						// Form validation for current step
+						function validateCurrentStep() {
+							const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+							const requiredFields = currentStepElement.querySelectorAll('[required]');
+							let isValid = true;
+							let firstInvalidField = null;
+
+							requiredFields.forEach(field => {
+								const isSelect = field.tagName.toLowerCase() === "select";
+								const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+								const isEmpty = isSelect 
+									? !field.value || (selectedOption && selectedOption.disabled) 
+									: !field.value.trim();
+								const pattern = field.getAttribute('pattern');
+								const isPatternMismatch = !isSelect && pattern 
+									? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+									: false;
+								const alreadyInvalid = field.classList.contains('outline-red-300');
+
+								if (isEmpty || isPatternMismatch) {
+									if (!alreadyInvalid) {
+										field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+										field.classList.add('outline-red-300', 'focus:outline-red-600');
+									}
+									if (!firstInvalidField) firstInvalidField = field;
+									isValid = false;
+								} else {
+									if (alreadyInvalid) {
+										field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+										field.classList.remove('outline-red-300', 'focus:outline-red-600');
+									}
+								}
+							});
+
+							// If there's an invalid field, scroll and focus on it
+							if (firstInvalidField) {
+								firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+								firstInvalidField.focus();
+							}
+
+							return isValid;
+						}
+
+						// Update form function modified to include 5 steps
+						function updateForm() {
+							// Hide all steps
+							steps.forEach(step => step.classList.add('hidden'));
+							
+							// Show current step
+							document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+							// Update step buttons
+							progressStep.forEach(btn => {
+								btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+								btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+								if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+									btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+									btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+								}
+							});
+
+							// Manage navigation buttons
+							prevBtn.classList.toggle('hidden', currentStep === 1);
+							nextBtn.classList.toggle('hidden', currentStep === 2);
+							addStudentBtn.classList.toggle('hidden', currentStep !== 2);
+
+							// Update summary if moving to summary step
+							if (currentStep === 5) {
+								updateSummary();
+							}
+						}
+
+						function goToStep(step) {
+							currentStep = step;
+							updateForm();
+						}
+
+						// Initial form setup
+						updateForm();
+
+						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
+					});
+			}
+
+			function makeInputReadOnly() {
+				document.getElementById('add-vehicle-modal').querySelectorAll('input').forEach(input => {
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+					input.removeAttribute('required');
+				})
+				document.getElementById('vehicleType').setAttribute('disabled', true);
+			}
+
+			function makeInputEditable() {
+				document.getElementById('add-vehicle-modal').querySelectorAll('input').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+					input.removeAttribute('readonly');
+					input.removeAttribute('disabled');
+					input.setAttribute('required', true);
+				})
+				document.getElementById('vehicleType').removeAttribute('disabled');
+			}
+		</script>
+	</body>
 </html>

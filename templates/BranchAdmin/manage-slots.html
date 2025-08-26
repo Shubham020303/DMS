@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Manage Slots | DMS</title>
+		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<style>
+			::-webkit-scrollbar {
+				width: 8px;
+			}
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+			::-webkit-scrollbar-thumb {
+				background: #888;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+			input.gridjs-input{
+				box-shadow: 0 0 0 1px #141414;
+			}
+			input.gridjs-input:focus {
+				border-color: #615FFF;
+				box-shadow: 0 0 0 3px #615FFF80;
+			}
+			.gridjs-search-input{
+				width: 100%;
+			}
+               .loader {
+                    border: 16px solid #f3f3f3;
+                    border-radius: 50%;
+                    border-top: 16px solid #615FFF;
+                    width: 120px;
+                    height: 120px;
+                    -webkit-animation: spin 2s linear infinite; /* Safari */
+                    animation: spin 2s linear infinite;
+               }
+
+               /* Safari */
+               @-webkit-keyframes spin {
+                    0% { -webkit-transform: rotate(0deg); }
+                    100% { -webkit-transform: rotate(360deg); }
+               }
+
+               @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+               }
+
+			input[type="date"]::-webkit-calendar-picker-indicator {
+				background-position: right center;
+				background-size: auto;
+				cursor: pointer;
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			input[type="date"]::-webkit-datetime-edit,
+			input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+			input[type="date"]::-webkit-datetime-edit-text,
+			input[type="date"]::-webkit-datetime-edit-month-field,
+			input[type="date"]::-webkit-datetime-edit-day-field,
+			input[type="date"]::-webkit-datetime-edit-year-field {
+				color: transparent;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="flex h-screen">
+			{% include 'navbar.html' %}
+			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+				<div class="w-full flex justify-between items-center">
+					<h1 class="text-3xl font-bold">Daily Schedule</h1>
+				</div>
+				<div class="my-5 pb-5 flex flex-col gap-5 bg-white rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
+					<div class="w-full">
+						<div id="daily-time-slots" class="w-full"></div>
+					</div>
+				</div>
+			</div>
+		</section>
+          <section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center z-50 transition-all duration-300 hidden" id="loader-modal">
+               <div class="loader"></div>
+          </section>
+		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+          <!-- <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script> -->
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				initializeDateInputs();
+			})
+
+			function initializeDateInputs() {
+				// Select all date inputs
+				const dateInputs = document.querySelectorAll('input[type="date"]');
+				
+				dateInputs.forEach(input => {
+					// Create a custom placeholder
+					const placeholder = document.createElement('span');
+					placeholder.textContent = 'dd-mm-yyyy';
+					placeholder.className = 'date-placeholder text-black text-sm pointer-events-none absolute left-3 top-1/2 -translate-y-1/2';
+					
+					// Wrap input in a relative positioned container
+					const wrapper = document.createElement('div');
+					wrapper.className = 'relative';
+					input.parentNode.insertBefore(wrapper, input);
+					wrapper.appendChild(input);
+					wrapper.appendChild(placeholder);
+					
+					// Function to format date for display
+					const formatDateForDisplay = (date) => {
+						if (!date) return '';
+						const [year, month, day] = date.split('-');
+						return `${day}-${month}-${year}`;
+					};
+					
+					// Function to handle date change
+					const handleDateChange = () => {
+						const value = input.value;
+						if (value) {
+							// Store the YYYY-MM-DD format in value attribute
+							input.setAttribute('data-value', value);
+							// Show formatted date as text
+							placeholder.textContent = formatDateForDisplay(value);
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						} else {
+							placeholder.textContent = 'dd-mm-yyyy';
+							placeholder.classList.remove('text-black');
+							placeholder.classList.add('text-black');
+						}
+					};
+					
+					// Initial state
+					if (input.value) {
+						handleDateChange();
+					}
+					
+					// Event listeners
+					input.addEventListener('change', handleDateChange);
+					input.addEventListener('blur', handleDateChange);
+					
+					// Hide the default date input display
+					input.style.color = 'transparent';
+				});
+			}
+
+               function showLoader() {
+                    document.getElementById("loader-modal").classList.remove('hidden');
+                    document.getElementById("loader-modal").classList.add('flex');
+                    document.getElementsByTagName("body")[0].style.overflow = "hidden";
+               }
+
+               function hideLoader() {
+                    document.getElementById("loader-modal").classList.add('hidden');
+                    document.getElementById("loader-modal").classList.remove('flex');
+                    document.getElementsByTagName("body")[0].style.overflow = "visible";
+               }
+
+			// Function to initialize the grid with dynamic columns
+			async function initializeDailyTimeSlotsGrid() {
+				try {
+					// First fetch the data to get vehicle names
+					const response = await fetch('http://127.0.0.1:8000/getSlotWiseData/');
+					const data = await response.json();
+					
+					// Get unique vehicle names for columns
+					const vehicleNames = [...new Set(data.map(vehicle => vehicle.vehicleName))];
+					
+					// Create the grid with dynamic columns
+					const dailyTimeSlotsGrid = new gridjs.Grid({
+						search: true,
+						// pagination: {
+						// 	limit: 5,
+						// 	summary: false
+						// },
+						sort: true,
+						fixedHeader: true,
+						columns: ["Daily Schedule", ...vehicleNames],
+						data: () => {
+							// Transform the data to group by slot time
+							const slotMap = new Map();
+							
+							// Process each vehicle's slots
+							data.forEach(vehicle => {
+								vehicle.slots.forEach(slot => {
+									if (!slotMap.has(slot.slotTime)) {
+										slotMap.set(slot.slotTime, {
+											slotTime: slot.slotTime,
+											vehicleData: {}
+										});
+									}
+									
+									// Add vehicle info to this slot
+									slotMap.get(slot.slotTime).vehicleData[vehicle.vehicleName] = {
+										student: slot.student,
+										branch: slot.branch
+									};
+								});
+							});
+							
+							// Convert to grid format
+							return Array.from(slotMap.values()).map(slotData => {
+								const row = [slotData.slotTime];
+								
+								// Add data for each vehicle column
+								vehicleNames.forEach(vehicleName => {
+									const vehicleInfo = slotData.vehicleData[vehicleName];
+									if (vehicleInfo) {
+										row.push(vehicleInfo.student || '--');
+									} else {
+										row.push('Slot Not Available'); // No slot for this vehicle at this time
+									}
+								});
+								
+								return row;
+							});
+						},
+						className: {
+							th: '!bg-black !text-white',
+							sort: '!bg-black !text-white',
+							search: '!float-right !w-[25%]',
+						}
+					});
+					
+					return dailyTimeSlotsGrid;
+					
+				} catch (error) {
+					console.error('Error initializing grid:', error);
+					
+					// Fallback grid with static columns
+					return new gridjs.Grid({
+						search: true,
+						sort: true,
+						fixedHeader: true,
+						columns: ["Slot", "Error loading vehicles"],
+						data: [["Error", "Could not load data"]],
+						className: {
+							th: '!bg-black !text-white',
+							sort: '!bg-black !text-white',
+							search: '!float-right !w-[25%]',
+						}
+					});
+				}
+			}
+
+			// Initialize and render the grid
+			initializeDailyTimeSlotsGrid().then(grid => {
+				grid.render(document.getElementById('daily-time-slots'));
+			});
+
+			// Or with async/await
+			async function setupGrid() {
+				const dailyTimeSlotsGrid = await initializeDailyTimeSlotsGrid();
+				dailyTimeSlotsGrid.render(document.getElementById('daily-time-slots'));
+			}
+
+			document.querySelector(".gridjs-search-input").placeholder = "Search...";
+		</script>
+	</body>
+</html>

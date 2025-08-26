@@ -1,13 +1,3425 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manage Students</title>
-    <!-- ...existing code for CSS/JS includes... -->
-</head>
-<body>
-    <h1>Manage Students</h1>
-    <!-- ...existing code for forms, tables, modals, etc... -->
-</body>
-</html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Manage Students | DMS</title>
+		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+		<style>
+			::-webkit-scrollbar {
+				width: 8px;
+			}
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+			::-webkit-scrollbar-thumb {
+				background: #888;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+			input.gridjs-input{
+				box-shadow: 0 0 0 1px #141414;
+			}
+			input.gridjs-input:focus {
+				border-color: #615FFF;
+				box-shadow: 0 0 0 3px #615FFF80;
+			}
+			.gridjs-search-input{
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="flex h-screen">
+			{% include 'navbar.html' %}
+			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
+				<div class="w-full flex justify-between items-center">
+					<h1 class="text-3xl font-bold">Manage Students</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-student">
+						<p>New Enrollment</p>
+					</div>
+				</div>
+				<div id="wrapper" class="w-full mt-8"></div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-student-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 max-h-[600px] flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="student-model-heading" class="text-3xl font-bold">New Enrollment</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-student-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+						</svg>
+					</div>
+				</div>
+				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-student-form">
+					{%csrf_token%}
+					<!-- Step Indicator -->
+					<div class="w-full flex justify-between mb-4">
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="1">
+							<div class="progress-number w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1">1</div>
+							<span class="text-xs font-medium">Personal Info</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="2">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">2</div>
+							<span class="text-xs font-medium">Course Details</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="3">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">3</div>
+							<span class="text-xs font-medium">License Info</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="4">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">4</div>
+							<span class="text-xs font-medium">Add-On Services</span>
+						</div>
+						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="5">
+							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">5</div>
+							<span class="text-xs font-medium">Summary</span>
+						</div>
+					</div>
+					<!-- Step 1: Personal Info -->
+					<div class="form-step" data-step="1">
+						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
+							<div class="flex flex-col items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="studentName" class="block font-semibold">Student Name</label>
+									<input type="text" name="studentName" id="studentName" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="studentEmail" class="block font-semibold">Student Email</label>
+									<input type="email" name="studentEmail" id="studentEmail" autocomplete="off" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" class="lowercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="studentGender" class="block font-semibold">Gender</label>
+									<select name="studentGender" id="studentGender" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+										<option disabled selected>Select Gender</option>
+										<option value="Male">Male</option>
+										<option value="Female">Female</option>
+									</select>
+								</div>
+							</div>
+							<div class="flex justify-center w-full h-full">
+								<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="image-upload">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+									</svg>
+									<p class="whitespace-nowrap">Add Student Image</p>
+									<img id="student-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
+									<input type="file" name="profilePic" id="profilePic" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*">
+								</div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="phone" class="block font-semibold">Phone</label>
+								<input type="text" name="phone" id="phone" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="bloodGroup" class="block font-semibold">Blood Group</label>
+								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dob" class="block font-semibold">Date of Birth</label>
+								<input type="date" name="dob" id="dob" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="applicationNo" class="block font-semibold">Application Number</label>
+								<input type="text" name="applicationNo" id="applicationNo" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="address" class="block font-semibold">Address</label>
+								<textarea rows="3" name="address" id="address" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
+							</div>
+						</div>
+					</div>
+					<!-- Step 2: Course Details -->
+					<div class="form-step hidden" data-step="2">
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentCourse" class="block font-semibold">Course</label>
+								<select name="studentCourse" id="studentCourse" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option disabled selected>Select Course</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="bookingType" class="block font-semibold">Booking Type</label>
+								<select name="bookingType" id="bookingType" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option selected value="Normal">Normal</option>
+									<option value="Pre-Booking">Pre-Booking</option>
+								</select>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentInstructor" class="block font-semibold">Instructor</label>
+								<select name="studentInstructor" id="studentInstructor" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option disabled selected>Select Instructor</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="studentSlot" class="block font-semibold">Time Slot</label>
+								<select name="studentSlot" id="studentSlot" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option disabled selected>Select Slot</option>
+								</select>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="branch" class="block font-semibold">Branch</label>
+								<select name="branch" id="branch" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option disabled selected>Select Branch</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="courseStartDate" class="block font-semibold">Course Start Date</label>
+								<input type="date" name="courseStartDate" id="courseStartDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full">
+								<label for="courseEndDate" class="block font-semibold">Course End Date</label>
+								<input type="date" name="courseEndDate" id="courseEndDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<!-- <div class="flex flex-col gap-2 w-1/2">
+								<label for="totalAmount" class="block font-semibold">Total Amount</label>
+								<input type="text" name="totalAmount" id="totalAmount" readonly class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div> -->
+						</div>
+					</div>
+					<!-- Step 3: License Info -->
+					<div class="form-step hidden" data-step="3">
+						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
+							<div class="flex flex-col items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full">
+									<label for="dlNo" class="block font-semibold">License Number</label>
+									<input type="text" name="dlNo" id="dlNo" autocomplete="off" class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-full">
+									<label for="dlType" class="block font-semibold">License Type</label>
+									<select name="dlType" id="dlType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+										<option disabled selected>Select License</option>
+										<option value="Learning License">Learning License</option>
+										<option value="Driving License">Driving License</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="mb-4 flex items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dlIssueDate" class="block font-semibold">License Issue Date</label>
+								<input type="date" name="dlIssueDate" id="dlIssueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+							<div class="flex flex-col gap-2 w-1/2">
+								<label for="dlExpiry" class="block font-semibold">License Expiry Date</label>
+								<input type="date" name="dlExpiry" id="dlExpiry" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							</div>
+						</div>
+					</div>
+					<!-- Step 4: Add-On Services -->
+					<div class="form-step hidden" data-step="4">
+						<div class="bg-white rounded-xl">
+							<div id="services-container" class="space-y-4">
+							</div>
+						</div>
+					</div>
+					<!-- New Step 5: Summary -->
+					<div class="form-step hidden" data-step="5">
+						<div class="bg-white rounded-xl">
+							<div class="grid md:grid-cols-2 gap-8 mb-4">
+								<div>
+									<div class="bg-gray-50 rounded-lg p-6 border border-gray-100 shadow-sm">
+										<h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+											</svg>
+											Course Details
+										</h3>
+										<div id="summary-course-details" class="space-y-3">
+											<p class="flex justify-between">
+												<span id="summary-course-name" class="font-medium">Two Wheel License:</span>
+												<span id="summary-course-fee">₹1000</span>
+											</p>
+										</div>
+									</div>
+								</div>
+								<div>
+									<div class="bg-gray-50 rounded-lg p-6 border border-gray-100 shadow-sm">
+										<h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+											</svg>
+											Add-On Services
+										</h3>
+										<div id="summary-services-details" class="space-y-3">
+											<!-- Services will be dynamically populated here -->
+											<p class="text-gray-500 text-sm italic">No additional services selected</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="mb-4 flex items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-1/2">
+									<label for="paymentRecievedBy" class="block font-semibold">Payment Received By</label>
+									<select name="paymentRecievedBy" id="paymentRecievedBy" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+										<option disabled selected>Select Person</option>
+									</select>
+								</div>
+								<div class="flex flex-col gap-2 w-1/2">
+									<label for="paymentDueDate" class="block font-semibold">Payment Due Date</label>
+									<input type="date" name="paymentDueDate" id="paymentDueDate" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+							</div>
+							<div class="mb-4 flex items-center gap-4 w-full">
+								<div class="flex flex-col gap-2 w-1/2">
+									<label for="paymentReceived" class="block font-semibold">Payment Received</label>
+									<input type="text" name="paymentReceived" id="paymentReceived" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+								<div class="flex flex-col gap-2 w-1/2">
+									<label for="paymentDue" class="block font-semibold">Payment Due</label>
+									<input type="text" name="paymentDue" id="paymentDue" readonly class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								</div>
+							</div>
+							<div class="mt-8 pt-6 border-t border-gray-200">
+								<div class="flex justify-between items-center">
+									<span class="text-2xl font-bold text-gray-800">Grand Total:</span>
+									<span id="summary-grand-total" class="text-3xl font-extrabold text-indigo-700">₹0</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Navigation Buttons -->
+					<div id="btns-container" class="flex justify-between">
+						<button type="button" id="prev-step" class="bg-gray-500 text-white px-6 py-2 rounded cursor-pointer mr-2 hidden">
+						Previous
+						</button>
+						<button type="button" id="next-step" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer">
+						Next
+						</button>
+						<button id="add-student-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
+						Add Student
+						</button>
+					</div>
+				</form>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-student-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 id="update-student-heading" class="text-2xl font-bold">Update Student</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-student-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<p id="update-student-message">Student details updated successfully.</p>
+				</div>
+				<div class="flex justify-end">
+					<botton id="close-update-student-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Close</p>
+					</botton>
+				</div>
+			</div>
+		</section>
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-student-modal">
+			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+				<div class="flex justify-between items-center">
+					<h1 class="text-2xl font-bold">Delete Student</h1>
+					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-student-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+						</svg>
+					</div>
+				</div>
+				<div id="delete-student-message-container" class="flex flex-col gap-2">
+					<p id="delete-student-message">Are you sure you want to delete this student?</p>
+					<p>This action cannot be undone.</p>
+				</div>
+				<div class="flex justify-end">
+					<button id="delete-student-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+						<p>Delete</p>
+					</button>
+					<botton id="close-delete-student-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+						<p>Cancel</p>
+					</botton>
+				</div>
+			</div>
+		</section>		
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="view-student-modal">
+			<div class="bg-white p-8 rounded-lg w-[1000px] max-h-[80vh] overflow-y-auto relative">
+				<!-- Close Button -->
+				<div class="absolute top-4 right-4 bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer z-10" id="close-view-student-btn">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+						<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+					</svg>
+				</div>
+
+				<!-- Main Grid Layout -->
+				<div class="grid grid-cols-12 gap-6">
+					<!-- Personal Details -->
+					<div class="col-span-4 bg-gray-50 p-6 rounded-xl">
+						<h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+							</svg>
+							Contact Information
+						</h2>
+						<div class="flex flex-col gap-4">
+							<div>
+								<p class="text-gray-500 text-sm">Email</p>
+								<p id="view-student-email" class="font-medium">email@example.com</p>
+							</div>
+							<div>
+								<p class="text-gray-500 text-sm">Phone</p>
+								<p id="view-student-phone" class="font-medium">1234567890</p>
+							</div>
+							<div>
+								<p class="text-gray-500 text-sm">Date of Birth</p>
+								<p id="view-student-dob" class="font-medium">01/01/2000</p>
+							</div>
+							<div>
+								<p class="text-gray-500 text-sm">Gender</p>
+								<p id="view-student-gender" class="font-medium">Male</p>
+							</div>
+							<div class="col-span-2">
+								<p class="text-gray-500 text-sm">Address</p>
+								<p id="view-student-address" class="font-medium">123 Street, City, Country</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Contact Info - Spans 8 columns -->
+					<div class="col-span-8 grid grid-cols-2 gap-6">
+						
+
+						<!-- Student Profile - Spans 4 columns -->
+						<div class="col-span-2 bg-gray-50 p-6 rounded-xl">
+							<div class="flex gap-6">
+								<div class="w-[180px] h-[200px] rounded-xl overflow-hidden bg-gray-100">
+									<img id="view-student-image" src="" alt="" class="w-full h-full object-cover">
+								</div>
+								<div class="flex flex-col justify-between gap-4 py-2">
+									<div>
+										<h1 id="view-student-name" class="text-3xl font-bold mb-2">Student Name</h1>
+										<p id="view-status" class="inline-block px-3 py-1 text-sm text-white bg-green-500 rounded-full mb-4">Active</p>
+									</div>
+									<div class="grid grid-cols-2 gap-x-8 gap-y-2">
+										<div>
+											<p class="text-gray-500 text-sm">Blood Group</p>
+											<p id="view-student-blood" class="font-medium uppercase">A+</p>
+										</div>
+										<div>
+											<p class="text-gray-500 text-sm">Application No.</p>
+											<p id="view-application-no" class="font-medium">APP123</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+						<!-- Course Info - Spans 1 column -->
+						<div class="bg-gray-50 p-6 rounded-xl">
+							<h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+							</svg>
+							Course Details
+							</h2>
+							<div class="space-y-3">
+							<div>
+								<p class="text-gray-500 text-sm">Course</p>
+								<p id="view-student-course" class="font-medium">Two Wheeler</p>
+							</div>
+							<div>
+								<p class="text-gray-500 text-sm">Branch</p>
+								<p id="view-student-branch" class="font-medium">Main Branch</p>
+							</div>
+							<div>
+								<p class="text-gray-500 text-sm">Instructor</p>
+								<p id="view-student-instructor" class="font-medium">John Doe</p>
+							</div>
+							<div>
+								<p class="text-gray-500 text-sm">Time Slot</p>
+								<p id="view-student-slot" class="font-medium">9:00 AM - 10:00 AM</p>
+							</div>
+							</div>
+						</div>
+
+						<!-- Schedule Info - Spans 1 column -->
+						<div class="bg-gray-50 p-6 rounded-xl">
+							<h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+							</svg>
+							Schedule
+							</h2>
+							<div class="space-y-3">
+							<div>
+								<p class="text-gray-500 text-sm">Booking Type</p>
+								<p id="view-booking-type" class="font-medium">Normal</p>
+							</div>
+							<div>
+								<p class="text-gray-500 text-sm">Start Date</p>
+								<p id="view-start-date" class="font-medium">01/01/2024</p>
+							</div>
+							<div>
+								<p class="text-gray-500 text-sm">End Date</p>
+								<p id="view-end-date" class="font-medium">01/02/2024</p>
+							</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- License Details - Spans 6 columns -->
+					<div class="col-span-6 bg-gray-50 p-6 rounded-xl">
+						<h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+							</svg>
+							License Details
+						</h2>
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+							<p class="text-gray-500 text-sm">License Number</p>
+							<p id="view-license-no" class="font-medium">DL123456789</p>
+							</div>
+							<div>
+							<p class="text-gray-500 text-sm">License Type</p>
+							<p id="view-license-type" class="font-medium">Learning License</p>
+							</div>
+							<div>
+							<p class="text-gray-500 text-sm">Issue Date</p>
+							<p id="view-license-issue" class="font-medium">01/01/2024</p>
+							</div>
+							<div>
+							<p class="text-gray-500 text-sm">Expiry Date</p>
+							<p id="view-license-expiry" class="font-medium">01/01/2025</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Payment Details - Spans 6 columns -->
+					<div class="col-span-6 bg-gray-50 p-6 rounded-xl">
+						<h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+							</svg>
+							Payment Details
+						</h2>
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+							<p class="text-gray-500 text-sm">Total Amount</p>
+							<p id="view-total-amount" class="font-medium">₹10,000</p>
+							</div>
+							<div>
+							<p class="text-gray-500 text-sm">Payment Due Date</p>
+							<p id="view-payment-due-date" class="font-medium">01/02/2024</p>
+							</div>
+							<div>
+							<p class="text-gray-500 text-sm">Payment Received</p>
+							<p id="view-payment-received" class="font-medium">₹5,000</p>
+							</div>
+							<div>
+							<p class="text-gray-500 text-sm">Payment Due</p>
+							<p id="view-payment-due" class="font-medium">₹5,000</p>
+							</div>
+							<div class="col-span-2">
+							<p class="text-gray-500 text-sm">Payment Received By</p>
+							<p id="view-payment-received-by" class="font-medium">John Doe</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Add-On Services - Spans full width -->
+					<div class="col-span-12 bg-gray-50 p-6 rounded-xl">
+						<h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+							</svg>
+							Add-On Services
+						</h2>
+						<div id="view-addon-services" class="grid grid-cols-3 gap-4">
+							<!-- Services will be dynamically added here -->
+						</div>
+					</div>
+				</div>
+
+				<div class="mt-8 flex justify-center gap-4">
+					<!-- Fuel Efficient Certificate Button -->
+					<button class="px-6 py-3 bg-indigo-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-indigo-700 transition-colors" 
+							onclick="generateCertificate(this.getAttribute('data-id'))" 
+							id="fuel-certificate-btn">
+						<svg viewBox="0 0 32 32" width="16" height="16">
+							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="25" y1="28" x2="7" y2="28"/>
+							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="16" y1="23" x2="16" y2="4"/>
+							<polyline fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" points="9,16 16,23 23,16"/>
+						</svg>
+						<span>Download Form 14</span>
+					</button>
+
+					<!-- Course Completion Certificate Button -->
+					<button class="px-6 py-3 bg-green-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-green-700 transition-colors" 
+							onclick="generateCompletionCertificate(this.getAttribute('data-id'))" 
+							id="completion-certificate-btn">
+						<svg viewBox="0 0 32 32" width="16" height="16">
+							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="25" y1="28" x2="7" y2="28"/>
+							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="16" y1="23" x2="16" y2="4"/>
+							<polyline fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" points="9,16 16,23 23,16"/>
+						</svg>
+						<span>Download Form 15</span>
+					</button>
+				</div>
+			</div>
+		</section>
+		<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+		<script>
+			let currentStep = 1;
+			let baseURL = "http://127.0.0.1:8000/getSlotsData/"
+			document.addEventListener('DOMContentLoaded', () => {
+				fetch("http://127.0.0.1:8000/getBranchData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+					})
+
+				fetch("http://127.0.0.1:8000/getCourseData/")
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}" data-fee="${course.courseFee}" data-duration=${course.courseDuration}>${course.courseName}</option>`).join('');
+					})
+
+                    fetch("http://127.0.0.1:8000/getInstructorData/")
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("studentInstructor").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
+                              document.getElementById("paymentRecievedBy").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
+                         })
+
+				// fetch("http://127.0.0.1:8000/getSlotsData/")
+                    //      .then(response => response.json())
+                    //      .then(data => {
+                    //           document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}" style="display: ${slot.slotUsed ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
+                    //      })
+
+				const steps = document.querySelectorAll('.form-step');
+				const progressStep = document.querySelectorAll('.progress-step');
+				const nextBtn = document.getElementById('next-step');
+				const prevBtn = document.getElementById('prev-step');
+				const addStudentBtn = document.getElementById('add-student-btn');
+
+				// Step button click handling
+				progressStep.forEach(button => {
+					button.addEventListener('click', function() {
+						const step = this.getAttribute('data-step');
+						goToStep(parseInt(step));
+					});
+				});
+
+				// Next button click handling
+				nextBtn.addEventListener('click', function() {					
+					if (validateCurrentStep() && currentStep < 5) {
+						if (currentStep < 5) {
+							currentStep++;
+							updateForm();
+						}
+					}
+				});
+
+				// Previous button click handling
+				prevBtn.addEventListener('click', function() {
+					if (currentStep > 1) {
+						currentStep--;
+						updateForm();
+					}
+				});
+
+				// Form validation for current step
+				function validateCurrentStep() {
+					const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+					const requiredFields = currentStepElement.querySelectorAll('[required]');
+					let isValid = true;
+					let firstInvalidField = null;
+
+					requiredFields.forEach(field => {
+						const isSelect = field.tagName.toLowerCase() === "select";
+						const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+						const isEmpty = isSelect 
+							? !field.value || (selectedOption && selectedOption.disabled) 
+							: !field.value.trim();
+						const pattern = field.getAttribute('pattern');
+						const isPatternMismatch = !isSelect && pattern 
+							? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+							: false;
+						const alreadyInvalid = field.classList.contains('outline-red-300');
+
+						if (isEmpty || isPatternMismatch) {
+							if (!alreadyInvalid) {
+								field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+								field.classList.add('outline-red-300', 'focus:outline-red-600');
+							}
+							if (!firstInvalidField) firstInvalidField = field;
+							isValid = false;
+						} else {
+							if (alreadyInvalid) {
+								field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+								field.classList.remove('outline-red-300', 'focus:outline-red-600');
+							}
+						}
+					});
+
+					// If there's an invalid field, scroll and focus on it
+					if (firstInvalidField) {
+						firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+						firstInvalidField.focus();
+					}
+
+					return isValid;
+				}
+
+				// Update form function modified to include 5 steps
+				function updateForm() {
+					// Hide all steps
+					steps.forEach(step => step.classList.add('hidden'));
+					
+					// Show current step
+					document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+					// Update step buttons
+					progressStep.forEach(btn => {
+						btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+						btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+						if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+							btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+							btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+						}
+					});
+
+					// Manage navigation buttons
+					prevBtn.classList.toggle('hidden', currentStep === 1);
+					nextBtn.classList.toggle('hidden', currentStep === 5);
+					addStudentBtn.classList.toggle('hidden', currentStep !== 5);
+
+					// Update summary if moving to summary step
+					if (currentStep === 5) {
+						updateSummary();
+					}
+				}
+
+				function goToStep(step) {
+					currentStep = step;
+					updateForm();
+				}
+
+				// Initial form setup
+				updateForm();
+
+				fetchServices()
+			})
+
+			// Function to update summary stage
+			function updateSummary() {
+				// Course Details
+				const courseSelect = document.getElementById("studentCourse");
+				const selectedCourse = courseSelect.value;
+				const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+				const courseFee = parseInt(courseSelect.querySelector(`option[value="${selectedCourse}"]`)?.getAttribute('data-fee')) || 0;
+
+				document.getElementById("summary-course-name").textContent = courseName;
+				document.getElementById("summary-course-fee").textContent = `₹${courseFee}`;
+
+				// Add-On Services
+				const servicesContainer = document.getElementById("summary-services-details");
+				servicesContainer.innerHTML = ''; // Clear previous services
+				let servicesFee = 0;
+
+				document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+					const serviceFee = parseInt(checkbox.getAttribute('data-fee')) || 0;
+					const serviceName = checkbox.closest('.border').querySelector('h3').textContent;
+					
+					servicesFee += serviceFee;
+
+					const serviceRow = document.createElement('p');
+					serviceRow.classList.add('flex', 'justify-between');
+					serviceRow.innerHTML = `
+						<span class="font-medium">${serviceName}:</span>
+						<span>₹${serviceFee}</span>
+					`;
+					servicesContainer.appendChild(serviceRow);
+				});
+
+				// Grand Total
+				const grandTotal = courseFee + servicesFee;
+				document.getElementById("summary-grand-total").textContent = `₹${grandTotal}`;
+			}
+
+			function fetchServices() {
+				document.getElementById("services-container").innerHTML = '';
+				fetch("http://127.0.0.1:8000/getAddOnServiceData/")
+                         .then(response => response.json())
+                         .then(data => {
+                              document.getElementById("services-container").innerHTML += data.map(service => `
+							<div class="border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+								<div class="flex items-center">
+									<input 
+										type="checkbox" 
+										id="service1" 
+										name="addOnServices" 
+										value="${service.id}" 
+										class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 mr-4 ${service.mandetory ? 'cursor-not-allowed pointer-events-none' : ''}"
+										data-fee="${service.addOnServiceAmount}"
+										data-mandatory="${service.mandetory}"
+										${service.mandetory ? 'checked' : ''}
+										>
+									<div>
+										<h3 class="font-semibold text-gray-800">${service.addOnServiceName}</h3>
+									</div>
+								</div>
+								<div class="flex items-center space-x-4">
+									<span class="text-green-600 font-medium">₹${service.addOnServiceAmount}</span>
+									<span class="${service.mandetory ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'} text-xs px-2 py-1 rounded-full">${service.mandetory ? 'Mandatory' : 'Optional'}</span>
+								</div>
+							</div>
+						`).join('');
+						
+						document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+							checkbox.addEventListener('change', function() {
+								this.closest('.border').classList.toggle('bg-indigo-100', this.checked);
+							});
+
+							if (checkbox.checked) {
+								checkbox.closest('.border').classList.add('bg-indigo-100');
+							}
+						});
+                         })
+			}
+
+			const imageUpload = document.getElementById('image-upload');
+			const image = document.getElementById('profilePic');
+
+			image.addEventListener('change', () => {
+				const file = image.files[0];
+				const reader = new FileReader();
+
+				reader.onload = () => {
+					imageUpload.querySelector('img').src = reader.result;
+					imageUpload.querySelector('img').classList.remove('hidden');
+				}
+
+				reader.readAsDataURL(file);
+			});
+
+			document.getElementById('add-student').addEventListener('click', () => {
+				currentStep = 1
+				document.getElementById('add-student-modal').classList.remove('scale-0', 'opacity-0');
+				document.getElementById('add-student-modal').classList.add('scale-100', 'opacity-100');
+				document.getElementById("student-model-heading").innerText = "New Enrollment";
+				document.getElementById("btns-container").style.display = "flex";
+				document.getElementById("add-student-btn").innerText = "Add";
+				document.getElementById('add-student-modal').querySelector('form').reset();
+				document.getElementById('student-image').classList.add('hidden');
+				document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+
+				// Personal Info
+				document.getElementById("studentName").setAttribute("required", true);
+				// document.getElementById("studentEmail").setAttribute("required", true);
+				document.getElementById("studentGender").setAttribute("required", true);
+				document.getElementById("phone").setAttribute("required", true);
+				document.getElementById("bloodGroup").setAttribute("required", true);
+				document.getElementById("dob").setAttribute("required", true);
+				document.getElementById("applicationNo").setAttribute("required", true);
+				document.getElementById("address").setAttribute("required", true);
+
+				// Course Details
+				document.getElementById("studentCourse").setAttribute("required", true);
+				document.getElementById("bookingType").setAttribute("required", true);
+				document.getElementById("studentInstructor").setAttribute("required", true);
+				document.getElementById("studentSlot").setAttribute("required", true);
+				document.getElementById("branch").setAttribute("required", true);
+				document.getElementById("courseStartDate").setAttribute("required", true);
+				document.getElementById("courseStartDate").setAttribute("min", new Date().toISOString().split("T")[0]);
+				document.getElementById("courseEndDate").setAttribute("required", true);
+				// document.getElementById("totalAmount").setAttribute("required", true);
+				// document.getElementById("totalAmount").setAttribute("readonly", true);
+				document.getElementById("paymentRecievedBy").setAttribute("required", true);
+				document.getElementById("paymentReceived").setAttribute("required", true);
+				document.getElementById("paymentDue").setAttribute("required", true);
+				document.getElementById("paymentDue").setAttribute("readonly", true);
+
+				// Add On Services
+				document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+					if (checkbox.getAttribute('data-mandatory') === 'true') {
+						checkbox.checked = true
+						checkbox.closest('.border').classList.add('bg-indigo-100');
+					} else {
+						checkbox.checked = false
+						checkbox.closest('.border').classList.remove('bg-indigo-100');
+					}
+				})
+
+				if (document.getElementById("studentId")) {
+					document.getElementById("studentId").remove();
+				}
+			});
+
+			document.getElementById('close-student-modal').addEventListener('click', () => {
+				document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+			});
+
+			document.getElementById('close-delete-student-modal').addEventListener('click', () => {
+				document.getElementById('delete-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-student-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-delete-student-btn').addEventListener('click', () => {
+				document.getElementById('delete-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('delete-student-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-student-btn').addEventListener('click', () => {
+				document.getElementById('updated-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-student-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-update-student-modal').addEventListener('click', () => {
+				document.getElementById('updated-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('updated-student-modal').classList.add('scale-0', 'opacity-0');
+				window.location.reload()
+			});
+
+			document.getElementById('close-view-student-btn').addEventListener('click', () => {
+				document.getElementById('view-student-modal').classList.remove('scale-100', 'opacity-100');
+				document.getElementById('view-student-modal').classList.add('scale-0', 'opacity-0');
+				// window.location.reload()
+			});
+
+			document.getElementById("studentCourse").addEventListener("change", () => {
+				const selectedCourse = document.getElementById("studentCourse").value;
+				const bookingType = document.getElementById("bookingType").value;
+				
+				// Reset baseURL to original
+				baseURL = "http://127.0.0.1:8000/getSlotsData/";
+				
+				// Add courseId and bookingType parameters
+				baseURL += `?courseId=${selectedCourse}`;
+				if (bookingType === "Pre-Booking") {
+					baseURL += "&bookingType=Pre-Booking";
+				}
+
+				// Reset and fetch slots
+				document.getElementById("studentSlot").innerHTML = "";
+				document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
+				fetch(baseURL)
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("studentSlot").innerHTML += data.map(slot => {
+							const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
+								`data-UsedTill='${slot.UsedTill}'` : "";
+							const style = slot.UsedTill && slot.UsedTill !== null ? 
+								"font-weight: 600; color: red;" : "";
+							return `<option ${usedTillAttr} value="${slot.id}" style="${style}">
+								${slot.slotStartTime} - ${slot.slotEndTime}${slot.UsedTill ? ` | ${slot.UsedTill}` : ""}
+							</option>`;
+						}).join('');
+					});
+			});
+
+			document.getElementById("bookingType").addEventListener("change", () => {
+				const bookingType = document.getElementById("bookingType").value;
+				const selectedCourse = document.getElementById("studentCourse").value;
+				
+				// Reset baseURL to original
+				baseURL = "http://127.0.0.1:8000/getSlotsData/";
+				
+				// Add parameters based on available values
+				if (selectedCourse) {
+					baseURL += `?courseId=${selectedCourse}`;
+					if (bookingType === "Pre-Booking") {
+						baseURL += "&bookingType=Pre-Booking";
+					}
+				} else if (bookingType === "Pre-Booking") {
+					baseURL += "?bookingType=Pre-Booking";
+				}
+
+				// Reset and fetch slots
+				document.getElementById("studentSlot").innerHTML = "";
+				document.getElementById("studentSlot").innerHTML = `<option disabled selected>Select Slot</option>`;
+				fetch(baseURL)
+					.then(response => response.json())
+					.then(data => {
+						document.getElementById("studentSlot").innerHTML += data.map(slot => {
+							const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
+								`data-UsedTill='${slot.UsedTill}'` : "";
+							const style = slot.UsedTill && slot.UsedTill !== null ? 
+								"font-weight: 600; color: red;" : "";
+							return `<option ${usedTillAttr} value="${slot.id}" style="${style}">
+								${slot.slotStartTime} - ${slot.slotEndTime}${slot.UsedTill ? ` | ${slot.UsedTill}` : ""}
+							</option>`;
+						}).join('');
+					});
+			});
+
+			document.getElementById("studentSlot").addEventListener("change", () => {
+				const selectedSlot = document.getElementById("studentSlot").value;
+				const UsedTill = document.getElementById("studentSlot").querySelector(`option[value="${selectedSlot}"]`).getAttribute("data-UsedTill");
+				const courseStartDate = document.getElementById("courseStartDate");
+				const courseEndDate = document.getElementById("courseEndDate");
+				if (UsedTill) {
+					courseStartDate.value = UsedTill;
+					courseStartDate.setAttribute("min", UsedTill);
+					courseEndDate.setAttribute("min", UsedTill);
+				}
+			});
+
+               document.getElementById("dob").addEventListener("input", () => {
+                    const dob = new Date(document.getElementById("dob").value);
+                    const today = new Date();
+                    const age = today.getFullYear() - dob.getFullYear();
+                    if (age < 18) {
+                         document.getElementById("dob").value = "";
+                         alert("Age should be greater than 18 years.");
+                         document.getElementById("dob").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+                         document.getElementById("dob").classList.add("focus:outline-2", "focus:-outline-offset-2", "focus:outline-red-600");
+                         document.getElementById("dob").classList.remove("bg-white");
+                         document.getElementById("dob").classList.add("bg-red-100");
+                    } else {
+                         document.getElementById("dob").classList.remove("focus:outline-2", "focus:-outline-offset-2", "focus:outline-red-600");
+                         document.getElementById("dob").classList.add("focus:outline-2", "focus:-outline-offset-2", "focus:outline-indigo-600");
+                         document.getElementById("dob").classList.remove("bg-red-100");
+                         document.getElementById("dob").classList.add("bg-white");
+                    }
+               });
+
+			// document.getElementById("studentCourse").addEventListener("change", () => {
+			// 	const selectedCourse = document.getElementById("studentCourse").value;
+			// 	const courseFee = document.getElementById("studentCourse").querySelector(`option[value="${selectedCourse}"]`).getAttribute("data-fee");
+			// 	document.getElementById("totalAmount").value = courseFee;
+			// })
+
+			document.getElementById("paymentReceived").addEventListener("input", () => {
+				// Course Details
+				const courseSelect = document.getElementById("studentCourse");
+				const selectedCourse = courseSelect.value;
+				const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+				const courseFee = parseInt(courseSelect.querySelector(`option[value="${selectedCourse}"]`)?.getAttribute('data-fee')) || 0;
+				const paymentReceived = document.getElementById("paymentReceived").value;
+
+				// Add-On Services
+				let servicesFee = 0;
+
+				document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+					const serviceFee = parseInt(checkbox.getAttribute('data-fee')) || 0;
+					const serviceName = checkbox.closest('.border').querySelector('h3').textContent;
+					
+					servicesFee += serviceFee;
+				});
+
+				// Grand Total
+				const grandTotal = courseFee + servicesFee;
+
+				document.getElementById("paymentDue").value = grandTotal - paymentReceived;
+				// document.getElementById("summary-grand-total").textContent = `₹${grandTotal - paymentReceived}`;
+			})
+
+			document.getElementById("courseStartDate").addEventListener("input", () => {
+				const today = new Date().toISOString().split("T")[0];
+				const selectedCourse = document.getElementById("studentCourse").value;
+				const courseDuration = parseInt(document.getElementById("studentCourse").querySelector(`option[value="${selectedCourse}"]`).getAttribute("data-duration"));
+
+				if (isNaN(courseDuration)) return; // Ensure duration is valid
+
+				const courseStartDate = new Date(document.getElementById("courseStartDate").value);
+				if (isNaN(courseStartDate.getTime()) || courseStartDate < new Date(today)) {
+					alert("Course start date cannot be in the past!");
+					document.getElementById("courseStartDate").value = today;
+					return;
+				}
+
+				// Calculate course end date
+				const courseEndDate = new Date(courseStartDate);
+				courseEndDate.setDate(courseEndDate.getDate() + courseDuration);
+
+				// Set the calculated end date and its minimum value
+				document.getElementById("courseEndDate").value = courseEndDate.toISOString().split("T")[0];
+				document.getElementById("courseEndDate").setAttribute("min", document.getElementById("courseStartDate").value);
+
+				// Calculate payment due date (3 days after courseStartDate)
+				const paymentDueDate = new Date(courseStartDate);
+				paymentDueDate.setDate(paymentDueDate.getDate() + 3);
+
+				// Set payment due date field
+				document.getElementById("paymentDueDate").value = paymentDueDate.toISOString().split("T")[0];
+				document.getElementById("paymentDueDate").setAttribute("min", document.getElementById("courseStartDate").value);
+			});
+
+			function generatePDFBrowser() {
+				// Get form data (assuming these variables are available)
+				const studentName = document.getElementById("studentName").value;
+				const studentEmail = document.getElementById("studentEmail").value;
+				const studentGender = document.getElementById("studentGender").value;
+				const phone = document.getElementById("phone").value;
+				const bloodGroup = document.getElementById("bloodGroup").value;
+				const dob = formatDate(document.getElementById("dob").value);
+				const applicationNo = document.getElementById("applicationNo").value;
+				const address = document.getElementById("address").value;
+				const studentCourse = document.getElementById("studentCourse").options[document.getElementById("studentCourse").selectedIndex].text;
+				const coursePrice = document.getElementById("studentCourse").options[document.getElementById("studentCourse").selectedIndex].getAttribute('data-fee') || "0";
+				const branch = document.getElementById("branch").value;
+				const instructor = document.getElementById("studentInstructor").options[document.getElementById("studentInstructor").selectedIndex] ? document.getElementById("studentInstructor").options[document.getElementById("studentInstructor").selectedIndex].text : "";
+				const timeSlot = document.getElementById("studentSlot").options[document.getElementById("studentSlot").selectedIndex] ? document.getElementById("studentSlot").options[document.getElementById("studentSlot").selectedIndex].text : "";
+				const courseStartDate = formatDate(document.getElementById("courseStartDate").value);
+				const courseEndDate = formatDate(document.getElementById("courseEndDate").value);
+				const paymentReceived = document.getElementById("paymentReceived").value;
+				const paymentDue = document.getElementById("paymentDue").value;
+				const paymentReceivedBy = document.getElementById("paymentRecievedBy").options[document.getElementById("paymentRecievedBy").selectedIndex] ? document.getElementById("paymentRecievedBy").options[document.getElementById("paymentRecievedBy").selectedIndex].text : "";
+
+				// Calculate add-on services
+				let addOnServices = [];
+				let addOnTotal = 0;
+				document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(function(checkbox) {
+					const serviceName = checkbox.closest('.border').querySelector('h3').textContent;
+					const serviceFee = parseInt(checkbox.getAttribute('data-fee')) || 0;
+					addOnServices.push({name: serviceName, fee: serviceFee});
+					addOnTotal += serviceFee;
+				});
+
+				const courseFee = parseInt(coursePrice) || 0;
+				const grandTotal = courseFee + addOnTotal;
+
+				// Create HTML content matching jsPDF layout
+				const htmlContent = `
+					<!DOCTYPE html>
+					<html>
+						<head>
+							<meta charset="UTF-8">
+							<style>
+								@page {
+									size: 210mm 297mm; /* A4 size */
+									margin: 0;
+								}
+								
+								body {
+									font-family: Helvetica, Arial, sans-serif;
+									margin: 0;
+									padding: 0;
+									background-color: white;
+									font-size: 10px;
+									line-height: 1.2;
+									color: #2c3e50;
+								}
+								
+								.receipt {
+									width: 100%;
+									margin: 0 auto;
+									background: white;
+									border: 1px solid #ecf0f1;
+									position: relative;
+									padding: 0;
+									display: flex;
+									flex-direction: column;
+								}
+								
+								.header {
+									background: linear-gradient(135deg, #2980b9, #4a90e2);
+									color: white;
+									padding: 10px;
+									height: 40px;
+									position: relative;
+									display: flex;
+									align-items: center;
+									justify-content: space-between;
+									flex-shrink: 0;
+								}
+								
+								.logo {
+									width: 30px;
+									height: 30px;
+									aspect-ratio: 1;
+									background: white;
+									border-radius: 50%;
+									padding: 10px;
+									display: flex;
+									align-items: center;
+									justify-content: center;
+								}
+								
+								.logo img {
+									width: 100%;
+									height: 100%;
+									object-fit: contain;
+								}
+								
+								.company-name {
+									font-size: 16px;
+									font-weight: bold;
+									margin: 0;
+									text-align: center;
+								}
+								
+								.company-tagline {
+									font-size: 12px;
+									margin: 4px 0 0 0;
+									text-align: center;
+								}
+								
+								.decorative-line {
+									height: 3px;
+									background: #2980b9;
+									margin: 0;
+									flex-shrink: 0;
+								}
+								
+								.content {
+									padding: 10px;
+									flex: 1;
+									display: flex;
+									flex-direction: column;
+								}
+								
+								.receipt-title {
+									text-align: center;
+									background: #ecf0f1;
+									padding: 12px;
+									margin: 0 0 20px 0;
+									font-size: 18px;
+									font-weight: bold;
+									color: #2c3e50;
+									border-radius: 4px;
+								}
+								
+								.receipt-info {
+									display: flex;
+									gap: 15px;
+								}
+								
+								.receipt-info > div {
+									background: #f8f9fa;
+									padding: 12px 15px;
+									border-radius: 4px;
+									flex: 1;
+								}
+								
+								.receipt-info label {
+									font-size: 12px;
+									color: #7f8c8d;
+									font-weight: bold;
+									text-transform: uppercase;
+									display: block;
+									margin-bottom: 4px;
+								}
+								
+								.receipt-info span {
+									font-size: 14px;
+									font-weight: normal;
+									color: #2c3e50;
+								}
+								
+								.section-header {
+									background: #2980b9;
+									color: white;
+									padding: 8px 15px;
+									margin: 20px 0;
+									font-weight: bold;
+									font-size: 14px;
+									text-transform: uppercase;
+									border-radius: 4px;
+								}
+								
+								.info-row {
+									display: flex;
+									margin-bottom: 12px;
+									gap: 20px;
+								}
+								
+								.info-item {
+									flex: 1;
+									display: flex;
+									align-items: center;
+								}
+								
+								.info-item label {
+									font-size: 12px;
+									color: #7f8c8d;
+									font-weight: bold;
+									min-width: 80px;
+									margin-right: 12px;
+								}
+								
+								.info-item span {
+									font-size: 14px;
+									color: #2c3e50;
+								}
+								
+								.address-row label {
+									font-size: 12px;
+									color: #7f8c8d;
+									font-weight: bold;
+									margin-right: 12px;
+								}
+								
+								.address-row span {
+									font-size: 14px;
+									color: #2c3e50;
+								}
+								
+								.pricing-header {
+									background: #34495e;
+									color: white;
+									padding: 12px 15px;
+									display: flex;
+									justify-content: space-between;
+									font-size: 14px;
+									font-weight: bold;
+									text-transform: uppercase;
+									margin: 8px 0 10px 0;
+									border-radius: 4px;
+								}
+								
+								.pricing-row {
+									padding: 10px 15px;
+									display: flex;
+									justify-content: space-between;
+									font-size: 13px;
+									border-bottom: 1px solid #f8f9fa;
+								}
+								
+								.pricing-row:nth-child(even) {
+									background: #fcfcfc;
+								}
+								
+								.pricing-row.course-fee {
+									background: #fcfcfd;
+									font-weight: bold;
+									font-size: 14px;
+								}
+								
+								.pricing-row.addon {
+									font-size: 12px;
+									background: #f8f9fa;
+								}
+								
+								.pricing-row.no-services {
+									font-style: italic;
+									color: #7f8c8d;
+									background: #f8f9fa;
+								}
+								
+								.total-row {
+									background: #27ae60;
+									color: white;
+									padding: 15px;
+									display: flex;
+									justify-content: space-between;
+									font-size: 16px;
+									font-weight: bold;
+									text-transform: uppercase;
+									border-radius: 4px;
+								}
+								
+								.payment-summary {
+									display: flex;
+									gap: 15px;
+									margin: 20px 0;
+								}
+								
+								.payment-box {
+									flex: 1;
+									padding: 15px;
+									border-radius: 4px;
+									text-align: left;
+								}
+								
+								.payment-received {
+									background: #27ae60;
+									color: white;
+								}
+								
+								.payment-due {
+									background: ${parseInt(paymentDue) > 0 ? '#e74c3c' : '#7f8c8d'};
+									color: white;
+								}
+								
+								.payment-by {
+									background: #34495e;
+									color: white;
+								}
+								
+								.payment-box label {
+									font-size: 12px;
+									text-transform: uppercase;
+									font-weight: bold;
+									display: block;
+									margin-bottom: 4px;
+								}
+								
+								.payment-box .amount {
+									font-size: 16px;
+									font-weight: bold;
+								}
+								
+								.signature-area {
+									margin: 30px 0 15px 0;
+									text-align: right;
+								}
+								
+								.signature-line {
+									border-bottom: 2px solid #bdc3c7;
+									width: 200px;
+									height: 30px;
+									margin: 0 0 8px auto;
+								}
+								
+								.signature-text {
+									font-size: 12px;
+									color: #7f8c8d;
+								}
+								
+								.footer {
+									background: #ecf0f1;
+									padding: 15px;
+									text-align: center;
+									margin: 20px 0 0 0;
+									border-radius: 4px;
+									flex-shrink: 0;
+								}
+								
+								.footer h3 {
+									color: #2980b9;
+									margin: 0 0 5px 0;
+									font-size: 14px;
+									font-weight: bold;
+								}
+								
+								.footer p {
+									color: #7f8c8d;
+									margin: 0;
+									font-size: 10px;
+								}
+								
+								@media print {
+									@page {
+										size: 210mm 297mm;
+										margin: 0;
+									}
+									body { 
+										background: white; 
+										-webkit-print-color-adjust: exact;
+										print-color-adjust: exact;
+									}
+									.receipt { 
+										box-shadow: none; 
+										border: none;
+										width: 100%;
+										max-width: none;
+										height: 100%;
+										page-break-inside: avoid;
+										page-break-after: avoid;
+									}
+									html {
+										-webkit-print-color-adjust: exact;
+										-webkit-print-header: filename;
+									}
+									@page {
+										margin: 0.8cm;
+										size: A4;
+									}
+								}
+							</style>
+						</head>
+						<body>
+							<div class="receipt">
+								<div class="header">
+									<div class="logo">
+										<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" alt="Logo">
+									</div>
+									<div>
+										<div class="company-name">INSTITUTE OF DRIVING EDUCATION & AWARENESS DRIVING SCHOOL</div>
+										<div class="company-tagline">Professional Driving Education</div>
+									</div>
+								</div>
+								
+								<div class="decorative-line"></div>
+								
+								<div class="content">
+									<div class="receipt-title">ENROLLMENT RECEIPT</div>
+									
+									<div class="receipt-info">
+										<div>
+											<label>Receipt No.</label>
+											<span>${applicationNo}</span>
+										</div>
+										<div>
+											<label>Date</label>
+											<span>${formatDate(new Date())}</span>
+										</div>
+									</div>
+
+									<div class="section-header">Student Information</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Name:</label>
+											<span>${studentName}</span>
+										</div>
+										<div class="info-item">
+											<label>Gender:</label>
+											<span>${studentGender}</span>
+										</div>
+									</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Email:</label>
+											<span>${studentEmail}</span>
+										</div>
+										<div class="info-item">
+											<label>Phone:</label>
+											<span>${phone}</span>
+										</div>
+									</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Blood Group:</label>
+											<span>${bloodGroup}</span>
+										</div>
+										<div class="info-item">
+											<label>DOB:</label>
+											<span>${dob}</span>
+										</div>
+									</div>
+									
+									<div class="address-row">
+										<label>Address:</label>
+										<span>${address}</span>
+									</div>
+
+									<div class="section-header">Course Details</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Course:</label>
+											<span>${studentCourse}</span>
+										</div>
+										<div class="info-item">
+											<label>Instructor:</label>
+											<span>${instructor}</span>
+										</div>
+									</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Start Date:</label>
+											<span>${courseStartDate}</span>
+										</div>
+										<div class="info-item">
+											<label>End Date:</label>
+											<span>${courseEndDate}</span>
+										</div>
+									</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Time Slot:</label>
+											<span>${timeSlot}</span>
+										</div>
+										<div class="info-item">
+											<label>Branch:</label>
+											<span>${branch}</span>
+										</div>
+									</div>
+
+									<div class="pricing-header">
+										<span>Services & Pricing</span>
+										<span>Amount</span>
+									</div>
+									
+									<div class="pricing-row course-fee">
+										<span>${studentCourse}</span>
+										<span>${courseFee.toLocaleString()}</span>
+									</div>
+									
+									${addOnServices.map((service, index) => `
+									<div class="pricing-row addon">
+										<span>${service.name}</span>
+										<span>${service.fee.toLocaleString()}</span>
+									</div>
+									`).join('')}
+									
+									${addOnServices.length === 0 ? `
+									<div class="pricing-row no-services">
+										<span>No additional services</span>
+										<span>0</span>
+									</div>
+									` : ''}
+									
+									<div class="total-row">
+										<span>Total Amount</span>
+										<span>${grandTotal.toLocaleString()}</span>
+									</div>
+
+									<div class="payment-summary">
+										<div class="payment-box payment-received">
+											<label>Received</label>
+											<div class="amount">${parseInt(paymentReceived).toLocaleString()}</div>
+										</div>
+										<div class="payment-box payment-due">
+											<label>Due</label>
+											<div class="amount">${parseInt(paymentDue).toLocaleString()}</div>
+										</div>
+										<div class="payment-box payment-by">
+											<label>Received By</label>
+											<div class="amount">${paymentReceivedBy}</div>
+										</div>
+									</div>
+
+									<div class="signature-area">
+										<div class="signature-line"></div>
+										<div class="signature-text">Authorized Signature</div>
+									</div>
+
+									<div class="footer">
+										<h3>Thank you for choosing IDEA Driving School!</h3>
+										<p>Drive Safe, Drive Smart, Drive with Confidence</p>
+									</div>
+								</div>
+							</div>
+						</body>
+					</html>
+				`;
+				const printWindow = window.open('', '_blank');
+				printWindow.document.write(htmlContent);
+				printWindow.document.close();
+				
+				// Wait for content to load then print
+				printWindow.onload = function() {
+					// Generate filename
+					const timestamp = new Date().toISOString().split('T')[0];
+					const sanitizedName = studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+					const filename = `${sanitizedName}_receipt_${timestamp}.pdf`;
+					
+					// Set both document title and filename
+					printWindow.document.title = filename;
+					
+					// Add a hidden input to store filename (helps some browsers)
+					const filenameInput = document.createElement('input');
+					filenameInput.type = 'hidden';
+					filenameInput.id = 'filename';
+					filenameInput.value = filename;
+					printWindow.document.body.appendChild(filenameInput);
+					
+					// Add print trigger script
+					const printScript = document.createElement('script');
+					printScript.textContent = `
+						window.onafterprint = () => window.close();
+						const filename = document.getElementById('filename').value;
+						document.addEventListener('keydown', (e) => {
+							if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+								e.preventDefault();
+								const downloadLink = document.createElement('a');
+								downloadLink.download = filename;
+								document.body.appendChild(downloadLink);
+								downloadLink.click();
+								document.body.removeChild(downloadLink);
+							}
+						});
+					`;
+					printWindow.document.body.appendChild(printScript);
+					
+					// Trigger print after a slight delay to ensure styles are loaded
+					setTimeout(() => {
+						printWindow.print();
+					}, 500);
+				};
+			}
+
+			function formatDate(dateStr) {
+				if (!dateStr) return "";
+				const d = new Date(dateStr);
+				if (isNaN(d)) return dateStr;
+				const day = String(d.getDate()).padStart(2, '0');
+				const month = String(d.getMonth() + 1).padStart(2, '0');
+				const year = d.getFullYear();
+				return `${day}-${month}-${year}`;
+			}
+			
+			document.getElementById("add-student-form").addEventListener("submit", (e) => {
+				if (document.getElementById('add-student-btn').innerText === "Update") {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+					let addonservices = []
+
+					const profilePicInput = document.getElementById("profilePic")
+
+					if (profilePicInput.files.length > 0) {
+						if (profilePicInput.files[0].name === profilePicInput.getAttribute("data-name")) {
+							formData.delete("profilePic");
+						} else {
+							formData.append("profilePic", profilePicInput.files[0]);
+						}
+					} else {
+						formData.delete("profilePic");
+					}
+
+					if (formData.has("addOnServices")) {
+						formData.delete("addOnServices")
+					}
+
+					document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+						addonservices.push(checkbox.value)
+					})
+
+					formData.append("addOnService", addonservices)
+
+					formData.forEach((value, key) => {
+						if (value === "" || value === "No Data Found" || value === "null" || value === "undefined") {
+							formData.delete(key);
+						}
+					});
+
+					fetch("/manage-student/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.status === "success") {
+							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-student-message").innerText = "Student details updated successfully."
+							document.getElementById("update-student-heading").innerText = "Update Student"
+						} else if (data.status === "error") {
+							console.error("Error:", data.message);
+							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-student-message").innerText = data.message;
+							document.getElementById("update-student-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-student-message").innerText = "Error updating student information."
+					});
+				} else {
+					e.preventDefault();
+					const form = e.target; // Get the form element
+        				const formData = new FormData(form); // Correctly create FormData
+					let addonservices = []
+
+					if (formData.has("addOnServices")) {
+						formData.delete("addOnServices")
+					}
+
+					document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+						addonservices.push(checkbox.value)
+					})
+
+					formData.append("addOnService", addonservices)
+
+					formData.forEach((value, key) => {
+						if (value === "" || value === "No Data Found" || value === "null" || value === "undefined") {
+							formData.delete(key);
+						}
+					});
+
+					formData.forEach((value, key) => {
+						console.log(key, value);
+					});
+
+					fetch("/manage-student/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						if (data.status === "success") {
+							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-student-message").innerText = "Student details added successfully."
+							document.getElementById("update-student-heading").innerText = "New Enrollment"
+
+							generatePDFBrowser()
+						} else if (data.status === "error") {
+							console.error("Error:", data.message);
+							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+							document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+							document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+							document.getElementById("update-student-message").innerText = data.message;
+							document.getElementById("update-student-heading").innerText = "Error"
+						}
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
+						document.getElementById('add-student-modal').classList.add('scale-0', 'opacity-0');
+						document.getElementById("updated-student-modal").classList.remove('scale-0', 'opacity-0');
+						document.getElementById("updated-student-modal").classList.add('scale-100', 'opacity-100');
+						document.getElementById("update-student-message").innerText = "Error adding student information."
+					});
+				}
+			})
+
+			document.getElementById('delete-student-btn').addEventListener('click', () => {
+				const studentId = document.getElementById('delete-student-btn').getAttribute('data-id');
+				fetch(`http://127.0.0.1:8000/manage-student/?studentId=${studentId}`, {
+						method: 'DELETE',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if (data.status === "success") {
+							document.getElementById("delete-student-message-container").innerHTML = `<p>Deleted successfully</p>`;
+							document.getElementById("delete-student-btn").style.display = "none";
+							document.getElementById("close-delete-student-modal").innerText = "Close";
+						} else if (data.status === "error") {
+							document.getElementById("delete-student-message-container").innerHTML = `<p>${data.message}</p>`;
+							document.getElementById("delete-student-btn").style.display = "none";
+							document.getElementById("close-delete-student-modal").innerText = "Close";
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			});
+
+			const studentGrid = new gridjs.Grid({
+				search: true,
+				pagination: {
+					limit: 5,
+					summary: false
+				},
+				sort: true,
+				fixedHeader: true,
+				columns: [{
+						id: "id",
+						name: "ID",
+						width: '5%',
+						formatter: (cell, row) => {
+							cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+							return gridjs.html(cell);
+						},
+						hidden: true
+					},
+					{
+						// profile pic
+						id: "profilePic",
+						name: "",
+						formatter: (cell, row) => {
+							cell = cell !== null ? 
+								`<img src="${cell}" class="w-10 h-10 rounded-full object-cover" alt="">` : 
+								`<svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+									<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+									<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+								</svg>`;
+							return gridjs.html(cell);
+						},
+						width: '7%'
+					},
+					"Name",
+					"Email",
+					"Phone Number",
+					"Branch",
+                         {
+                              name: "Status",
+                              formatter: (cell, row) => {
+                                   let status = row.cells[6].data;
+                                   let statusText = row.cells[7].data === "Pre-Booking" ? row.cells[7].data : row.cells[6].data;
+							let bookingType = row.cells[7].data;
+							let statusColor = status === "Active" ? (bookingType === "Pre-Booking" ? "bg-yellow-500" : "bg-green-600") : "bg-red-600";
+                                   cell = `<span class="px-3 py-1 text-white rounded-full ${statusColor}">${statusText}</span>`;
+                                   return gridjs.html(cell);
+                              }
+                         },
+					{
+						name: "Action",
+						formatter: (cell, row) => {
+							let editBtn = gridjs.h('button', {
+								className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+									<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+									<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+									</svg>
+								`,
+								onClick: () => {
+									fetchStudentData(`http://127.0.0.1:8000/getStudentData/?studentId=${row.cells[0].data}`, "Edit Student Details", true, false);
+									document.getElementById("add-student-btn").innerText = "Update";
+
+									document.getElementById("add-student-form").innerHTML += `<input type="hidden" name="studentId" id="studentId" value="${row.cells[0].data}">`;
+									document.getElementById('add-student-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('add-student-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							let deleteBtn = gridjs.h('button', {
+								className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+										<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+										<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+									</svg>
+								`,
+								onClick: () => {
+									studentId = row.cells[0].data;
+									document.getElementById("delete-student-btn").setAttribute("data-id", studentId);
+									document.getElementById("delete-student-message").innerHTML = `Are you sure you want to delete <b>${row.cells[2].data}</b>'s details?`;
+									document.getElementById('delete-student-modal').classList.remove('scale-0', 'opacity-0');
+									document.getElementById('delete-student-modal').classList.add('scale-100', 'opacity-100');
+								}
+							}, '');
+							let downloadBtn = gridjs.h('button', {
+								className: 'p-3 bg-green-600 text-white rounded-lg cursor-pointer',
+								innerHTML: `
+									<svg fill="#FFFFFF" width="20" height="20" viewBox="-5 -5 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-download">
+										<path d='M8 6.641l1.121-1.12a1 1 0 0 1 1.415 1.413L7.707 9.763a.997.997 0 0 1-1.414 0L3.464 6.934A1 1 0 1 1 4.88 5.52L6 6.641V1a1 1 0 1 1 2 0v5.641zM1 12h12a1 1 0 0 1 0 2H1a1 1 0 0 1 0-2z'/>
+									</svg>
+								`,
+								onClick: () => {
+									let studentId = row.cells[0].data;
+									fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
+										.then(response => response.json())
+										.then(data => {
+											downloadPDFBrowser(data);
+										})
+								}
+							}, '');
+							return gridjs.h('div', {
+								className: 'flex gap-4'
+							}, editBtn, deleteBtn, downloadBtn);
+						},
+						width: '15%'
+					}
+				],
+				server: {
+					url: 'http://127.0.0.1:8000/getStudentData/',
+					then: data => data.map(student => [student.id, student.profilePic, student.name, student.email, student.phone, student.branch, student.status, student.bookingType])
+				},
+				className: {
+					th: '!bg-black !text-white',
+					sort: '!bg-black !text-white',
+					search: '!float-right !w-[25%]',
+				}
+			})
+
+			studentGrid.render(document.getElementById("wrapper"))
+
+			document.querySelector(".gridjs-search-input").placeholder = "Search...";
+
+			studentGrid.on('cellClick', (...args) => {
+				if (args[2]["id"] === "name") {
+					studentId = args[3]["_cells"][0]["data"];
+
+					document.getElementById("fuel-certificate-btn").setAttribute("data-id", studentId);
+					document.getElementById("completion-certificate-btn").setAttribute("data-id", studentId);
+
+					fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
+						.then(response => response.json())
+						.then(data => {
+							// Basic Info
+							document.getElementById("view-student-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("view-student-name").innerText = data.name || "No Data Found";
+							document.getElementById("view-status").innerText = (data.status ? "Active" : "Inactive") || "No Status";
+							document.getElementById("view-status").className = `inline-block px-3 py-1 text-sm text-white rounded-full ${data.status ? 'bg-green-500' : 'bg-red-500'}`;
+							document.getElementById("view-student-email").innerText = data.email || "No Data Found";
+							document.getElementById("view-student-phone").innerText = data.phone || "No Data Found";
+							document.getElementById("view-student-blood").innerText = data.bloodGroup || "No Data Found";
+							document.getElementById("view-application-no").innerText = data.applicationNo || "No Data Found";
+
+							// Personal Details
+							document.getElementById("view-student-dob").innerText = formatDateToLongDate(data.dob) || "No Data Found";
+							document.getElementById("view-student-gender").innerText = data.gender || "No Data Found";
+							document.getElementById("view-student-address").innerText = data.address || "No Data Found";
+
+							// Course Details
+							document.getElementById("view-student-course").innerText = data.cource || "No Data Found";
+							document.getElementById("view-student-branch").innerText = data.branch || "No Data Found";
+							document.getElementById("view-student-instructor").innerText = data.instructor || "No Data Found";
+							document.getElementById("view-student-slot").innerText = data.slotTime || "No Data Found";
+							document.getElementById("view-start-date").innerText = formatDateToLongDate(data.startDate) || "No Data Found";
+							document.getElementById("view-end-date").innerText = formatDateToLongDate(data.endDate) || "No Data Found";
+							document.getElementById("view-booking-type").innerText = data.bookingType || "No Data Found";
+
+							// License Details
+							document.getElementById("view-license-no").innerText = data.dlNo || "No Data Found";
+							document.getElementById("view-license-type").innerText = data.dlType || "No Data Found";
+							document.getElementById("view-license-issue").innerText = data.dlIssueDate || "No Data Found";
+							document.getElementById("view-license-expiry").innerText = data.dlExpiry || "No Data Found";
+
+							// Payment Details
+							document.getElementById("view-total-amount").innerText = `₹${data.totalAmount || "0"}`;
+							document.getElementById("view-payment-due-date").innerText = formatDateToLongDate(data.paymentDueDate) || "No Data Found";
+							document.getElementById("view-payment-received").innerText = `₹${data.paymentReceived || "0"}`;
+							document.getElementById("view-payment-due").innerText = `₹${data.paymentDue || "0"}`;
+							document.getElementById("view-payment-received-by").innerText = data.paymentRecievedByName || "No Data Found";
+
+							// Add-On Services
+							const servicesContainer = document.getElementById("view-addon-services");
+							servicesContainer.innerHTML = '';
+							if (data.addOnService && data.addOnService.length > 0) {
+								data.addOnService.forEach(service => {
+									servicesContainer.innerHTML += `
+										<div class="flex justify-between items-center p-4 bg-white rounded-lg border border-gray-200">
+											<span class="font-medium">${service[1]}</span>
+											<span class="text-indigo-600">₹${service[2]}</span>
+										</div>
+									`;
+								});
+							} else {
+								servicesContainer.innerHTML = '<p class="col-span-3 text-center text-gray-500">No add-on services</p>';
+							}
+						});
+
+					document.getElementById('view-student-modal').classList.remove('scale-0', 'opacity-0');
+					document.getElementById('view-student-modal').classList.add('scale-100', 'opacity-100');
+				}
+			});
+
+			function formatDateToLongDate(dateString) {
+				if (!dateString) return "No Data Found";
+				
+				const date = new Date(dateString);
+				const day = date.getDate();
+				const month = date.toLocaleString('en-US', { month: 'long' });
+				const year = date.getFullYear();
+
+				// Add ordinal suffix to day
+				const ordinal = (day) => {
+					if (day > 3 && day < 21) return 'th';
+					switch (day % 10) {
+						case 1: return "st";
+						case 2: return "nd";
+						case 3: return "rd";
+						default: return "th";
+					}
+				};
+
+				return `${day}${ordinal(day)} ${month}, ${year}`;
+			}
+
+			function generateCertificate(studentId) {
+				// Fetch student data first
+				fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
+				.then(response => response.json())
+				.then(data => {
+					const htmlContent = `
+						<!DOCTYPE html>
+						<html>
+						<head>
+							<style>
+							@page {
+								size: A4;
+								margin: 0;
+							}
+							body {
+								margin: 20mm;
+								font-family: Arial, sans-serif;
+							}
+							.certificate {
+								border: 2px solid #615FFF;
+								padding: 20px;
+								position: relative;
+							}
+							.header {
+								text-align: center;
+								margin-bottom: 30px;
+							}
+							.logo {
+								width: 100px;
+								margin-bottom: 10px;
+							}
+							.title {
+								font-size: 24px;
+								color: #615FFF;
+								margin-bottom: 5px;
+								font-weight: bold;
+							}
+							.subtitle {
+								font-size: 18px;
+								color: #444;
+								margin-bottom: 20px;
+							}
+							.content {
+								font-size: 14px;
+								line-height: 1.6;
+							}
+							.field {
+								margin-bottom: 15px;
+							}
+							.label {
+								color: #666;
+							}
+							.value {
+								color: #000;
+								font-weight: 500;
+							}
+							.signature {
+								margin-top: 50px;
+								text-align: right;
+							}
+							.sig-line {
+								width: 200px;
+								border-top: 1px solid #000;
+								margin-left: auto;
+								margin-bottom: 5px;
+							}
+							</style>
+						</head>
+						<body>
+							<div class="certificate">
+							<div class="header">
+								<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" class="logo" alt="IDEA Logo">
+								<div class="title">CERTIFICATE OF FUEL EFFICIENT TRAINING</div>
+								<div class="subtitle">ISSUED BY IDEA DRIVING SCHOOL</div>
+							</div>
+							
+							<div class="content">
+								<div class="field">
+									This is to certify that <span class="value">${data.name}</span>
+									has enrolled in our driving school for fuel efficient training.
+								</div>
+								
+								<div class="field">
+									<span class="label">Registration Number:</span>
+									<span class="value">${data.applicationNo}</span>
+								</div>
+								
+								<div class="field">
+									<span class="label">Course Duration:</span>
+									<span class="value">${formatDate(data.startDate)} to ${formatDate(data.endDate)}</span>
+								</div>
+								
+								<div class="field">
+									<span class="label">Course Type:</span>
+									<span class="value">${data.cource}</span>
+								</div>
+								
+								<div class="field">
+									<span class="label">Branch:</span>
+									<span class="value">${data.branch}</span>
+								</div>
+							</div>
+							
+							<div class="signature">
+								<div class="sig-line"></div>
+								<div>Authorized Signature</div>
+								<div>IDEA Driving School</div>
+							</div>
+							</div>
+						</body>
+						</html>
+					`;
+
+					const printWindow = window.open('', '_blank');
+					printWindow.document.write(htmlContent);
+					printWindow.document.close();
+
+					// Wait for content to load then print
+					printWindow.onload = function() {
+						// Generate filename
+						const timestamp = new Date().toISOString().split('T')[0];
+						const sanitizedName = data.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+						const filename = `${sanitizedName}_certificate_${timestamp}.pdf`;
+						
+						printWindow.document.title = filename;
+						setTimeout(() => {
+							printWindow.print();
+							printWindow.onafterprint = function() {
+							printWindow.close();
+							};
+						}, 500);
+					};
+				});
+			}
+
+			function generateCompletionCertificate(studentId) {
+				// Fetch both student and attendance data
+				Promise.all([
+					fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`),
+					fetch(`http://127.0.0.1:8000/getAttendanceData/?studentId=${studentId}`)
+				])
+				.then(responses => Promise.all(responses.map(r => r.json())))
+				.then(([studentData, attendanceData]) => {
+					const htmlContent = `
+						<!DOCTYPE html>
+						<html>
+						<head>
+							<style>
+								@page {
+								size: A4;
+								margin: 0;
+								}
+								body {
+								margin: 20mm;
+								font-family: Arial, sans-serif;
+								}
+								.document {
+								border: 2px solid #615FFF;
+								padding: 20px;
+								position: relative;
+								}
+								.header {
+								text-align: center;
+								margin-bottom: 30px;
+								}
+								.logo {
+								width: 100px;
+								margin-bottom: 10px;
+								}
+								.title {
+								font-size: 24px;
+								color: #615FFF;
+								margin-bottom: 5px;
+								font-weight: bold;
+								}
+								.subtitle {
+								font-size: 18px;
+								color: #444;
+								margin-bottom: 20px;
+								}
+								.student-info {
+								margin-bottom: 30px;
+								padding: 15px;
+								background-color: #f8f9fa;
+								border-radius: 5px;
+								}
+								.student-info p {
+								margin: 5px 0;
+								font-size: 14px;
+								}
+								.attendance-table {
+								width: 100%;
+								border-collapse: collapse;
+								margin: 20px 0;
+								}
+								.attendance-table th {
+								background-color: #615FFF;
+								color: white;
+								padding: 10px;
+								text-align: left;
+								font-size: 12px;
+								}
+								.attendance-table td {
+								padding: 8px 10px;
+								border-bottom: 1px solid #ddd;
+								font-size: 12px;
+								}
+								.attendance-table tr:nth-child(even) {
+								background-color: #f9f9f9;
+								}
+								.attendance-summary {
+								margin: 20px 0;
+								padding: 15px;
+								background-color: #f8f9fa;
+								border-radius: 5px;
+								}
+								.attendance-summary p {
+								margin: 5px 0;
+								font-size: 13px;
+								}
+								.signature {
+								margin-top: 50px;
+								text-align: right;
+								}
+								.sig-line {
+								width: 200px;
+								border-top: 1px solid #000;
+								margin-left: auto;
+								margin-bottom: 5px;
+								}
+								.status-present {
+								color: #059669;
+								font-weight: 500;
+								}
+								.status-absent {
+								color: #DC2626;
+								font-weight: 500;
+								}
+							</style>
+						</head>
+						<body>
+							<div class="document">
+								<div class="header">
+								<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" class="logo" alt="IDEA Logo">
+								<div class="title">ATTENDANCE RECORD</div>
+								<div class="subtitle">IDEA DRIVING SCHOOL</div>
+								</div>
+								
+								<div class="student-info">
+								<p><strong>Student Name:</strong> ${studentData.name}</p>
+								<p><strong>Registration Number:</strong> ${studentData.applicationNo}</p>
+								<p><strong>Course:</strong> ${studentData.cource}</p>
+								<p><strong>Duration:</strong> ${formatDate(studentData.startDate)} to ${formatDate(studentData.endDate)}</p>
+								<p><strong>Branch:</strong> ${studentData.branch}</p>
+								</div>
+
+								<div class="attendance-summary">
+								<p><strong>Total Classes:</strong> ${attendanceData.length}</p>
+								<p><strong>Present:</strong> ${attendanceData.filter(a => a.status === 'Present').length}</p>
+								<p><strong>Total Training Hours:</strong> ${calculateTotalHours(attendanceData)} hours</p>
+								</div>
+
+								<table class="attendance-table">
+								<thead>
+									<tr>
+										<th>Date</th>
+										<th>Time In</th>
+										<th>Time Out</th>
+										<th>Duration</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									${attendanceData.map(attendance => `
+										<tr>
+											<td>${formatDate(attendance.date)}</td>
+											<td>${formatTime(attendance.timeIn)}</td>
+											<td>${formatTime(attendance.timeOut)}</td>
+											<td>${formatDuration(attendance.duration)}</td>
+											<td class="status-${attendance.status.toLowerCase()}">${attendance.status}</td>
+										</tr>
+									`).join('')}
+								</tbody>
+								</table>
+								
+								<div class="signature">
+								<div class="sig-line"></div>
+								<div>Authorized Signature</div>
+								<div>IDEA Driving School</div>
+								</div>
+							</div>
+						</body>
+						</html>
+					`;
+
+					const printWindow = window.open('', '_blank');
+					printWindow.document.write(htmlContent);
+					printWindow.document.close();
+					
+					printWindow.onload = function() {
+						const timestamp = new Date().toISOString().split('T')[0];
+						const sanitizedName = studentData.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+						const filename = `${sanitizedName}_attendance_record_${timestamp}.pdf`;
+						
+						printWindow.document.title = filename;
+						setTimeout(() => {
+							printWindow.print();
+							printWindow.onafterprint = function() {
+								printWindow.close();
+							};
+						}, 500);
+					};
+				});
+			}
+
+			// Helper functions
+			function formatTime(timeStr) {
+				if (!timeStr) return "";
+				const time = new Date(`2000-01-01T${timeStr}`);
+				return time.toLocaleTimeString('en-US', { 
+					hour: '2-digit', 
+					minute: '2-digit',
+					hour12: true 
+				});
+			}
+
+			function formatDuration(duration) {
+				if (!duration) return "";
+				// Parse ISO 8601 duration
+				const matches = duration.match(/P(\d+D)?T(\d+H)?(\d+M)?(\d+S)?/);
+				if (!matches) return "";
+
+				const days = (matches[1] || '').replace('D', '') || 0;
+				const hours = (matches[2] || '').replace('H', '') || 0;
+				const minutes = (matches[3] || '').replace('M', '') || 0;
+				
+				let result = [];
+				if (parseInt(days)) result.push(`${days}d`);
+				if (parseInt(hours)) result.push(`${hours}h`);
+				if (parseInt(minutes)) result.push(`${minutes}m`);
+				
+				return result.join(' ');
+			}
+
+			function calculateTotalHours(attendanceData) {
+				const totalMinutes = attendanceData
+					.filter(a => a.status === 'Present')
+					.reduce((acc, curr) => acc + (curr.totalTime || 0), 0);
+				return (totalMinutes / 60).toFixed(1);
+			}
+
+			function fetchStudentData(apiUrl, headingText, isBtnsVisible, isMakeInputReadOnly) {
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						document.getElementById("student-model-heading").innerText = headingText;
+						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
+						document.getElementById("studentName").value = data.name || "No Data Found";
+						document.getElementById("studentEmail").value = data.email || "No Data Found";
+						document.getElementById("branch").value = data.branch || "No Data Found";
+						document.getElementById("phone").value = data.phone || "No Data Found";
+						document.getElementById("bloodGroup").value = data.bloodGroup || "No Data Found";
+						document.getElementById("studentCourse").value = data.courceId || "No Data Found";
+						document.getElementById("studentGender").value = data.gender || "No Data Found";
+						document.getElementById("studentInstructor").value = data.instructorId || "No Data Found";
+						document.getElementById("bookingType").value = data.bookingType || "No Data Found";
+						document.getElementById("courseStartDate").value = data.startDate || "No Data Found";
+						document.getElementById("courseEndDate").value = data.endDate || "No Data Found";
+						document.getElementById("dob").value = data.dob || "No Data Found";
+						document.getElementById("applicationNo").value = data.applicationNo || "No Data Found";
+						document.getElementById("address").value = data.address || "No Data Found";
+						// document.getElementById("totalAmount").value = data.totalAmount || "No Data Found";
+						document.getElementById("paymentDueDate").value = data.paymentDueDate || "No Data Found";
+						document.getElementById("paymentReceived").value = data.paymentReceived || "No Data Found";
+						document.getElementById("paymentRecievedBy").value = data.paymentRecievedBy || "No Data Found";
+						document.getElementById("paymentDue").value = data.paymentDue || "No Data Found";
+						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
+						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
+						document.getElementById("dlExpiry").value = data.dlExpiry || "No Data Found";
+						document.getElementById("dlType").value = data.dlType || "No Data Found";
+						data.addOnService.map((item,index) => {
+							document.querySelectorAll("#services-container input").forEach((checkbox) => {
+								if (parseInt(checkbox.value) === parseInt(item)) {
+									checkbox.setAttribute("checked", true);
+								}
+							})
+						})
+						document.getElementById("student-image").classList.remove('hidden');
+						// add file to the profilePic input
+						if (data.profilePic === null || data.profilePic?.trim() === "") {
+							document.getElementById("student-image").src = "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+						} else {
+							document.getElementById("student-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("profilePic").setAttribute("data-name", data.profilePic)
+							const instructorProfilePic = document.getElementById("profilePic");
+							const fileName = data.profilePic;
+							const file = new File([], fileName, {
+								type: "image/*"
+							});
+							const dataTransfer = new DataTransfer();
+							dataTransfer.items.add(file);
+							instructorProfilePic.files = dataTransfer.files;
+							instructorProfilePic.setAttribute("data-name", data.profilePic)
+						}
+
+						const imageUpload = document.getElementById('image-upload');
+						const image = document.getElementById('profilePic');
+
+						image.addEventListener('change', () => {
+							const file = image.files[0];
+							const reader = new FileReader();
+
+							reader.onload = () => {
+								imageUpload.querySelector('img').src = reader.result;
+								imageUpload.querySelector('img').classList.remove('hidden');
+							}
+
+							reader.readAsDataURL(file);
+						});
+
+						const bookingType = document.getElementById("bookingType").value;
+						const selectedCourse = document.getElementById("studentCourse").value;
+						const slotId = data.slotId || "0";
+						
+						// Reset baseURL to original
+						baseURL = "http://127.0.0.1:8000/getSlotsData/";
+						
+						// Add parameters based on available values
+						if (selectedCourse) {
+							baseURL += `?courseId=${selectedCourse}`;
+							if (bookingType === "Pre-Booking") {
+								baseURL += "&bookingType=Pre-Booking";
+							}
+						} else if (bookingType === "Pre-Booking") {
+							baseURL += "?bookingType=Pre-Booking";
+						}
+
+						// Reset and fetch slots
+						document.getElementById("studentSlot").innerHTML = "";
+						document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">Select Slot</option>`;
+						fetch(baseURL)
+							.then(response => response.json())
+							.then(timeSlotData => {
+								document.getElementById("studentSlot").innerHTML += timeSlotData.map(slot => {
+									const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
+										`data-UsedTill='${slot.UsedTill}'` : "";
+									const style = slot.UsedTill && slot.UsedTill !== null ? 
+										"font-weight: 600; color: red;" : "";
+									return `<option ${usedTillAttr} value="${slot.id}" style="${style}">
+										${slot.slotStartTime} - ${slot.slotEndTime}${slot.UsedTill ? ` | ${slot.UsedTill}` : ""}
+									</option>`;
+								}).join('');
+
+								const slotExists = Array.from(document.getElementById("studentSlot").options).some(option => option.value == slotId);
+								if (!slotExists) {
+									document.getElementById("studentSlot").value = "0";
+								} else {
+									document.getElementById("studentSlot").value = slotId;
+								}
+
+								document.getElementById("studentCourse").addEventListener("change", () => {
+									const selectedCourse = document.getElementById("studentCourse").value;
+									const bookingType = document.getElementById("bookingType").value;
+									
+									// Reset baseURL to original
+									baseURL = "http://127.0.0.1:8000/getSlotsData/";
+									
+									// Add courseId and bookingType parameters
+									baseURL += `?courseId=${selectedCourse}`;
+									if (bookingType === "Pre-Booking") {
+										baseURL += "&bookingType=Pre-Booking";
+									}
+
+									// Reset and fetch slots
+									document.getElementById("studentSlot").innerHTML = "";
+									document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">Select Slot</option>`;
+									fetch(baseURL)
+										.then(response => response.json())
+										.then(courseTimeSlotData => {
+											document.getElementById("studentSlot").innerHTML += courseTimeSlotData.map(slot => {
+												const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
+													`data-UsedTill='${slot.UsedTill}'` : "";
+												const style = slot.UsedTill && slot.UsedTill !== null ? 
+													"font-weight: 600; color: red;" : "";
+												return `<option ${usedTillAttr} value="${slot.id}" style="${style}">
+													${slot.slotStartTime} - ${slot.slotEndTime}${slot.UsedTill ? ` | ${slot.UsedTill}` : ""}
+												</option>`;
+											}).join('');
+
+											const slotExists = Array.from(document.getElementById("studentSlot").options).some(option => option.value == slotId);
+											if (!slotExists) {
+												document.getElementById("studentSlot").value = "0"; // Reset to "Select Slot"
+											} else {
+												document.getElementById("studentSlot").value = slotId;
+											}
+										});
+								});
+
+								document.getElementById("bookingType").addEventListener("change", () => {
+									const bookingType = document.getElementById("bookingType").value;
+									const selectedCourse = document.getElementById("studentCourse").value;
+									
+									// Reset baseURL to original
+									baseURL = "http://127.0.0.1:8000/getSlotsData/";
+									
+									// Add parameters based on available values
+									if (selectedCourse) {
+										baseURL += `?courseId=${selectedCourse}`;
+										if (bookingType === "Pre-Booking") {
+											baseURL += "&bookingType=Pre-Booking";
+										}
+									} else if (bookingType === "Pre-Booking") {
+										baseURL += "?bookingType=Pre-Booking";
+									}
+
+									// Reset and fetch slots
+									document.getElementById("studentSlot").innerHTML = "";
+									document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">Select Slot</option>`;
+									fetch(baseURL)
+										.then(response => response.json())
+										.then(bookingTypeTimeSlotData => {
+											document.getElementById("studentSlot").innerHTML += bookingTypeTimeSlotData.map(slot => {
+												const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
+													`data-UsedTill='${slot.UsedTill}'` : "";
+												const style = slot.UsedTill && slot.UsedTill !== null ? 
+													"font-weight: 600; color: red;" : "";
+												return `<option ${usedTillAttr} value="${slot.id}" style="${style}">
+													${slot.slotStartTime} - ${slot.slotEndTime}${slot.UsedTill ? ` | ${slot.UsedTill}` : ""}
+												</option>`;
+											}).join('');
+
+											const slotExists = Array.from(document.getElementById("studentSlot").options).some(option => option.value == slotId);
+											if (!slotExists) {
+												document.getElementById("studentSlot").value = "0"; // Reset to "Select Slot"
+											} else {
+												document.getElementById("studentSlot").value = slotId;
+											}
+										});
+								});
+							});
+
+						// document.getElementById("studentCourse").addEventListener("change", () => {
+						// 	const selectedCourse = document.getElementById("studentCourse").value;
+						// 	const courseFee = document.getElementById("studentCourse").querySelector(`option[value="${selectedCourse}"]`).getAttribute("data-fee");
+						// 	document.getElementById("totalAmount").value = courseFee;
+						// })
+
+						// document.getElementById("paymentReceived").addEventListener("input", () => {
+						// 	const totalAmount = document.getElementById("totalAmount").value;
+						// 	const paymentReceived = document.getElementById("paymentReceived").value;
+						// 	document.getElementById("paymentDue").value = totalAmount - paymentReceived;
+						// })
+
+						const steps = document.querySelectorAll('.form-step');
+						const progressStep = document.querySelectorAll('.progress-step');
+						const nextBtn = document.getElementById('next-step');
+						const prevBtn = document.getElementById('prev-step');
+						const addStudentBtn = document.getElementById('add-student-btn');
+						currentStep = 1;
+
+						// Step button click handling
+						progressStep.forEach(button => {
+							button.addEventListener('click', function() {
+								const step = this.getAttribute('data-step');
+								goToStep(parseInt(step));
+							});
+						});
+
+						// Next button click handling
+						nextBtn.addEventListener('click', function() {					
+							if (validateCurrentStep() && currentStep < 5) {
+								if (currentStep < 5) {
+									console.log(currentStep);
+									currentStep++;
+									updateForm();
+								}
+							}
+						});
+
+						// Previous button click handling
+						prevBtn.addEventListener('click', function() {
+							if (currentStep > 1) {
+								currentStep--;
+								updateForm();
+							}
+						});
+
+						// Form validation for current step
+						function validateCurrentStep() {
+							const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+							const requiredFields = currentStepElement.querySelectorAll('[required]');
+							let isValid = true;
+							let firstInvalidField = null;
+
+							requiredFields.forEach(field => {
+								const isSelect = field.tagName.toLowerCase() === "select";
+								const selectedOption = isSelect ? field.options[field.selectedIndex] : null;
+								const isEmpty = isSelect 
+									? !field.value || (selectedOption && selectedOption.disabled) 
+									: !field.value.trim();
+								const pattern = field.getAttribute('pattern');
+								const isPatternMismatch = !isSelect && pattern 
+									? !new RegExp(`^${pattern}$`).test(field.value.trim()) 
+									: false;
+								const alreadyInvalid = field.classList.contains('outline-red-300');
+
+								if (isEmpty || isPatternMismatch) {
+									if (!alreadyInvalid) {
+										field.classList.remove('outline-gray-300', 'focus:outline-indigo-600');
+										field.classList.add('outline-red-300', 'focus:outline-red-600');
+									}
+									if (!firstInvalidField) firstInvalidField = field;
+									isValid = false;
+								} else {
+									if (alreadyInvalid) {
+										field.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+										field.classList.remove('outline-red-300', 'focus:outline-red-600');
+									}
+								}
+							});
+
+							// If there's an invalid field, scroll and focus on it
+							if (firstInvalidField) {
+								firstInvalidField.scrollIntoView({ behavior: "smooth", block: "center" });
+								firstInvalidField.focus();
+							}
+
+							return isValid;
+						}
+
+						// Update form function modified to include 5 steps
+						function updateForm() {
+							// Hide all steps
+							steps.forEach(step => step.classList.add('hidden'));
+							
+							// Show current step
+							document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('hidden');
+
+							// Update step buttons
+							progressStep.forEach(btn => {
+								btn.querySelector('.progress-number').classList.remove('bg-indigo-600', 'text-white');
+								btn.querySelector('.progress-number').classList.add('bg-gray-300', 'text-gray-600');
+								if (parseInt(btn.getAttribute('data-step')) === currentStep) {
+									btn.querySelector('.progress-number').classList.add('bg-indigo-600', 'text-white');
+									btn.querySelector('.progress-number').classList.remove('bg-gray-300', 'text-gray-600');
+								}
+							});
+
+							// Manage navigation buttons
+							prevBtn.classList.toggle('hidden', currentStep === 1);
+							nextBtn.classList.toggle('hidden', currentStep === 5);
+							addStudentBtn.classList.toggle('hidden', currentStep !== 5);
+
+							// Update summary if moving to summary step
+							if (currentStep === 5) {
+								updateSummary();
+							}
+						}
+
+						function goToStep(step) {
+							currentStep = step;
+							updateForm();
+						}
+
+						// Initial form setup
+						updateForm();
+
+						document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+							checkbox.addEventListener('change', function() {
+								this.closest('.border').classList.toggle('bg-indigo-100', this.checked);
+							});
+
+							if (checkbox.checked) {
+								checkbox.closest('.border').classList.add('bg-indigo-100');
+							}
+						});
+
+						document.getElementById("paymentReceived").addEventListener("input", () => {
+							// Course Details
+							const courseSelect = document.getElementById("studentCourse");
+							const selectedCourse = courseSelect.value;
+							const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+							const courseFee = parseInt(courseSelect.querySelector(`option[value="${selectedCourse}"]`)?.getAttribute('data-fee')) || 0;
+							const paymentReceived = document.getElementById("paymentReceived").value;
+
+							// Add-On Services
+							let servicesFee = 0;
+
+							document.querySelectorAll('#services-container input[type="checkbox"]:checked').forEach(checkbox => {
+								const serviceFee = parseInt(checkbox.getAttribute('data-fee')) || 0;
+								const serviceName = checkbox.closest('.border').querySelector('h3').textContent;
+								
+								servicesFee += serviceFee;
+							});
+
+							// Grand Total
+							const grandTotal = courseFee + servicesFee;
+
+							document.getElementById("paymentDue").value = grandTotal - paymentReceived;
+							// document.getElementById("summary-grand-total").textContent = `₹${grandTotal - paymentReceived}`;
+						})
+
+						// fetchServices()
+						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
+					});
+			}
+
+			function makeInputReadOnly() {
+                    document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+                    document.getElementById('add-student-modal').querySelectorAll('select').forEach(input => {
+					input.classList.remove('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+				document.querySelectorAll(`.form-step[data-step="1"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+				});
+				document.querySelectorAll(`.form-step[data-step="1"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+				});
+				document.querySelectorAll(`.form-step[data-step="2"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+				});
+				document.querySelectorAll(`.form-step[data-step="2"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('readonly', true);
+					input.setAttribute('disabled', true);
+				});
+				document.querySelectorAll(`.form-step[data-step="3"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="3"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="4"] input`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+				document.querySelectorAll(`.form-step[data-step="4"] select`).forEach(input => {
+					input.classList.remove('outline-red-300', 'focus:outline-red-600');
+					input.classList.add('outline-gray-300', 'focus:outline-indigo-600');
+					input.classList.add('cursor-not-allowed', 'pointer-events-none');
+					input.setAttribute('disabled', true);
+					input.removeAttribute('readonly');
+					input.removeAttribute('required');
+				});
+			}
+
+			function makeInputEditable() {
+				document.getElementById('add-student-modal').querySelectorAll('input').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+                    document.getElementById('add-student-modal').querySelectorAll('select').forEach(input => {
+					input.classList.add('focus:outline-2', 'focus:-outline-offset-2', 'focus:outline-indigo-600');
+				});
+
+				// Personal Info
+				document.getElementById("studentName").setAttribute("required", true);
+				// document.getElementById("studentEmail").setAttribute("required", true);
+				document.getElementById("studentGender").setAttribute("required", true);
+				document.getElementById("phone").setAttribute("required", true);
+				document.getElementById("bloodGroup").setAttribute("required", true);
+				document.getElementById("dob").setAttribute("required", true);
+				document.getElementById("applicationNo").setAttribute("required", true);
+				document.getElementById("address").setAttribute("required", true);
+
+				// Course Details
+				document.getElementById("studentCourse").setAttribute("required", true);
+				document.getElementById("bookingType").setAttribute("required", true);
+				document.getElementById("studentInstructor").setAttribute("required", true);
+				document.getElementById("studentSlot").setAttribute("required", true);
+				document.getElementById("branch").setAttribute("required", true);
+				document.getElementById("courseStartDate").setAttribute("required", true);
+				// document.getElementById("courseStartDate").setAttribute("min", new Date().toISOString().split("T")[0]);
+				document.getElementById("courseEndDate").setAttribute("required", true);
+				// document.getElementById("totalAmount").setAttribute("required", true);
+				// document.getElementById("totalAmount").setAttribute("readonly", true);
+				document.getElementById("paymentRecievedBy").setAttribute("required", true);
+				document.getElementById("paymentReceived").setAttribute("required", true);
+				document.getElementById("paymentDue").setAttribute("required", true);
+				document.getElementById("paymentDue").setAttribute("readonly", true);
+			}
+
+			function downloadPDFBrowser(student) {
+				// Get form data (assuming these variables are available)
+				const studentName = student.name;
+				const studentEmail = student.email;
+				const studentGender = student.gender;
+				const phone = student.phone;
+				const bloodGroup = student.bloodGroup;
+				const dob = formatDate(student.dob);
+				const applicationNo = student.applicationNo;
+				const address = student.address;
+				const studentCourse = student.cource;
+				const branch = student.branch;
+				const instructor = student.instructor;
+				const timeSlot = student.slotTime;
+				const courseStartDate = formatDate(student.startDate);
+				const courseEndDate = formatDate(student.endDate);
+				const paymentReceived = student.paymentReceived;
+				const paymentDue = student.paymentDue;
+				const paymentReceivedBy = student.paymentRecievedByName;
+				const grandTotal = student.totalAmount;
+
+				// Calculate add-on services
+				let addOnServices = [];
+				let addOnTotal = 0;
+				student.addOnService.forEach(function(service) {
+					const serviceName = service[1];
+					const serviceFee = service[2];
+					addOnServices.push({name: serviceName, fee: serviceFee});
+					addOnTotal += serviceFee;
+				});
+				const courseFee = grandTotal - addOnTotal;
+
+				// Create HTML content matching jsPDF layout
+				const htmlContent = `
+					<!DOCTYPE html>
+					<html>
+						<head>
+							<meta charset="UTF-8">
+							<style>
+								@page {
+									size: 210mm 297mm; /* A4 size */
+									margin: 0;
+								}
+								
+								body {
+									font-family: Helvetica, Arial, sans-serif;
+									margin: 0;
+									padding: 0;
+									background-color: white;
+									font-size: 10px;
+									line-height: 1.2;
+									color: #2c3e50;
+								}
+								
+								.receipt {
+									width: 100%;
+									margin: 0 auto;
+									background: white;
+									border: 1px solid #ecf0f1;
+									position: relative;
+									padding: 0;
+									display: flex;
+									flex-direction: column;
+								}
+								
+								.header {
+									background: linear-gradient(135deg, #2980b9, #4a90e2);
+									color: white;
+									padding: 10px;
+									height: 40px;
+									position: relative;
+									display: flex;
+									align-items: center;
+									justify-content: space-between;
+									flex-shrink: 0;
+								}
+								
+								.logo {
+									width: 30px;
+									height: 30px;
+									aspect-ratio: 1;
+									background: white;
+									border-radius: 50%;
+									padding: 10px;
+									display: flex;
+									align-items: center;
+									justify-content: center;
+								}
+								
+								.logo img {
+									width: 100%;
+									height: 100%;
+									object-fit: contain;
+								}
+								
+								.company-name {
+									font-size: 16px;
+									font-weight: bold;
+									margin: 0;
+									text-align: center;
+								}
+								
+								.company-tagline {
+									font-size: 12px;
+									margin: 4px 0 0 0;
+									text-align: center;
+								}
+								
+								.decorative-line {
+									height: 3px;
+									background: #2980b9;
+									margin: 0;
+									flex-shrink: 0;
+								}
+								
+								.content {
+									padding: 10px;
+									flex: 1;
+									display: flex;
+									flex-direction: column;
+								}
+								
+								.receipt-title {
+									text-align: center;
+									background: #ecf0f1;
+									padding: 12px;
+									margin: 0 0 20px 0;
+									font-size: 18px;
+									font-weight: bold;
+									color: #2c3e50;
+									border-radius: 4px;
+								}
+								
+								.receipt-info {
+									display: flex;
+									gap: 15px;
+								}
+								
+								.receipt-info > div {
+									background: #f8f9fa;
+									padding: 12px 15px;
+									border-radius: 4px;
+									flex: 1;
+								}
+								
+								.receipt-info label {
+									font-size: 12px;
+									color: #7f8c8d;
+									font-weight: bold;
+									text-transform: uppercase;
+									display: block;
+									margin-bottom: 4px;
+								}
+								
+								.receipt-info span {
+									font-size: 14px;
+									font-weight: normal;
+									color: #2c3e50;
+								}
+								
+								.section-header {
+									background: #2980b9;
+									color: white;
+									padding: 8px 15px;
+									margin: 20px 0;
+									font-weight: bold;
+									font-size: 14px;
+									text-transform: uppercase;
+									border-radius: 4px;
+								}
+								
+								.info-row {
+									display: flex;
+									margin-bottom: 12px;
+									gap: 20px;
+								}
+								
+								.info-item {
+									flex: 1;
+									display: flex;
+									align-items: center;
+								}
+								
+								.info-item label {
+									font-size: 12px;
+									color: #7f8c8d;
+									font-weight: bold;
+									min-width: 80px;
+									margin-right: 12px;
+								}
+								
+								.info-item span {
+									font-size: 14px;
+									color: #2c3e50;
+								}
+								
+								.address-row label {
+									font-size: 12px;
+									color: #7f8c8d;
+									font-weight: bold;
+									margin-right: 12px;
+								}
+								
+								.address-row span {
+									font-size: 14px;
+									color: #2c3e50;
+								}
+								
+								.pricing-header {
+									background: #34495e;
+									color: white;
+									padding: 12px 15px;
+									display: flex;
+									justify-content: space-between;
+									font-size: 14px;
+									font-weight: bold;
+									text-transform: uppercase;
+									margin: 8px 0 10px 0;
+									border-radius: 4px;
+								}
+								
+								.pricing-row {
+									padding: 10px 15px;
+									display: flex;
+									justify-content: space-between;
+									font-size: 13px;
+									border-bottom: 1px solid #f8f9fa;
+								}
+								
+								.pricing-row:nth-child(even) {
+									background: #fcfcfc;
+								}
+								
+								.pricing-row.course-fee {
+									background: #fcfcfd;
+									font-weight: bold;
+									font-size: 14px;
+								}
+								
+								.pricing-row.addon {
+									font-size: 12px;
+									background: #f8f9fa;
+								}
+								
+								.pricing-row.no-services {
+									font-style: italic;
+									color: #7f8c8d;
+									background: #f8f9fa;
+								}
+								
+								.total-row {
+									background: #27ae60;
+									color: white;
+									padding: 15px;
+									display: flex;
+									justify-content: space-between;
+									font-size: 16px;
+									font-weight: bold;
+									text-transform: uppercase;
+									border-radius: 4px;
+								}
+								
+								.payment-summary {
+									display: flex;
+									gap: 15px;
+									margin: 20px 0;
+								}
+								
+								.payment-box {
+									flex: 1;
+									padding: 15px;
+									border-radius: 4px;
+									text-align: left;
+								}
+								
+								.payment-received {
+									background: #27ae60;
+									color: white;
+								}
+								
+								.payment-due {
+									background: ${parseInt(paymentDue) > 0 ? '#e74c3c' : '#7f8c8d'};
+									color: white;
+								}
+								
+								.payment-by {
+									background: #34495e;
+									color: white;
+								}
+								
+								.payment-box label {
+									font-size: 12px;
+									text-transform: uppercase;
+									font-weight: bold;
+									display: block;
+									margin-bottom: 4px;
+								}
+								
+								.payment-box .amount {
+									font-size: 16px;
+									font-weight: bold;
+								}
+								
+								.signature-area {
+									margin: 30px 0 15px 0;
+									text-align: right;
+								}
+								
+								.signature-line {
+									border-bottom: 2px solid #bdc3c7;
+									width: 200px;
+									height: 30px;
+									margin: 0 0 8px auto;
+								}
+								
+								.signature-text {
+									font-size: 12px;
+									color: #7f8c8d;
+								}
+								
+								.footer {
+									background: #ecf0f1;
+									padding: 15px;
+									text-align: center;
+									margin: 20px 0 0 0;
+									border-radius: 4px;
+									flex-shrink: 0;
+								}
+								
+								.footer h3 {
+									color: #2980b9;
+									margin: 0 0 5px 0;
+									font-size: 14px;
+									font-weight: bold;
+								}
+								
+								.footer p {
+									color: #7f8c8d;
+									margin: 0;
+									font-size: 10px;
+								}
+								
+								@media print {
+									@page {
+										size: 210mm 297mm;
+										margin: 0;
+									}
+									body { 
+										background: white; 
+										-webkit-print-color-adjust: exact;
+										print-color-adjust: exact;
+									}
+									.receipt { 
+										box-shadow: none; 
+										border: none;
+										width: 100%;
+										max-width: none;
+										height: 100%;
+										page-break-inside: avoid;
+										page-break-after: avoid;
+									}
+									html {
+										-webkit-print-color-adjust: exact;
+										-webkit-print-header: filename;
+									}
+									@page {
+										margin: 0.8cm;
+										size: A4;
+									}
+								}
+							</style>
+						</head>
+						<body>
+							<div class="receipt">
+								<div class="header">
+									<div class="logo">
+										<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" alt="Logo">
+									</div>
+									<div>
+										<div class="company-name">INSTITUTE OF DRIVING EDUCATION & AWARENESS DRIVING SCHOOL</div>
+										<div class="company-tagline">Professional Driving Education</div>
+									</div>
+								</div>
+								
+								<div class="decorative-line"></div>
+								
+								<div class="content">
+									<div class="receipt-title">ENROLLMENT RECEIPT</div>
+									
+									<div class="receipt-info">
+										<div>
+											<label>Receipt No.</label>
+											<span>${applicationNo}</span>
+										</div>
+										<div>
+											<label>Date</label>
+											<span>${formatDate(new Date())}</span>
+										</div>
+									</div>
+
+									<div class="section-header">Student Information</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Name:</label>
+											<span>${studentName}</span>
+										</div>
+										<div class="info-item">
+											<label>Gender:</label>
+											<span>${studentGender}</span>
+										</div>
+									</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Email:</label>
+											<span>${studentEmail}</span>
+										</div>
+										<div class="info-item">
+											<label>Phone:</label>
+											<span>${phone}</span>
+										</div>
+									</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Blood Group:</label>
+											<span>${bloodGroup}</span>
+										</div>
+										<div class="info-item">
+											<label>DOB:</label>
+											<span>${dob}</span>
+										</div>
+									</div>
+									
+									<div class="address-row">
+										<label>Address:</label>
+										<span>${address}</span>
+									</div>
+
+									<div class="section-header">Course Details</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Course:</label>
+											<span>${studentCourse}</span>
+										</div>
+										<div class="info-item">
+											<label>Instructor:</label>
+											<span>${instructor}</span>
+										</div>
+									</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Start Date:</label>
+											<span>${courseStartDate}</span>
+										</div>
+										<div class="info-item">
+											<label>End Date:</label>
+											<span>${courseEndDate}</span>
+										</div>
+									</div>
+									
+									<div class="info-row">
+										<div class="info-item">
+											<label>Time Slot:</label>
+											<span>${timeSlot}</span>
+										</div>
+										<div class="info-item">
+											<label>Branch:</label>
+											<span>${branch}</span>
+										</div>
+									</div>
+
+									<div class="pricing-header">
+										<span>Services & Pricing</span>
+										<span>Amount</span>
+									</div>
+									
+									<div class="pricing-row course-fee">
+										<span>${studentCourse}</span>
+										<span>${courseFee.toLocaleString()}</span>
+									</div>
+									
+									${addOnServices.map((service, index) => `
+									<div class="pricing-row addon">
+										<span>${service.name}</span>
+										<span>${service.fee.toLocaleString()}</span>
+									</div>
+									`).join('')}
+									
+									${addOnServices.length === 0 ? `
+									<div class="pricing-row no-services">
+										<span>No additional services</span>
+										<span>0</span>
+									</div>
+									` : ''}
+									
+									<div class="total-row">
+										<span>Total Amount</span>
+										<span>${grandTotal.toLocaleString()}</span>
+									</div>
+
+									<div class="payment-summary">
+										<div class="payment-box payment-received">
+											<label>Received</label>
+											<div class="amount">${parseInt(paymentReceived).toLocaleString()}</div>
+										</div>
+										<div class="payment-box payment-due">
+											<label>Due</label>
+											<div class="amount">${parseInt(paymentDue).toLocaleString()}</div>
+										</div>
+										<div class="payment-box payment-by">
+											<label>Received By</label>
+											<div class="amount">${paymentReceivedBy}</div>
+										</div>
+									</div>
+
+									<div class="signature-area">
+										<div class="signature-line"></div>
+										<div class="signature-text">Authorized Signature</div>
+									</div>
+
+									<div class="footer">
+										<h3>Thank you for choosing IDEA Driving School!</h3>
+										<p>Drive Safe, Drive Smart, Drive with Confidence</p>
+									</div>
+								</div>
+							</div>
+						</body>
+					</html>
+				`;
+				const printWindow = window.open('', '_blank');
+				printWindow.document.write(htmlContent);
+				printWindow.document.close();
+				
+				// Wait for content to load then print
+				printWindow.onload = function() {
+					// Generate filename
+					const timestamp = new Date().toISOString().split('T')[0];
+					const sanitizedName = studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+					const filename = `${sanitizedName}_receipt_${timestamp}.pdf`;
+					
+					// Set both document title and filename
+					printWindow.document.title = filename;
+					
+					// Add a hidden input to store filename (helps some browsers)
+					const filenameInput = document.createElement('input');
+					filenameInput.type = 'hidden';
+					filenameInput.id = 'filename';
+					filenameInput.value = filename;
+					printWindow.document.body.appendChild(filenameInput);
+					
+					// Add print trigger script
+					const printScript = document.createElement('script');
+					printScript.textContent = `
+						window.onafterprint = () => window.close();
+						const filename = document.getElementById('filename').value;
+						document.addEventListener('keydown', (e) => {
+							if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+								e.preventDefault();
+								const downloadLink = document.createElement('a');
+								downloadLink.download = filename;
+								document.body.appendChild(downloadLink);
+								downloadLink.click();
+								document.body.removeChild(downloadLink);
+							}
+						});
+					`;
+					printWindow.document.body.appendChild(printScript);
+					
+					// Trigger print after a slight delay to ensure styles are loaded
+					setTimeout(() => {
+						printWindow.print();
+					}, 500);
+				};
+			}
+		</script>
+	</body>
 </html>
