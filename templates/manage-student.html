@@ -96,7 +96,7 @@
 								</div>
 								<div class="flex flex-col gap-2 w-full">
 									<label for="studentGender" class="block font-semibold">Gender</label>
-									<select name="studentGender" id="studentGender" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<select name="studentGender" id="studentGender" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 										<option disabled selected>Select Gender</option>
 										<option value="Male">Male</option>
 										<option value="Female">Female</option>
@@ -122,7 +122,7 @@
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="bloodGroup" class="block font-semibold">Blood Group</label>
-								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
@@ -132,13 +132,13 @@
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="applicationNo" class="block font-semibold">Application Number</label>
-								<input type="text" name="applicationNo" id="applicationNo" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<input type="text" name="applicationNo" id="applicationNo" autocomplete="off" class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-full">
 								<label for="address" class="block font-semibold">Address</label>
-								<textarea rows="3" name="address" id="address" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
+								<textarea rows="3" name="address" id="address" autocomplete="off" class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
 							</div>
 						</div>
 					</div>
@@ -1854,17 +1854,17 @@
 					"Email",
 					"Phone Number",
 					"Branch",
-                         {
-                              name: "Status",
-                              formatter: (cell, row) => {
-                                   let status = row.cells[6].data;
-                                   let statusText = row.cells[7].data === "Pre-Booking" ? row.cells[7].data : row.cells[6].data;
-							let bookingType = row.cells[7].data;
-							let statusColor = status === "Active" ? (bookingType === "Pre-Booking" ? "bg-yellow-500" : "bg-green-600") : "bg-red-600";
-                                   cell = `<span class="px-3 py-1 text-white rounded-full ${statusColor}">${statusText}</span>`;
-                                   return gridjs.html(cell);
-                              }
-                         },
+                         // {
+                         //      name: "Status",
+                         //      formatter: (cell, row) => {
+                         //           let status = row.cells[6].data;
+                         //           let statusText = row.cells[7].data === "Pre-Booking" ? row.cells[7].data : row.cells[6].data;
+					// 		let bookingType = row.cells[7].data;
+					// 		let statusColor = status === "Active" ? (bookingType === "Pre-Booking" ? "bg-yellow-500" : "bg-green-600") : "bg-red-600";
+                         //           cell = `<span class="px-3 py-1 text-white rounded-full ${statusColor}">${statusText}</span>`;
+                         //           return gridjs.html(cell);
+                         //      }
+                         // },
 					{
 						name: "Action",
 						formatter: (cell, row) => {

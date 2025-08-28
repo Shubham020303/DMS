@@ -4,6 +4,7 @@ import datetime
 from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from AdminPanel.models import UserProfile, Branch, Slot, Cource, Student, Attendance, Complain, CourceContent,DLInfo
 # Create your views here.
 def student_signin(request):
@@ -98,6 +99,33 @@ def manage_attendance(request):
             'status': 'Present' if record.status else 'Absent'
         })
     return render(request, 'student/manage-attendance.html', {'attendance_data': attendance_data})
+
+@csrf_exempt
+def scan_qr(request):
+
+    if request.method == 'POST':
+        student = Student.objects.get(user__user=request.user)
+        qr_code = request.POST.get('qr_code')
+
+        if student.cource.vehicle.qrCodeData == qr_code:
+            attendance = Attendance.objects.filter(student=student, date=datetime.now().date()).first()
+            if attendance:
+                if attendance.timeOut is None:
+                    attendance.timeOut = datetime.now().time()
+                    attendance.save()
+                    student.attened_session = int(student.attened_session) + 1
+                    student.save()
+                else:
+                    return JsonResponse({'status': 'error', 'message': 'Out Time Already Noted.'})
+                return JsonResponse({'status': 'success', 'message': 'Out Time Noted successfully.'})
+            else:
+                Attendance.objects.create(student=student, date=datetime.now().date(), timeIn=datetime.now().time(), status='Present')
+                return JsonResponse({'status': 'success', 'message': 'In Time Noted successfully.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'QR code is invalid.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
 @login_required(login_url='student_signin/')
 def signout(request):
     logout(request)

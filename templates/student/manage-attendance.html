@@ -288,15 +288,37 @@
 
 		document.getElementById('submitAttendance').addEventListener('click', function() {
 			if (qrCodeData) {
-				// Here you would typically send the QR code data to your server
-				console.log('Submitting attendance with QR code:', qrCodeData);
+				// // Here you would typically send the QR code data to your server
+				// console.log('Submitting attendance with QR code:', qrCodeData);
+				// 
+				// // Show success message
+				// alert('Attendance submitted successfully!');
+
+				let formData = new FormData();
+				formData.append('qr_code', qrCodeData);
+
+				fetch("/student/scan-qr/", {
+						method: "POST", // Change to PUT if updating
+						body: formData
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log("Success:", data);
+						alert(data.message);
+					})
+					.catch(error => {
+						console.error("Error:", error);
+						alert("An error occurred. Please try again.");
+					})
+					.finally(() => {
+						// Close modal and reset
+						closeQrModal();
+						resetQrScanner();
+					});
 				
-				// Show success message
-				alert('Attendance submitted successfully!');
-				
-				// Close modal and reset
-				closeQrModal();
-				resetQrScanner();
+				// // Close modal and reset
+				// closeQrModal();
+				// resetQrScanner();
 			}
 		});
 

@@ -358,27 +358,29 @@ def getStudentData(request):
         students = Student.objects.all()
         data = []
         for student in students:
-            data.append({
-                'id': student.id,
-                'name': student.user.user.first_name,
-                'email': student.user.user.email,
-                'phone': student.user.phoneNo,
-                'applicationNo': student.applicationNo,
-                'dob': student.dob,
-                'address': student.address,
-                'branch': student.Branch.branchName,
-                'bloodGroup': student.user.bloodGroup,
-                'profilePic': student.user.profilePic.url if student.user.profilePic else None,
-                'gender': student.gender,
-                "bookingType": student.booking_Type,
-                'cource': student.cource.courceName,
-                'instructor': student.instructor.user.user.first_name,
-                'startDate': student.courceEnrollDate,
-                'endDate': student.courceEndDate,
-                'status': "Active" if student.student_staus else "Inactive",
-                'addOnService': [addOnService.serviceName for addOnService in student.addOnService.all()],
-                
-            })
+            if student.is_active == True:
+                data.append({
+                    'id': student.id,
+                    'name': student.user.user.first_name,
+                    'email': student.user.user.email,
+                    'phone': student.user.phoneNo,
+                    'applicationNo': student.applicationNo,
+                    'dob': student.dob,
+                    'address': student.address,
+                    'branch': student.Branch.branchName,
+                    'bloodGroup': student.user.bloodGroup,
+                    'profilePic': student.user.profilePic.url if student.user.profilePic else None,
+                    'gender': student.gender,
+                    "bookingType": student.booking_Type,
+                    'cource': student.cource.courceName,
+                    'instructor': student.instructor.user.user.first_name,
+                    'startDate': student.courceEnrollDate,
+                    'endDate': student.courceEndDate,
+                    'status': "Active" if student.student_staus else "Inactive",
+                    'addOnService': [addOnService.serviceName for addOnService in student.addOnService.all()],
+                    
+                })
+
         return JsonResponse(data, safe=False)
     
 @csrf_exempt
