@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Manage Students | DMS</title>
-		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="/static/js/tailwind.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
@@ -597,28 +597,28 @@
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
 			let currentStep = 1;
-			let baseURL = "http://127.0.0.1:8000/getSlotsData/"
+			let baseURL = "/getSlotsData/"
 			document.addEventListener('DOMContentLoaded', () => {
-				fetch("http://127.0.0.1:8000/getBranchData/")
+				fetch("/getBranchData/")
 					.then(response => response.json())
 					.then(data => {
 						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
 					})
 
-				fetch("http://127.0.0.1:8000/getCourseData/")
+				fetch("/getCourseData/")
 					.then(response => response.json())
 					.then(data => {
 						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}" data-fee="${course.courseFee}" data-duration=${course.courseDuration}>${course.courseName}</option>`).join('');
 					})
 
-                    fetch("http://127.0.0.1:8000/getInstructorData/")
+                    fetch("/getInstructorData/")
                          .then(response => response.json())
                          .then(data => {
                               document.getElementById("studentInstructor").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
                               document.getElementById("paymentRecievedBy").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
                          })
 
-				// fetch("http://127.0.0.1:8000/getSlotsData/")
+				// fetch("/getSlotsData/")
                     //      .then(response => response.json())
                     //      .then(data => {
                     //           document.getElementById("studentSlot").innerHTML += data.map(slot => `<option value="${slot.id}" style="display: ${slot.slotUsed ? 'none' : 'block'}">${slot.slotStartTime + " - " + slot.slotEndTime}</option>`).join('');
@@ -777,7 +777,7 @@
 
 			function fetchServices() {
 				document.getElementById("services-container").innerHTML = '';
-				fetch("http://127.0.0.1:8000/getAddOnServiceData/")
+				fetch("/getAddOnServiceData/")
                          .then(response => response.json())
                          .then(data => {
                               document.getElementById("services-container").innerHTML += data.map(service => `
@@ -926,7 +926,7 @@
 				const bookingType = document.getElementById("bookingType").value;
 				
 				// Reset baseURL to original
-				baseURL = "http://127.0.0.1:8000/getSlotsData/";
+				baseURL = "/getSlotsData/";
 				
 				// Add courseId and bookingType parameters
 				baseURL += `?courseId=${selectedCourse}`;
@@ -957,7 +957,7 @@
 				const selectedCourse = document.getElementById("studentCourse").value;
 				
 				// Reset baseURL to original
-				baseURL = "http://127.0.0.1:8000/getSlotsData/";
+				baseURL = "/getSlotsData/";
 				
 				// Add parameters based on available values
 				if (selectedCourse) {
@@ -1458,7 +1458,7 @@
 							<div class="receipt">
 								<div class="header">
 									<div class="logo">
-										<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" alt="Logo">
+										<img src="/static/images/IDEA-LOGO.png" alt="Logo">
 									</div>
 									<div>
 										<div class="company-name">INSTITUTE OF DRIVING EDUCATION & AWARENESS DRIVING SCHOOL</div>
@@ -1803,7 +1803,7 @@
 
 			document.getElementById('delete-student-btn').addEventListener('click', () => {
 				const studentId = document.getElementById('delete-student-btn').getAttribute('data-id');
-				fetch(`http://127.0.0.1:8000/manage-student/?studentId=${studentId}`, {
+				fetch(`/manage-student/?studentId=${studentId}`, {
 						method: 'DELETE',
 						headers: {
 							'Content-Type': 'application/json'
@@ -1887,7 +1887,7 @@
 									</svg>
 								`,
 								onClick: () => {
-									fetchStudentData(`http://127.0.0.1:8000/getStudentData/?studentId=${row.cells[0].data}`, "Edit Student Details", true, false);
+									fetchStudentData(`/getStudentData/?studentId=${row.cells[0].data}`, "Edit Student Details", true, false);
 									document.getElementById("add-student-btn").innerText = "Update";
 
 									document.getElementById("add-student-form").innerHTML += `<input type="hidden" name="studentId" id="studentId" value="${row.cells[0].data}">`;
@@ -1920,7 +1920,7 @@
 								`,
 								onClick: () => {
 									let studentId = row.cells[0].data;
-									fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
+									fetch(`/getStudentData/?studentId=${studentId}`)
 										.then(response => response.json())
 										.then(data => {
 											downloadPDFBrowser(data);
@@ -1935,7 +1935,7 @@
 					}
 				],
 				server: {
-					url: 'http://127.0.0.1:8000/getStudentData/',
+					url: '/getStudentData/',
 					then: data => data.map(student => [student.id, student.profilePic, student.name, student.email, student.phone, student.branch, student.status, student.bookingType])
 				},
 				className: {
@@ -1956,7 +1956,7 @@
 					document.getElementById("fuel-certificate-btn").setAttribute("data-id", studentId);
 					document.getElementById("completion-certificate-btn").setAttribute("data-id", studentId);
 
-					fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
+					fetch(`/getStudentData/?studentId=${studentId}`)
 						.then(response => response.json())
 						.then(data => {
 							// Basic Info
@@ -2042,7 +2042,7 @@
 
 			function generateCertificate(studentId) {
 				// Fetch student data first
-				fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`)
+				fetch(`/getStudentData/?studentId=${studentId}`)
 				.then(response => response.json())
 				.then(data => {
 					const htmlContent = `
@@ -2111,7 +2111,7 @@
 						<body>
 							<div class="certificate">
 							<div class="header">
-								<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" class="logo" alt="IDEA Logo">
+								<img src="/static/images/IDEA-LOGO.png" class="logo" alt="IDEA Logo">
 								<div class="title">CERTIFICATE OF FUEL EFFICIENT TRAINING</div>
 								<div class="subtitle">ISSUED BY IDEA DRIVING SCHOOL</div>
 							</div>
@@ -2178,8 +2178,8 @@
 			function generateCompletionCertificate(studentId) {
 				// Fetch both student and attendance data
 				Promise.all([
-					fetch(`http://127.0.0.1:8000/getStudentData/?studentId=${studentId}`),
-					fetch(`http://127.0.0.1:8000/getAttendanceData/?studentId=${studentId}`)
+					fetch(`/getStudentData/?studentId=${studentId}`),
+					fetch(`/getAttendanceData/?studentId=${studentId}`)
 				])
 				.then(responses => Promise.all(responses.map(r => r.json())))
 				.then(([studentData, attendanceData]) => {
@@ -2283,7 +2283,7 @@
 						<body>
 							<div class="document">
 								<div class="header">
-								<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" class="logo" alt="IDEA Logo">
+								<img src="/static/images/IDEA-LOGO.png" class="logo" alt="IDEA Logo">
 								<div class="title">ATTENDANCE RECORD</div>
 								<div class="subtitle">IDEA DRIVING SCHOOL</div>
 								</div>
@@ -2466,7 +2466,7 @@
 						const slotId = data.slotId || "0";
 						
 						// Reset baseURL to original
-						baseURL = "http://127.0.0.1:8000/getSlotsData/";
+						baseURL = "/getSlotsData/";
 						
 						// Add parameters based on available values
 						if (selectedCourse) {
@@ -2506,7 +2506,7 @@
 									const bookingType = document.getElementById("bookingType").value;
 									
 									// Reset baseURL to original
-									baseURL = "http://127.0.0.1:8000/getSlotsData/";
+									baseURL = "/getSlotsData/";
 									
 									// Add courseId and bookingType parameters
 									baseURL += `?courseId=${selectedCourse}`;
@@ -2544,7 +2544,7 @@
 									const selectedCourse = document.getElementById("studentCourse").value;
 									
 									// Reset baseURL to original
-									baseURL = "http://127.0.0.1:8000/getSlotsData/";
+									baseURL = "/getSlotsData/";
 									
 									// Add parameters based on available values
 									if (selectedCourse) {
@@ -3228,7 +3228,7 @@
 							<div class="receipt">
 								<div class="header">
 									<div class="logo">
-										<img src="http://127.0.0.1:8000/static/images/IDEA-LOGO.png" alt="Logo">
+										<img src="/static/images/IDEA-LOGO.png" alt="Logo">
 									</div>
 									<div>
 										<div class="company-name">INSTITUTE OF DRIVING EDUCATION & AWARENESS DRIVING SCHOOL</div>

@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Manage Complains | DMS</title>
-		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="/static/js/tailwind.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
@@ -454,7 +454,7 @@
 
 			// document.getElementById('delete-complain-btn').addEventListener('click', () => {
 			// 	const vehicleId = document.getElementById('delete-complain-btn').getAttribute('data-id');
-			// 	fetch(`http://127.0.0.1:8000/manage-vehicle/?vehicleId=${vehicleId}`, {
+			// 	fetch(`/manage-vehicle/?vehicleId=${vehicleId}`, {
 			// 			method: 'DELETE',
 			// 			headers: {
 			// 				'Content-Type': 'application/json'
@@ -521,7 +521,7 @@
 					// 		// 		</svg>
 					// 		// 	`,
 					// 		// 	onClick: () => {
-					// 		// 		fetchComplainData(`http://127.0.0.1:8000/getVehicleData/?vehicleId=${row.cells[0].data}`, "Edit Vehicle Details", true, false);
+					// 		// 		fetchComplainData(`/getVehicleData/?vehicleId=${row.cells[0].data}`, "Edit Vehicle Details", true, false);
 					// 		// 		document.getElementById("add-vehicle-btn").innerText = "Update";
 
 					// 		// 		// document.getElementById("add-complain-form").innerHTML += `<input type="hidden" name="instructorId" id="instructorId" value="${row.cells[0].data}">`;
@@ -556,7 +556,7 @@
 					// }
 				],
 				server: {
-					url: 'http://127.0.0.1:8000/getComplainData/',
+					url: '/getComplainData/',
 					then: data => data.map(complain => [complain.id, complain.complainDate, complain.complainName, complain.complainFrom, complain.complainFor, complain.complainBranch, complain.complainStatus])
 				},
 				className: {
@@ -574,7 +574,7 @@
 				console.log(args);
 				if (args[2]["id"] === "complain") {
 					complainId = args[3]["_cells"][0]["data"];
-					fetchComplainData(`http://127.0.0.1:8000/getComplainData/?complainId=${complainId}`, "Complain Details", false, true);
+					fetchComplainData(`/getComplainData/?complainId=${complainId}`, "Complain Details", false, true);
 					document.getElementById('view-complain-modal').classList.remove('scale-0', 'opacity-0');
 					document.getElementById('view-complain-modal').classList.add('scale-100', 'opacity-100');
 				}

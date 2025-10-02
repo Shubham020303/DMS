@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Manage Attendance | DMS</title>
-		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="/static/js/tailwind.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
@@ -278,19 +278,19 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
 		<script>
 			document.addEventListener('DOMContentLoaded', () => {
-				fetch("http://127.0.0.1:8000/getStudentData/")
+				fetch("/getStudentData/")
 					.then(response => response.json())
 					.then(data => {
 						document.getElementById("studentName").innerHTML += data.map(student => `<option value="${student.id}">${student.name}</option>`).join('');
 					})
 
-				fetch("http://127.0.0.1:8000/getVehicleData/")
+				fetch("/getVehicleData/")
 					.then(response => response.json())
 					.then(data => {
 						document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
 					})
 
-				fetch("http://127.0.0.1:8000/getBranchData/")
+				fetch("/getBranchData/")
 					.then(response => response.json())
 					.then(data => {
 						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
@@ -572,7 +572,7 @@
 
 			document.getElementById('delete-attendance-btn').addEventListener('click', () => {
 				const studentId = document.getElementById('delete-attendance-btn').getAttribute('data-id');
-				fetch(`http://127.0.0.1:8000/manage-attendance/?studentId=${studentId}`, {
+				fetch(`/manage-attendance/?studentId=${studentId}`, {
 						method: 'DELETE',
 						headers: {
 							'Content-Type': 'application/json'
@@ -681,9 +681,9 @@
 									</svg>
 								`,
 								onClick: () => {
-									// fetchAttendanceData(`http://127.0.0.1:8000/getAttendanceData/?attendanceId=${row.cells[0].data}`, "Edit Attendance Details", true, false);
+									// fetchAttendanceData(`/getAttendanceData/?attendanceId=${row.cells[0].data}`, "Edit Attendance Details", true, false);
 									// Get the Grid.js data from the server
-									fetch("http://127.0.0.1:8000/getAttendanceData/?studentId=" + row.cells[1].data)
+									fetch("/getAttendanceData/?studentId=" + row.cells[1].data)
 									.then(response => response.json())
 									.then(data => {
 										// Define column headers
@@ -749,7 +749,7 @@
 					}
 				],
 				server: {
-					url: 'http://127.0.0.1:8000/getAttendanceData/',
+					url: '/getAttendanceData/',
 					then: data => data.map(attendance => [attendance.id, attendance.studentId, attendance.student, attendance.courceName, attendance.startDate, attendance.endDate, attendance.attened_session, attendance.total_session])
 				},
 				className: {
@@ -767,7 +767,7 @@
                const vehicleSelect = document.getElementById("vehicle");
                // const startDate = document.getElementById("startDate");
                // const endDate = document.getElementById("endDate");
-			let apiURL = "http://127.0.0.1:8000/getAttendanceData/";
+			let apiURL = "/getAttendanceData/";
 
                function fetchFilteredAttendanceData() {
 				let url = new URL(apiURL);
@@ -873,7 +873,7 @@
 				vehicleSelect.value = "";
 				// startDate.value = "";
 				// endDate.value = "";
-				apiURL = "http://127.0.0.1:8000/getAttendanceData/";
+				apiURL = "/getAttendanceData/";
 				fetchFilteredAttendanceData();
 			})
 
@@ -881,7 +881,7 @@
 				console.log(args);
 				if (args[2]["id"] === "name") {
 					studentId = args[3]["_cells"][1]["data"];
-					fetch(`http://127.0.0.1:8000/getAttendanceData/?studentId=${studentId}`)
+					fetch(`/getAttendanceData/?studentId=${studentId}`)
 						.then(response => response.json())
 						.then(data => {
 							console.log(data);
@@ -1051,7 +1051,7 @@
 								}
 							}
 						})
-					// fetchAttendanceData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
+					// fetchAttendanceData(`/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
 					document.getElementById('view-attendance-modal').classList.remove('scale-0', 'opacity-0');
 					document.getElementById('view-attendance-modal').classList.add('scale-100', 'opacity-100');
 				}

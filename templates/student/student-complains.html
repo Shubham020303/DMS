@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Manage Complains | DMS</title>
-	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+	<script src="/static/js/tailwind.js"></script>
 	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 	<style>
 		::-webkit-scrollbar {
@@ -490,7 +490,7 @@
 
 		// document.getElementById('delete-complain-btn').addEventListener('click', () => {
 		// 	const vehicleId = document.getElementById('delete-complain-btn').getAttribute('data-id');
-		// 	fetch(`http://127.0.0.1:8000/manage-vehicle/?vehicleId=${vehicleId}`, {
+		// 	fetch(`/manage-vehicle/?vehicleId=${vehicleId}`, {
 		// 			method: 'DELETE',
 		// 			headers: {
 		// 				'Content-Type': 'application/json'
@@ -549,7 +549,7 @@
 				// 		// 		</svg>
 				// 		// 	`,
 				// 		// 	onClick: () => {
-				// 		// 		fetchVehicleData(`http://127.0.0.1:8000/getVehicleData/?vehicleId=${row.cells[0].data}`, "Edit Vehicle Details", true, false);
+				// 		// 		fetchVehicleData(`/getVehicleData/?vehicleId=${row.cells[0].data}`, "Edit Vehicle Details", true, false);
 				// 		// 		document.getElementById("add-complain-btn").innerText = "Update";
 
 				// 		// 		// document.getElementById("add-complain-form").innerHTML += `<input type="hidden" name="instructorId" id="instructorId" value="${row.cells[0].data}">`;
@@ -584,7 +584,7 @@
 				// }
 			],
 			// server: {
-			// 	url: 'http://127.0.0.1:8000/getVehicleData/',
+			// 	url: '/getVehicleData/',
 			// 	then: data => data.map(vehicle => [vehicle.id, vehicle.vehicalName, vehicle.vehicleNo, vehicle.insuranceValidity, vehicle.pollutionValidity, vehicle.fitnessValidity])
 			// },
 			data: [
@@ -605,7 +605,7 @@
 			console.log(args);
 			if (args[2]["id"] === "complain") {
 				instructorId = args[3]["_cells"][0]["data"];
-				fetchVehicleData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Vehicle Details", false, true);
+				fetchVehicleData(`/getInstructorData/?instructorId=${instructorId}`, "Vehicle Details", false, true);
 				document.getElementById('view-complain-modal').classList.remove('scale-0', 'opacity-0');
 				document.getElementById('view-complain-modal').classList.add('scale-100', 'opacity-100');
 			}

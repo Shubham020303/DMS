@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Dashboard | DMS</title>
-	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+	<script src="/static/js/tailwind.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 	<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
@@ -327,19 +327,19 @@
 		// });
 
 		document.addEventListener('DOMContentLoaded', () => {
-			// fetch("http://127.0.0.1:8000/getVehicleData/")
+			// fetch("/getVehicleData/")
 			// 	.then(response => response.json())
 			// 	.then(data => {
 			// 		document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
 			// 	})
 
-			// fetch("http://127.0.0.1:8000/getBranchData/")
+			// fetch("/getBranchData/")
 			// 	.then(response => response.json())
 			// 	.then(data => {
 			// 		document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
 			// 	})
 
-			fetch("http://127.0.0.1:8000/getInstructorData/")
+			fetch("/getInstructorData/")
 				.then(response => response.json())
 				.then(data => {
 					document.getElementById("paymentReceivedBy").innerHTML += data.map(user => `<option value="${user.id}">${user.name}</option>`).join('');
@@ -350,7 +350,7 @@
 			let unreadCount = 0;
 
 			function fetchNotifications() {
-				fetch('http://127.0.0.1:8000/getNotificationData/')
+				fetch('/getNotificationData/')
 					.then(response => response.json())
 					.then(data => {
 						const notificationContainer = document.getElementById('notification-container');
@@ -407,7 +407,7 @@
 			function markNotificationAsRead(notificationId) {
 				let formData = new FormData();
 				formData.append('notificationId', notificationId);
-				fetch('http://127.0.0.1:8000/manage-Notification/', {
+				fetch('/manage-Notification/', {
 					method: 'POST',
 					body: formData
 				})
@@ -497,7 +497,7 @@
 
 		// // Fetch data once and store it
 		// function fetchSlotsDataOnce() {
-		// 	fetch(`http://127.0.0.1:8000/getSlotWiseData/`)
+		// 	fetch(`/getSlotWiseData/`)
 		// 		.then(response => response.json())
 		// 		.then(data => {
 		// 			slotData = data; // Store fetched data
@@ -744,7 +744,7 @@
 								const studentId = row.cells[0].data
 
 								// Fetch payment data
-								fetch(`http://127.0.0.1:8000/getReamainingPaymentData/?studentId=${studentId}`)
+								fetch(`/getReamainingPaymentData/?studentId=${studentId}`)
 									.then(response => response.json())
 									.then(data => {
 										console.log("API Response:", data);
@@ -772,7 +772,7 @@
 				}
 			],
 			server: {
-				url: 'http://127.0.0.1:8000/getReamainingPaymentData/',
+				url: '/getReamainingPaymentData/',
 				then: data => data.map(payment => [payment.studentId, payment.name, payment.courseName, payment.amountPaid, payment.amountPending, payment.TotalAmount, payment.paymentDueDate])
 			},
 			className: {
@@ -816,7 +816,7 @@
 				},
 			],
 			server: {
-				url: 'http://127.0.0.1:8000/getPaymentData/',
+				url: '/getPaymentData/',
 				then: data => data.map(payment => [payment.studentId, payment.Name, payment.paymentAmount, payment.paymentDate, payment.paymentReceivedByName, payment.paymentMethod])
 			},
 			className: {
@@ -830,7 +830,7 @@
 		// async function initializeDailyTimeSlotsGrid() {
 		// 	try {
 		// 		// First fetch the data to get vehicle names
-		// 		const response = await fetch('http://127.0.0.1:8000/getSlotWiseData/');
+		// 		const response = await fetch('/getSlotWiseData/');
 		// 		const data = await response.json();
 				
 		// 		// Get unique vehicle names for columns
@@ -940,7 +940,7 @@
 				"Total Amount",
 			],
 			server: {
-				url: 'http://127.0.0.1:8000/getEearningData/',
+				url: '/getEearningData/',
 				then: data => data.map(earning => [earning.branch, earning.branchInCharge, earning.totalAmountPaid, earning.totalAmountRemaining, earning.totalEarning])
 			},
 			className: {
@@ -965,7 +965,7 @@
 				"status",
 			],
 			server: {
-				url: 'http://127.0.0.1:8000/getStudentOnLeaveData/',
+				url: '/getStudentOnLeaveData/',
 				then: data => data.map(onLeave => [onLeave.studentName, onLeave.date, onLeave.slotTime, onLeave.status])
 			},
 			className: {

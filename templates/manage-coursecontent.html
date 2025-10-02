@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Manage Course Content | DMS</title>
-		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="/static/js/tailwind.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
@@ -226,13 +226,13 @@
           <!-- <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script> -->
 		<script>
 			// document.addEventListener('DOMContentLoaded', () => {
-			// 	fetch("http://127.0.0.1:8000/getBranchData/")
+			// 	fetch("/getBranchData/")
 			// 		.then(response => response.json())
 			// 		.then(data => {
 			// 			document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
 			// 		})
 				
-			// 	fetch("http://127.0.0.1:8000/getVehicleData/")
+			// 	fetch("/getVehicleData/")
 			// 		.then(response => response.json())
 			// 		.then(data => {
 			// 			document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.id}">${vehicle.vehicalName}</option>`).join('');
@@ -479,7 +479,7 @@
 				const courseContentId = document.getElementById('delete-course-content-btn').getAttribute('data-id');
 
                     showLoader()
-				fetch(`http://127.0.0.1:8000/manage-coursecontent/?courceContentId=${courseContentId}`, {
+				fetch(`/manage-coursecontent/?courceContentId=${courseContentId}`, {
 						method: 'DELETE',
 						headers: {
 							'Content-Type': 'application/json'
@@ -558,7 +558,7 @@
 									</svg>
 								`,
 								onClick: () => {
-									fetchCourseContentData(`http://127.0.0.1:8000/getcourceContentData/?courceContentId=${row.cells[0].data}`, "Edit Course Content Details", true, false);
+									fetchCourseContentData(`/getcourceContentData/?courceContentId=${row.cells[0].data}`, "Edit Course Content Details", true, false);
 									document.getElementById("add-course-content-btn").innerText = "Update";
 
 									document.getElementById("add-course-content-form").innerHTML += `<input type="hidden" name="courceContentId" id="courceContentId" value="${row.cells[0].data}">`;
@@ -590,7 +590,7 @@
 					}
 				],
 				server: {
-					url: 'http://127.0.0.1:8000/getcourceContentData/',
+					url: '/getcourceContentData/',
 					then: data => data.map(courseContent => [courseContent.id, courseContent.courceContentDescription, courseContent.courcecontentFile, courseContent.courceContentVideo])
 				},
 				className: {
@@ -608,7 +608,7 @@
 			// 	console.log(args);
 			// 	if (args[2]["id"] === "name") {
 			// 		instructorId = args[3]["_cells"][0]["data"];
-			// 		fetch(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`)
+			// 		fetch(`/getInstructorData/?instructorId=${instructorId}`)
 			// 			.then(response => response.json())
 			// 			.then(data => {
 			// 				console.log(data);
@@ -619,7 +619,7 @@
 			// 				document.getElementById("instructor-phone").innerText = data.phone || "No Data Found";
 			// 				document.getElementById("instructor-bg").innerText = data.bloodGroup || "No Data Found";
 			// 			})
-			// 		// fetchCourseContentData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
+			// 		// fetchCourseContentData(`/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
 			// 		document.getElementById('view-course-content-modal').classList.remove('scale-0', 'opacity-0');
 			// 		document.getElementById('view-course-content-modal').classList.add('scale-100', 'opacity-100');
 			// 	}

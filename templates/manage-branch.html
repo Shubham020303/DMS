@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Manage Branches | DMS</title>
-		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+		<script src="/static/js/tailwind.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 		<link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
@@ -163,7 +163,7 @@
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 		<script>
                document.addEventListener('DOMContentLoaded', () => {
-				fetch("http://127.0.0.1:8000/getBranchAdminData/")
+				fetch("/getBranchAdminData/")
 					.then(response => response.json())
 					.then(data => {
 						document.getElementById("branchIncharge").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
@@ -375,7 +375,7 @@
 
 			document.getElementById('delete-branch-btn').addEventListener('click', () => {
 				const branchId = document.getElementById('delete-branch-btn').getAttribute('data-id');
-				fetch(`http://127.0.0.1:8000/manage-branch/?branchId=${branchId}`, {
+				fetch(`/manage-branch/?branchId=${branchId}`, {
 						method: 'DELETE',
 						headers: {
 							'Content-Type': 'application/json'
@@ -438,7 +438,7 @@
 									</svg>
 								`,
 								onClick: () => {
-									fetchBranchData(`http://127.0.0.1:8000/getBranchData/?branchId=${row.cells[0].data}`, "Edit Branch Details", true, false);
+									fetchBranchData(`/getBranchData/?branchId=${row.cells[0].data}`, "Edit Branch Details", true, false);
 									document.getElementById("add-branch-btn").innerText = "Update";
 
 									document.getElementById("add-branch-form").innerHTML += `<input type="hidden" name="branchId" id="branchId" value="${row.cells[0].data}">`;
@@ -470,7 +470,7 @@
 					}
 				],
 				server: {
-					url: 'http://127.0.0.1:8000/getBranchData/',
+					url: '/getBranchData/',
 					then: data => data.map(branch => [branch.id, branch.branchName, branch.branchAddress, branch.branchPhoneNo, branch.branchEmail, branch.branchIncharge])
 				},
 				className: {
@@ -488,7 +488,7 @@
 			// 	console.log(args);
 			// 	if (args[2]["id"] === "name") {
 			// 		instructorId = args[3]["_cells"][0]["data"];
-			// 		fetchBranchData(`http://127.0.0.1:8000/getInstructorData/?instructorId=${instructorId}`, "Vehicle Details", false, true);
+			// 		fetchBranchData(`/getInstructorData/?instructorId=${instructorId}`, "Vehicle Details", false, true);
 			// 		document.getElementById('add-branch-modal').classList.remove('scale-0', 'opacity-0');
 			// 		document.getElementById('add-branch-modal').classList.add('scale-100', 'opacity-100');
 			// 	}

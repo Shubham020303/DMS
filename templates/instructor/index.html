@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Dashboard | DMS</title>
-	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+	<script src="/static/js/tailwind.js"></script>
 	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 	<style>
 		::-webkit-scrollbar {
@@ -426,7 +426,7 @@
 									<p>Take Attendance</p>
 								`,
 								onClick: () => {
-									fetch("http://127.0.0.1:8000/instructor/getIndexData/?studentId=" + row.cells[0].data)
+									fetch("/instructor/getIndexData/?studentId=" + row.cells[0].data)
 										.then(response => response.json())
 										.then(data => {
 											document.getElementById("studentName").value = data["name"];
@@ -474,7 +474,7 @@
 					}
 				],
 				server: {
-					url: 'http://127.0.0.1:8000/instructor/getIndexData/',
+					url: '/instructor/getIndexData/',
 					then: data => data.map(student => [student.id, student.name, student.cource, student.slot, student.phone, student.attendanceTaken])
 				},
 				className: {
@@ -511,7 +511,7 @@
 					"Due Date",
 				],
 				server: {
-					url: 'http://127.0.0.1:8000/instructor/getReamainingPaymentData/',
+					url: '/instructor/getReamainingPaymentData/',
 					then: data => data.map(payment => [payment.id, payment.name, payment.cource, payment.phone, payment.paid, payment.pending, payment.dueDate])
 				},
 				className: {
