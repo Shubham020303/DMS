@@ -3,11 +3,14 @@
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<!-- Add these meta tags in the head section -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<title>Dashboard | DMS</title>
 	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
 	<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 	<style>
 		::-webkit-scrollbar {
@@ -250,30 +253,35 @@
 				</div>
 			</div>
 		</div>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-		<script>
-			document.addEventListener('DOMContentLoaded', function () {
-				const links = [...document.querySelectorAll('a')];
+	</section>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+	<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const links = [...document.querySelectorAll('a')];
 
-				links.forEach(link => {
-					if (link.href === window.location.href) {
-						link.querySelector('div').classList.add('bg-indigo-500', 'bg-opacity-80', 'text-white');
-					}
-				});
+			links.forEach(link => {
+				if (link.href === window.location.href) {
+					link.querySelector('div').classList.add('bg-indigo-500', 'bg-opacity-80', 'text-white');
+				}
 			});
-		</script>
-		<script>
-		// QR Code scanning functionality
+		});
+	</script>
+	<script>
+		// QR Code scanning functionality - Cross-device compatible version
 		let html5QrCodeScanner = null;
 		let qrCodeData = null;
 
 		document.getElementById('scanQrBtn').addEventListener('click', function() {
 			document.getElementById('qrModal').classList.remove('hidden');
 			document.getElementById('qrModal').classList.add('flex');
-			startQrScanner();
-			document.getElementById("qrReader").querySelectorAll("div")[0].style.display = "none";
+			
+			// Add a small delay to ensure modal is visible before starting scanner
+			setTimeout(() => {
+				startQrScanner();
+			}, 100);
 		});
 
 		document.getElementById('closeModal').addEventListener('click', function() {
@@ -288,17 +296,11 @@
 
 		document.getElementById('submitAttendance').addEventListener('click', function() {
 			if (qrCodeData) {
-				// // Here you would typically send the QR code data to your server
-				// console.log('Submitting attendance with QR code:', qrCodeData);
-				// 
-				// // Show success message
-				// alert('Attendance submitted successfully!');
-
 				let formData = new FormData();
 				formData.append('qr_code', qrCodeData);
 
 				fetch("/student/scan-qr/", {
-						method: "POST", // Change to PUT if updating
+						method: "POST",
 						body: formData
 					})
 					.then(response => response.json())
@@ -311,18 +313,18 @@
 						alert("An error occurred. Please try again.");
 					})
 					.finally(() => {
-						// Close modal and reset
 						closeQrModal();
 						resetQrScanner();
 					});
-				
-				// // Close modal and reset
-				// closeQrModal();
-				// resetQrScanner();
 			}
 		});
 
-		function startQrScanner() {
+		async function startQrScanner() {
+			// Check browser support first
+			if (!checkBrowserSupport()) {
+				return;
+			}
+			
 			const qrResult = document.getElementById('qrResult');
 			const qrError = document.getElementById('qrError');
 			
@@ -330,6 +332,14 @@
 			qrResult.classList.add('hidden');
 			qrError.classList.add('hidden');
 			
+			// Request camera permission first
+			try {
+				await requestCameraPermission();
+			} catch (error) {
+				handlePermissionError(error);
+				return;
+			}
+
 			function onScanSuccess(decodedText, decodedResult) {
 				qrCodeData = decodedText;
 				document.getElementById('qrCodeValue').textContent = decodedText;
@@ -337,26 +347,66 @@
 				
 				// Stop scanning after successful detection
 				if (html5QrCodeScanner) {
-					html5QrCodeScanner.clear();
+					html5QrCodeScanner.clear().catch(err => console.error('Clear error:', err));
 				}
 			}
 			
 			function onScanFailure(error) {
-				// Handle scan failure silently - this fires continuously while scanning
+				// Only log errors, don't show them for scan failures (normal operation)
+				// console.log('Scan failure:', error);
 			}
 			
+			// Enhanced configuration for better cross-device compatibility
 			const config = {
-				fps: 10,
-				qrbox: { width: 250, height: 250 },
-				aspectRatio: 1.0
+				fps: 10, // Lower FPS for better performance on mobile
+				qrbox: function(viewfinderWidth, viewfinderHeight) {
+					// Make QR box responsive
+					let minEdgePercentage = 0.7;
+					let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+					let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+					return {
+						width: qrboxSize,
+						height: qrboxSize
+					};
+				},
+				aspectRatio: 1.0,
+				supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+				formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+				rememberLastUsedCamera: true,
+				showTorchButtonIfSupported: true,
+				defaultZoomLevel: 1,
+				useBarCodeDetectorIfSupported: true,
+				// Additional mobile-friendly options
+				videoConstraints: {
+					facingMode: { ideal: "environment" }, // Prefer back camera
+					width: { ideal: 1280 },
+					height: { ideal: 720 }
+				},
+				// Disable verbose logging to reduce console noise
+				verbose: false
 			};
 			
 			try {
+				// Ensure the QR reader element exists and is visible
+				const qrReaderElement = document.getElementById("qrReader");
+				if (!qrReaderElement) {
+					throw new Error('QR reader element not found');
+				}
+				
 				html5QrCodeScanner = new Html5QrcodeScanner("qrReader", config, false);
 				html5QrCodeScanner.render(onScanSuccess, onScanFailure);
+				
+				// Hide the file input option if it exists (camera only)
+				setTimeout(() => {
+					const fileInputDiv = document.querySelector("#qrReader div:first-child");
+					if (fileInputDiv) {
+						fileInputDiv.style.display = "none";
+					}
+				}, 100);
+				
 			} catch (error) {
-				console.error('QR Scanner error:', error);
-				qrError.classList.remove('hidden');
+				console.error('QR Scanner initialization error:', error);
+				handleScannerError(error);
 			}
 		}
 
@@ -364,7 +414,7 @@
 			document.getElementById('qrModal').classList.add('hidden');
 			document.getElementById('qrModal').classList.remove('flex');
 			
-			// Stop scanner
+			// Stop scanner with better error handling
 			if (html5QrCodeScanner) {
 				html5QrCodeScanner.clear().then(() => {
 					html5QrCodeScanner = null;
@@ -380,8 +430,178 @@
 			document.getElementById('qrResult').classList.add('hidden');
 			document.getElementById('qrError').classList.add('hidden');
 		}
-		</script>
-	</section>
+
+		// Enhanced camera permission request with HTTP fallback
+		async function requestCameraPermission() {
+			// For HTTP, try legacy getUserMedia first
+			if (location.protocol === 'http:') {
+				try {
+					// Try legacy methods for HTTP
+					const getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+					if (getUserMedia) {
+						return new Promise((resolve, reject) => {
+							getUserMedia.call(navigator, { video: true }, 
+							(stream) => {
+								stream.getTracks().forEach(track => track.stop());
+								resolve(true);
+							},
+							(error) => reject(error)
+							);
+						});
+					}
+				} catch (error) {
+					console.log('Legacy getUserMedia failed:', error);
+				}
+			}
+			
+			// Try modern API (works on HTTPS and some HTTP localhost)
+			if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+				throw new Error('Camera API not available on HTTP. Use HTTPS or localhost.');
+			}
+			
+			try {
+				const stream = await navigator.mediaDevices.getUserMedia({ 
+					video: { 
+						facingMode: { ideal: "environment" },
+						width: { ideal: 1280 },
+						height: { ideal: 720 }
+					} 
+				});
+				
+				stream.getTracks().forEach(track => track.stop());
+				return true;
+				
+			} catch (error) {
+				// If environment camera fails, try any camera
+				try {
+					const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+					stream.getTracks().forEach(track => track.stop());
+					return true;
+				} catch (fallbackError) {
+					throw fallbackError;
+				}
+			}
+		}
+
+		// Enhanced browser support check with mobile debugging
+		function checkBrowserSupport() {
+			let debugInfo = [];
+			
+			// Collect debug info for mobile
+			debugInfo.push('Protocol: ' + location.protocol);
+			debugInfo.push('Host: ' + location.hostname);
+			debugInfo.push('Port: ' + location.port);
+			debugInfo.push('Full URL: ' + location.href);
+			debugInfo.push('UserAgent: ' + navigator.userAgent.substring(0, 80));
+			debugInfo.push('MediaDevices: ' + (!!navigator.mediaDevices));
+			debugInfo.push('GetUserMedia: ' + (!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)));
+			debugInfo.push('Legacy getUserMedia: ' + (!!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)));
+			debugInfo.push('Html5QrcodeScanner: ' + (typeof Html5QrcodeScanner !== 'undefined'));
+			
+			// Show debug info on mobile - split into chunks for readability
+			const chunks = [];
+			for(let i = 0; i < debugInfo.length; i += 3) {
+				chunks.push(debugInfo.slice(i, i + 3).join(' | '));
+			}
+			
+			showError('Debug Info:<br>' + chunks.join('<br>'));
+			
+			// Always return true to test what the real error is
+			return true;
+		}
+
+		// Handle permission-specific errors
+		function handlePermissionError(error) {
+			let errorMessage = '';
+			
+			switch(error.name) {
+				case 'NotAllowedError':
+					errorMessage = 'Camera access denied. Please allow camera permission and try again.';
+					// iOS Safari specific guidance
+					if (isIOSSafari()) {
+						errorMessage += ' On iOS Safari, you may need to check Settings > Safari > Camera.';
+					}
+					break;
+				case 'NotReadableError':
+					errorMessage = 'Camera is currently in use by another application. Please close other camera apps and try again.';
+					break;
+				case 'NotFoundError':
+					errorMessage = 'No camera found on your device. Please ensure your device has a working camera.';
+					break;
+				case 'SecurityError':
+					errorMessage = 'Camera access blocked. ';
+					if (location.protocol !== 'https:' && location.hostname !== 'localhost' && 
+						!location.hostname.startsWith('192.168.') && !location.hostname.startsWith('10.')) {
+						errorMessage += 'Try using localhost or a local IP address for HTTP development.';
+					} else {
+						errorMessage += 'Please check your browser security settings.';
+					}
+					break;
+				case 'MediaDevices API not supported':
+					errorMessage = 'Your browser doesn\'t support camera access. Please update to a newer version or use Chrome/Firefox/Safari.';
+					break;
+				default:
+					errorMessage = `Camera access error: ${error.message || error}`;
+			}
+			
+			showError(errorMessage);
+		}
+
+		// Handle scanner initialization errors
+		function handleScannerError(error) {
+			let errorMessage = 'Failed to initialize QR scanner. ';
+			
+			if (error.message && error.message.includes('QR reader element not found')) {
+				errorMessage += 'Please refresh the page and try again.';
+			} else {
+				errorMessage += 'Please check your camera permissions and try again.';
+			}
+			
+			showError(errorMessage);
+		}
+
+		// Utility function to show errors
+		function showError(message) {
+			const qrError = document.getElementById('qrError');
+			if (qrError) {
+				qrError.innerHTML = `<p class="text-sm text-red-800">${message}</p>`;
+				qrError.classList.remove('hidden');
+			} else {
+				console.error('Error element not found:', message);
+				alert(message); // Fallback
+			}
+		}
+
+		// Detect iOS Safari
+		function isIOSSafari() {
+			const ua = navigator.userAgent;
+			const iOS = /iPad|iPhone|iPod/.test(ua);
+			const webkit = /WebKit/.test(ua);
+			const chrome = /CriOS|Chrome/.test(ua);
+			return iOS && webkit && !chrome;
+		}
+
+		// Additional mobile optimization: Handle orientation changes
+		window.addEventListener('orientationchange', function() {
+			if (html5QrCodeScanner) {
+				// Restart scanner after orientation change
+				setTimeout(() => {
+					closeQrModal();
+					setTimeout(() => {
+						document.getElementById('scanQrBtn').click();
+					}, 500);
+				}, 500);
+			}
+		});
+
+		// Handle page visibility changes (important for mobile)
+		document.addEventListener('visibilitychange', function() {
+			if (document.hidden && html5QrCodeScanner) {
+				// Pause scanner when page is hidden
+				closeQrModal();
+			}
+		});
+	</script>
 </body>
 
 </html>

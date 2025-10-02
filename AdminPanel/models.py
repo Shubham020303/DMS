@@ -55,9 +55,12 @@ class Vehicle(models.Model):
     def generate_qrcode(self):
         if not self.qrCodeData:
             self.qrCodeData = str(uuid.uuid4())
+        print("QRdata",self.qrCodeData)
         qr = qrcode.make(self.qrCodeData)
+        print("QR:",qr)
         buffer = BytesIO()
         qr.save(buffer, format='PNG')
+        
         file_name = f'vehicle_qrcode_{self.vehicleNo}.png'
         self.qrCodeImage.save(file_name, ContentFile(buffer.getvalue()), save=False)
 

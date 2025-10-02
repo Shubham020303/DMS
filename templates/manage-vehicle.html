@@ -477,40 +477,41 @@
 			});
 
 			document.getElementById('close-qr-code-btn').addEventListener('click', () => {
+				document.getElementById("qr-code-image").src = "";
 				document.getElementById('qr-code-modal').classList.remove('scale-100', 'opacity-100');
 				document.getElementById('qr-code-modal').classList.add('scale-0', 'opacity-0');
 			});
 
 			document.getElementById('download-qr-code-btn').addEventListener('click', async function() {
-    const qrImageSrc = document.getElementById("qr-code-image").src;
-    const vehicleId = getCurrentVehicleId();
-    
-    if (qrImageSrc) {
-        try {
-            // Fetch the image as blob
-            const response = await fetch(qrImageSrc);
-            const blob = await response.blob();
-            
-            // Create blob URL
-            const blobUrl = window.URL.createObjectURL(blob);
-            
-            // Create temporary anchor and trigger download
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = `vehicle-${vehicleId}-qrcode.png`;
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Clean up blob URL
-            window.URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-            console.error('Download failed:', error);
-            alert('Failed to download QR code. Please try again.');
-        }
-    }
-});
+				const qrImageSrc = document.getElementById("qr-code-image").src;
+				const vehicleId = getCurrentVehicleId();
+				
+				if (qrImageSrc) {
+					try {
+						// Fetch the image as blob
+						const response = await fetch(qrImageSrc);
+						const blob = await response.blob();
+						
+						// Create blob URL
+						const blobUrl = window.URL.createObjectURL(blob);
+						
+						// Create temporary anchor and trigger download
+						const link = document.createElement('a');
+						link.href = blobUrl;
+						link.download = `vehicle-${vehicleId}-qrcode.png`;
+						
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+						
+						// Clean up blob URL
+						window.URL.revokeObjectURL(blobUrl);
+					} catch (error) {
+						console.error('Download failed:', error);
+						alert('Failed to download QR code. Please try again.');
+					}
+				}
+			});
 
 			document.getElementById("add-vehicle-form").addEventListener("submit", (e) => {
 				if (document.getElementById('add-vehicle-btn').innerText === "Update") {
@@ -690,10 +691,14 @@
 									const vehicleId = row.cells[0].data;
 									const qrCodeUrl = `http://127.0.0.1:8000/getVehicleData/?vehicleId=${vehicleId}`;
 									window.currentVehicleId = vehicleId;
-
-									document.getElementById("qr-code-image").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=200x200`;
-									document.getElementById('qr-code-modal').classList.remove('scale-0', 'opacity-0');
-									document.getElementById('qr-code-modal').classList.add('scale-100', 'opacity-100');
+									fetch(qrCodeUrl)
+										.then(response => response.json())
+										.then(data => {
+											document.getElementById("qr-code-image").src = `http://127.0.0.1:8000/` + data.qrCodeImage;
+											document.getElementById('qr-code-modal').classList.remove('scale-0', 'opacity-0');
+											document.getElementById('qr-code-modal').classList.add('scale-100', 'opacity-100');
+										})
+										.catch(error => console.error('Error fetching QR code:', error));
 								}
 							}, '');
 							let deleteBtn = gridjs.h('button', {

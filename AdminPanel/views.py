@@ -1117,9 +1117,10 @@ def getAttendanceData(request):
             if branch:
                 student = student.filter(Branch__branchName=branch)
             # student  = student.filter(student = Attendance.objects.all())
+            print("Student",student)
             studentData = []
             for i in student:
-                if i.courceEndDate > datetime.today().date():
+                if i.is_active == True:
                     data = {
                         'id': i.id,
                         'student': i.user.user.first_name,

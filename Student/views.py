@@ -105,7 +105,10 @@ def scan_qr(request):
 
     if request.method == 'POST':
         student = Student.objects.get(user__user=request.user)
+        print("Curretn Student",student)
         qr_code = request.POST.get('qr_code')
+        print("Studnet inside",qr_code)
+        print("Student QR", student.cource.vehicle.qrCodeData)
 
         if student.cource.vehicle.qrCodeData == qr_code:
             attendance = Attendance.objects.filter(student=student, date=datetime.now().date()).first()

@@ -122,7 +122,17 @@
 							</div>
 							<div class="flex flex-col gap-2 w-1/2">
 								<label for="bloodGroup" class="block font-semibold">Blood Group</label>
-								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+								<select name="bloodGroup" id="bloodGroup" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+									<option disabled selected value="Do Not Know">Do Not Know</option>
+									<option value="A+">A+</option>
+									<option value="A-">A-</option>
+									<option value="B+">B+</option>
+									<option value="B-">B-</option>
+									<option value="O+">O+</option>
+									<option value="O-">O-</option>
+									<option value="AB+">AB+</option>
+									<option value="AB-">AB-</option>
+								</select>
 							</div>
 						</div>
 						<div class="mb-4 flex items-center gap-4 w-full">
@@ -839,9 +849,9 @@
 				// document.getElementById("studentEmail").setAttribute("required", true);
 				document.getElementById("studentGender").setAttribute("required", true);
 				document.getElementById("phone").setAttribute("required", true);
-				document.getElementById("bloodGroup").setAttribute("required", true);
+				// document.getElementById("bloodGroup").setAttribute("required", true);
 				document.getElementById("dob").setAttribute("required", true);
-				document.getElementById("applicationNo").setAttribute("required", true);
+				// document.getElementById("applicationNo").setAttribute("required", true);
 				document.getElementById("address").setAttribute("required", true);
 
 				// Course Details
@@ -2820,9 +2830,9 @@
 				// document.getElementById("studentEmail").setAttribute("required", true);
 				document.getElementById("studentGender").setAttribute("required", true);
 				document.getElementById("phone").setAttribute("required", true);
-				document.getElementById("bloodGroup").setAttribute("required", true);
+				// document.getElementById("bloodGroup").setAttribute("required", true);
 				document.getElementById("dob").setAttribute("required", true);
-				document.getElementById("applicationNo").setAttribute("required", true);
+				// document.getElementById("applicationNo").setAttribute("required", true);
 				document.getElementById("address").setAttribute("required", true);
 
 				// Course Details

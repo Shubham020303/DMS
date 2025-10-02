@@ -1,0 +1,14 @@
+Django>=3.2,<5.0
+djangorestframework
+psycopg2-binary
+Pillow
+django-cors-headers
+django-filter
+drf-yasg
+django-environ
+gunicorn
+celery
+redis
+channels
+channels-redis
+# Add other dependencies below as needed
