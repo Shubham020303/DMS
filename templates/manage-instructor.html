@@ -31,6 +31,23 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+			.gridjs-wrapper {
+				overflow-x: auto;
+			}
+			.gridjs-table {
+				min-width: 600px;
+			}
+			@media (max-width: 768px) {
+				.gridjs-table {
+					font-size: 0.875rem;
+				}
+				.gridjs-th {
+					padding: 8px 4px !important;
+				}
+				.gridjs-td {
+					padding: 8px 4px !important;
+				}
+			}
 			input[type="date"]::-webkit-calendar-picker-indicator {
 				background-position: right center;
 				background-size: auto;
@@ -52,92 +69,92 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex h-screen">
+		<section class="flex min-h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
-					<h1 class="text-3xl font-bold">Manage Instructors</h1>
-					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-instructor">
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 class="text-2xl sm:text-3xl font-bold">Manage Instructors</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap" id="add-instructor">
 						<p>Add Instructor</p>
 					</div>
 				</div>
-				<div id="wrapper" class="w-full mt-8"></div>
+				<div id="wrapper" class="w-full mt-8 overflow-x-auto"></div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-instructor-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 max-h-[600px] flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-instructor-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[95%] lg:w-[80%] xl:w-[70%] max-h-[90vh] flex flex-col gap-4 sm:gap-6">
 				<div class="flex justify-between items-center">
-					<h1 id="instructon-model-heading" class="text-3xl font-bold">Add Instructor</h1>
+					<h1 id="instructon-model-heading" class="text-xl sm:text-2xl lg:text-3xl font-bold">Add Instructor</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-instructor-modal">
 						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
 						</svg>
 					</div>
 				</div>
-				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-instructor-form">
+				<form action="" method="POST" class="w-full flex flex-col gap-4 sm:gap-6 max-h-[70vh] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-instructor-form">
 					{%csrf_token%}
 					<!-- Step Indicator -->
-					<div class="w-full flex justify-between mb-4">
-						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="1">
-							<div class="progress-number w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1">1</div>
-							<span class="text-xs font-medium">Personal Info</span>
+					<div class="w-full flex justify-between mb-4 overflow-x-auto pb-2">
+						<div class="progress-step flex flex-col items-center cursor-pointer min-w-[80px] flex-1" data-step="1">
+							<div class="progress-number w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1 text-sm sm:text-base">1</div>
+							<span class="text-[10px] sm:text-xs font-medium text-center">Personal Info</span>
 						</div>
-						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="2">
-							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">2</div>
-							<span class="text-xs font-medium">License Info</span>
+						<div class="progress-step flex flex-col items-center cursor-pointer min-w-[80px] flex-1" data-step="2">
+							<div class="progress-number w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1 text-sm sm:text-base">2</div>
+							<span class="text-[10px] sm:text-xs font-medium text-center">License Info</span>
 						</div>
-						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="3">
-							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">3</div>
-							<span class="text-xs font-medium">Documents</span>
+						<div class="progress-step flex flex-col items-center cursor-pointer min-w-[80px] flex-1" data-step="3">
+							<div class="progress-number w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1 text-sm sm:text-base">3</div>
+							<span class="text-[10px] sm:text-xs font-medium text-center">Documents</span>
 						</div>
 					</div>
 
 					<div class="form-step" data-step="1">
-						<div class="mb-4 flex items-start gap-4 w-full h-[230px]">
-							<div class="flex flex-col items-center gap-4 w-full">
+						<div class="mb-4 flex flex-col lg:flex-row items-start gap-4 w-full">
+							<div class="flex flex-col items-center gap-4 w-full order-2 lg:order-1">
 								<div class="flex flex-col gap-2 w-full">
-									<label for="name" class="block font-semibold">Name</label>
+									<label for="name" class="block font-semibold text-sm sm:text-base">Name</label>
 									<input type="text" name="name" id="name" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 								</div>
 								<div class="flex flex-col gap-2 w-full">
-									<label for="email" class="block font-semibold">Email</label>
+									<label for="email" class="block font-semibold text-sm sm:text-base">Email</label>
 									<input type="email" name="email" id="email" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 								</div>
 								<div class="flex flex-col gap-2 w-full">
-									<label for="branch" class="block font-semibold">Branch</label>
+									<label for="branch" class="block font-semibold text-sm sm:text-base">Branch</label>
 									<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 										<option disabled selected>Select Branch</option>
 									</select>
 								</div>
 							</div>
-							<div class="flex justify-center w-full h-full">
-								<div class="image-upload-container flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-full p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="image-upload">
+							<div class="flex justify-center w-full lg:w-1/2 order-1 lg:order-2">
+								<div class="image-upload-container flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-48 sm:h-56 lg:h-full p-4 sm:p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="image-upload">
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
 										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
 										<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
 									</svg>
-									<p class="whitespace-nowrap">Add Instructor Image</p>
+									<p class="whitespace-nowrap text-[10px] sm:text-xs">Add Instructor Image</p>
 									<img id="instructor-image" src="" class="absolute top-0 left-0 w-full h-full object-cover hidden bg-[#141414]" alt="">
 									<input type="file" name="profilePhoto" id="profilePhoto" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer font-bold" accept="image/*">
 								</div>
 							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="mobile" class="block font-semibold">Phone</label>
 								<input type="text" name="mobile" id="mobile" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="bloodGroup" class="block font-semibold">Blood Group</label>
 								<input type="text" name="bloodGroup" id="bloodGroup" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-full">
 								<label for="dob" class="block font-semibold">Date of Birth</label>
 								<input type="date" name="dob" id="dob" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<!-- <div class="flex flex-col gap-2 w-1/2">
+							<!-- <div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="vehicle" class="block font-semibold">Vehicle</label>
 								<select name="vehicle" id="vehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 									<option disabled selected>Select Vehicle</option>
@@ -146,7 +163,7 @@
 						</div>
 					</div>
 					<div class="form-step" data-step="2">
-						<div class="mb-4 flex items-start gap-4 w-full">
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
 							<div class="flex flex-col items-center gap-4 w-full">
 								<div class="flex flex-col gap-2 w-full">
 									<label for="dlNo" class="block font-semibold">License Number</label>
@@ -154,12 +171,12 @@
 								</div>
 							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="dlIssueDate" class="block font-semibold">License Issue Date</label>
 								<input type="date" name="dlIssueDate" id="dlIssueDate" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="dlExpiry" class="block font-semibold">License Expiry Date</label>
 								<input type="date" name="dlExpiry" id="dlExpiry" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
@@ -335,15 +352,15 @@
 						</div>
 					</div> -->
 					<!-- Navigation Buttons -->
-					<div id="btns-container" class="flex justify-between">
-						<button type="button" id="prev-step" class="bg-gray-500 text-white px-6 py-2 rounded cursor-pointer mr-2 hidden">
+					<div id="btns-container" class="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0">
+						<button type="button" id="prev-step" class="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded cursor-pointer sm:mr-2 hidden text-sm sm:text-base">
 						Previous
 						</button>
-						<button type="button" id="next-step" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer">
+						<button type="button" id="next-step" class="bg-indigo-600 text-white px-4 sm:px-6 py-2 rounded cursor-pointer text-sm sm:text-base">
 						Next
 						</button>
-						<button id="add-instructor-btn" class="bg-green-600 text-white px-6 py-2 rounded cursor-pointer hidden">
-						Add Student
+						<button id="add-instructor-btn" class="bg-green-600 text-white px-4 sm:px-6 py-2 rounded cursor-pointer hidden text-sm sm:text-base">
+						Add Instructor
 						</button>
 					</div>
 					<!-- <div id="btns-container" class="flex justify-end">
@@ -357,10 +374,10 @@
 				</form>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-instructor-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-instructor-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
-					<h1 id="update-insturctor-heading" class="text-2xl font-bold">Update Instructor</h1>
+					<h1 id="update-insturctor-heading" class="text-xl sm:text-2xl font-bold">Update Instructor</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-instructor-btn">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
@@ -377,10 +394,10 @@
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-instructor-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="delete-instructor-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
-					<h1 class="text-2xl font-bold">Delete Instructor</h1>
+					<h1 class="text-xl sm:text-2xl font-bold">Delete Instructor</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-instructor-btn">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
@@ -391,43 +408,45 @@
 					<p id="delete-instructor-message">Are you sure you want to delete this instructor?</p>
 					<p>This action cannot be undone.</p>
 				</div>
-				<div class="flex justify-end">
-					<button id="delete-instructor-btn" class="bg-red-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+				<div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-0">
+					<button id="delete-instructor-btn" class="bg-red-600 text-white px-4 sm:px-6 py-2 rounded cursor-pointer sm:mr-2 text-sm sm:text-base">
 						<p>Delete</p>
 					</button>
-					<botton id="close-delete-instructor-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer">
+					<botton id="close-delete-instructor-modal" class="bg-indigo-600 text-white px-4 py-2 rounded cursor-pointer text-sm sm:text-base">
 						<p>Cancel</p>
 					</botton>
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="view-instructor-modal">
-			<div class="bg-white p-8 rounded-lg min-w-[300px] w-[600px] max-w-1/2 h-[270px] flex gap-5 relative">
-				<div class="absolute -top-4 -right-4 bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-view-instructor-btn">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="view-instructor-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-[600px] min-h-[200px] max-h-[90vh] overflow-y-auto relative">
+				<div class="absolute -top-4 -right-4 bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer z-10" id="close-view-instructor-btn">
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 						<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
 					</svg>
 				</div>
-				<div class="w-[35%] h-full rounded-md overflow-hidden bg-black">
-					<img id="instructor-view-image" src="https://images.pexels.com/photos/30550052/pexels-photo-30550052/free-photo-of-wind-turbines-in-foggy-a-pobra-do-caraminal.jpeg?auto=compress&cs=tinysrgb&w=1080&lazy=load" alt="" class="w-full h-full object-cover bg-black">
-				</div>
-				<div class="h-full w-[65%] flex flex-col justify-between">
-					<div>
-						<span class="text-sm text-indigo-600">Name</span>
-						<p id="instructor-name" class="text-xl font-semibold">Shubham Bhogayata</p>
+				<div class="flex flex-col md:flex-row gap-5">
+					<div class="w-full md:w-[35%] h-48 md:h-auto rounded-md overflow-hidden bg-black">
+						<img id="instructor-view-image" src="https://images.pexels.com/photos/30550052/pexels-photo-30550052/free-photo-of-wind-turbines-in-foggy-a-pobra-do-caraminal.jpeg?auto=compress&cs=tinysrgb&w=1080&lazy=load" alt="" class="w-full h-full object-cover bg-black">
 					</div>
-					<div>
-						<span class="text-sm text-indigo-600">Email</span>
-						<p id="instructor-email" class="text-xl font-semibold">shubham@gmail.com</p>
-					</div>
-					<div class="flex items-center justify-between">
+					<div class="w-full md:w-[65%] flex flex-col justify-between gap-4">
 						<div>
-							<span class="text-sm text-indigo-600">Phone Number</span>
-							<p id="instructor-phone" class="text-xl font-semibold">1234567890</p>
+							<span class="text-xs sm:text-sm text-indigo-600">Name</span>
+							<p id="instructor-name" class="text-lg sm:text-xl font-semibold break-words">Shubham Bhogayata</p>
 						</div>
 						<div>
-							<span class="text-sm text-indigo-600">Blood Group</span>
-							<p id="instructor-bg" class="text-xl font-semibold text-right uppercase">ab</p>
+							<span class="text-xs sm:text-sm text-indigo-600">Email</span>
+							<p id="instructor-email" class="text-lg sm:text-xl font-semibold break-words">shubham@gmail.com</p>
+						</div>
+						<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+							<div>
+								<span class="text-xs sm:text-sm text-indigo-600">Phone Number</span>
+								<p id="instructor-phone" class="text-lg sm:text-xl font-semibold">1234567890</p>
+							</div>
+							<div>
+								<span class="text-xs sm:text-sm text-indigo-600">Blood Group</span>
+								<p id="instructor-bg" class="text-lg sm:text-xl font-semibold sm:text-right uppercase">ab</p>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -1073,6 +1092,12 @@
 				},
 				sort: true,
 				fixedHeader: true,
+				autoWidth: true,
+				style: {
+					table: {
+						'white-space': 'nowrap'
+					}
+				},
 				columns: [{
 						id: "id",
 						name: "ID",

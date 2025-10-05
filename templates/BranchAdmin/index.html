@@ -32,6 +32,21 @@
 		.gridjs-search-input{
 			width: 100%;
 		}
+		/* Responsive improvements for grid.js tables */
+		@media (max-width: 768px) {
+			.gridjs-wrapper {
+				overflow-x: auto;
+			}
+			.gridjs-table {
+				font-size: 12px;
+			}
+			.gridjs-th {
+				padding: 8px 4px !important;
+			}
+			.gridjs-td {
+				padding: 8px 4px !important;
+			}
+		}
 		.gridjs-th-content{
 			white-space: normal;
 		}
@@ -73,9 +88,9 @@
 <body>
 	<section class="flex min-h-screen bg-indigo-50">
 		{% include 'navbar.html' %}
-		<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-			<div class="w-full flex items-center justify-between">
-				<h1 class="text-3xl font-bold">Dashboard</h1>
+		<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+			<div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+				<h1 class="text-2xl sm:text-3xl font-bold">Dashboard</h1>
 				<div class="relative" id="notification-container" style="display: none;">
 					<div id="notificationBtn"
 						class="bg-white p-3 rounded-full shadow cursor-pointer flex items-center justify-center relative">
@@ -90,7 +105,7 @@
 						</div>
 					</div>
 
-					<div id="notificationModal" class="w-full min-w-[450px] max-w-[450px] absolute top-14 right-0 scale-y-0 opacity-0 origin-top bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-50">
+					<div id="notificationModal" class="w-[calc(100vw-2rem)] sm:w-full sm:min-w-[450px] sm:max-w-[450px] absolute top-14 right-0 sm:right-0 scale-y-0 opacity-0 origin-top bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-50">
 						<div class="px-4 py-3 bg-indigo-50 border-b border-indigo-100">
 							<h3 class="text-lg font-semibold text-indigo-900">Notifications</h3>
 						</div>
@@ -214,8 +229,8 @@
 			</div> -->
 		</div>
 	</section>
-	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-payment-modal">
-		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-payment-modal">
+		<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 			<div class="flex justify-between items-center">
 				<h1 id="payment-model-heading" class="text-3xl font-bold">Receive Payment</h1>
 				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-payment-modal">
@@ -277,8 +292,8 @@
 			</form>
 		</div>
 	</section>
-	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-payment-modal">
-		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-payment-modal">
+		<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 			<div class="flex justify-between items-center">
 				<h1 id="update-payment-heading" class="text-2xl font-bold">Update Payment</h1>
 				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-payment-btn">

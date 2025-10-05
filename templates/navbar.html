@@ -1,7 +1,23 @@
-<div class="fixed top-0 left-0 flex flex-col bg-clip-border bg-[#141414] text-white min-h-screen h-screen min-w-[18rem] w-full max-w-[18rem] p-4 shadow-xl shadow-blue-gray-900/5 z-10">
-	<div class="mb-2 px-4">
-		<!-- <h5 class="block antialiased tracking-normal font-sans text-xl font-semibold leading-snug text-white">DMS</h5> -->
+<!-- Mobile Menu Button -->
+<button id="mobile-menu-btn" class="lg:hidden fixed top-4 left-4 z-50 bg-[#141414] text-white p-3 rounded-lg shadow-lg">
+	<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+	</svg>
+</button>
+
+<!-- Overlay for mobile -->
+<div id="mobile-overlay" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+<!-- Sidebar Navigation -->
+<div id="sidebar" class="fixed top-0 left-0 flex flex-col bg-clip-border bg-[#141414] text-white h-screen w-[18rem] p-4 shadow-xl shadow-blue-gray-900/5 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+	<div class="mb-2 px-4 flex items-center justify-between">
 		<img src="../static/images/IDEA-LOGO.png" class="w-[110px] h-[70px] object-contain" alt="logo">
+		<!-- Close button for mobile -->
+		<button id="close-menu-btn" class="lg:hidden text-white">
+			<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+			</svg>
+		</button>
 	</div>
 	<nav class="flex flex-col justify-between p-2 font-sans text-base font-normal text-white h-full">
 		<div class="h-[calc(100vh-250px)] overflow-y-auto flex flex-col gap-1 pr-2 [&::-webkit-scrollbar]:w-2">
@@ -234,6 +250,44 @@
 			if (link.href === window.location.href) {
 				link.querySelector('div').classList.add('bg-indigo-500', 'bg-opacity-80', 'text-white');
 			}
+		});
+
+		// Mobile menu functionality
+		const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+		const closeMenuBtn = document.getElementById('close-menu-btn');
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('mobile-overlay');
+
+		function openMenu() {
+			sidebar.classList.remove('-translate-x-full');
+			overlay.classList.remove('hidden');
+		}
+
+		function closeMenu() {
+			sidebar.classList.add('-translate-x-full');
+			overlay.classList.add('hidden');
+		}
+
+		if (mobileMenuBtn) {
+			mobileMenuBtn.addEventListener('click', openMenu);
+		}
+		
+		if (closeMenuBtn) {
+			closeMenuBtn.addEventListener('click', closeMenu);
+		}
+		
+		if (overlay) {
+			overlay.addEventListener('click', closeMenu);
+		}
+
+		// Close menu when clicking on a link (mobile)
+		const sidebarLinks = sidebar.querySelectorAll('a');
+		sidebarLinks.forEach(link => {
+			link.addEventListener('click', () => {
+				if (window.innerWidth < 1024) {
+					closeMenu();
+				}
+			});
 		});
 	});
 </script>

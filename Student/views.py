@@ -6,28 +6,29 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from AdminPanel.models import UserProfile, Branch, Slot, Cource, Student, Attendance, Complain, CourceContent,DLInfo
+from django.contrib.auth.models import User
+
 # Create your views here.
 def student_signin(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        mobile = request.POST.get('username')  # Use 'username' field for mobile input
         password = request.POST.get('password')
         next_url = request.POST.get('next') or request.GET.get('next') or 'index/'
         print(next_url)
-        user = authenticate(username=username, password=password)
-        print(user)
-        # Check if user is not None and is a student
-        if user is None:
-            return render(request, 'student/signin.html', {'error': 'Invalid username or password'})
-        # If user is authenticated, check if they are a student
-        user_profile = UserProfile.objects.filter(user=user).first()
+        # Find user by mobile number
+        user_profile = UserProfile.objects.filter(phoneNo=mobile).first()
+        if not user_profile:
+            return render(request, 'student/signin.html', {'error': 'Invalid mobile number or Passworx'})
         student = Student.objects.filter(user=user_profile).first()
-
         if not student:
             return render(request, 'student/signin.html', {'error': 'You are not authorized to access this page.'})
-        else:
-            login(request, user)
-            return redirect(next_url)
-        
+        # Compare password with DOB in ddmmyyyy format
+        dob_str = student.dob.strftime('%d%m%Y') if student.dob else ''
+        if password != dob_str:
+            return render(request, 'student/signin.html', {'error': 'Invalid mobile number or Password'})
+        # Authenticate and login user
+        login(request, user_profile.user)
+        return redirect(next_url)
     # Pass 'next' to the template if present
     next_url = request.GET.get('next', '')
     return render(request, 'student/signin.html', {'next': next_url})
@@ -132,4 +133,5 @@ def scan_qr(request):
 @login_required(login_url='student_signin/')
 def signout(request):
     logout(request)
+    return redirect('student_signin/')
     return redirect('student_signin/')

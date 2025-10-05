@@ -32,6 +32,23 @@
 		.gridjs-search-input{
 			width: 100%;
 		}
+		.gridjs-wrapper {
+			overflow-x: auto;
+		}
+		.gridjs-table {
+			min-width: 600px;
+		}
+		@media (max-width: 768px) {
+			.gridjs-table {
+				font-size: 0.875rem;
+			}
+			.gridjs-th {
+				padding: 8px 4px !important;
+			}
+			.gridjs-td {
+				padding: 8px 4px !important;
+			}
+		}
 		.gridjs-th-content{
 			white-space: normal;
 		}
@@ -73,29 +90,29 @@
 <body>
 	<section class="flex min-h-screen bg-indigo-50">
 		{% include 'navbar.html' %}
-		<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-			<div class="w-full flex items-center justify-between">
-				<h1 class="text-3xl font-bold">Dashboard</h1>
+		<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+			<div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+				<h1 class="text-2xl sm:text-3xl font-bold">Dashboard</h1>
 				<div class="relative" id="notification-container" style="display: none;">
 					<div id="notificationBtn"
-						class="bg-white p-3 rounded-full shadow cursor-pointer flex items-center justify-center relative">
+						class="bg-white p-2 sm:p-3 rounded-full shadow cursor-pointer flex items-center justify-center relative">
 						<div class="">
-							<svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-indigo-400">
+							<svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400">
 								<path d="M6.502 6.975a5.525 5.525 0 0 1 10.995 0l.287 2.866c.018.175.026.262.037.348a8 8 0 0 0 1.19 3.325l.192.291.861 1.292c.787 1.18 1.18 1.769 1.008 2.244-.033.09-.078.175-.135.252-.3.407-1.009.407-2.426.407H5.489c-1.417 0-2.126 0-2.426-.407a1 1 0 0 1-.134-.252c-.173-.475.22-1.065 1.006-2.244l.862-1.292.192-.291a8 8 0 0 0 1.19-3.325c.01-.086.02-.173.037-.348l.286-2.866Z"
 									fill="currentColor"></path>
 								<path d="M10.068 20.63c.114.106.365.2.715.267.349.067.777.103 1.217.103.44 0 .868-.036 1.217-.103.35-.067.6-.161.715-.268"
 									stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
 							</svg>
-							<span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full" id="notification-count">0</span>
+							<span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full text-[10px] sm:text-xs" id="notification-count">0</span>
 						</div>
 					</div>
 
-					<div id="notificationModal" class="w-full min-w-[450px] max-w-[450px] absolute top-14 right-0 scale-y-0 opacity-0 origin-top bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-50">
+					<div id="notificationModal" class="w-[calc(100vw-2rem)] sm:w-[450px] absolute top-14 right-0 sm:right-0 left-0 sm:left-auto scale-y-0 opacity-0 origin-top bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-50">
 						<div class="px-4 py-3 bg-indigo-50 border-b border-indigo-100">
-							<h3 class="text-lg font-semibold text-indigo-900">Notifications</h3>
+							<h3 class="text-base sm:text-lg font-semibold text-indigo-900">Notifications</h3>
 						</div>
 						
-						<div class="max-h-[400px] overflow-y-auto overflow-x-hidden" id="notification-list">
+						<div class="max-h-[300px] sm:max-h-[400px] overflow-y-auto overflow-x-hidden" id="notification-list">
 							<!-- Notifications will be dynamically inserted here -->
 						</div>
 					</div>
@@ -214,8 +231,8 @@
 			</div> -->
 		</div>
 	</section>
-	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-payment-modal">
-		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-payment-modal">
+		<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 			<div class="flex justify-between items-center">
 				<h1 id="payment-model-heading" class="text-3xl font-bold">Receive Payment</h1>
 				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-payment-modal">
@@ -227,36 +244,36 @@
 			<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-payment-form">
 				{%csrf_token%}
 				<div class="w-full">
-					<div class="mb-4 flex items-start gap-4 w-full">
-						<div class="flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
+					<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+						<div class="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="studentName" class="block font-semibold">Student</label>
 								<input type="text" name="studentName" id="studentName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="paymentDate" class="block font-semibold">Date</label>
 								<input type="date" name="paymentDate" id="paymentDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
 					</div>
-					<div class="mb-4 flex items-center gap-4 w-full">
-						<div class="flex flex-col gap-2 w-1/2">
+					<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+						<div class="flex flex-col gap-2 w-full md:w-1/2">
 							<label for="paymentDue" class="block font-semibold">Payment Due</label>
 							<input type="text" name="paymentDue" id="paymentDue" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 						</div>
-						<div class="flex flex-col gap-2 w-1/2">
+						<div class="flex flex-col gap-2 w-full md:w-1/2">
 							<label for="paymentReceived" class="block font-semibold">Payment Received</label>
 							<input type="text" name="paymentReceived" id="paymentReceived" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 						</div>
 					</div>
-					<div class="mb-4 flex items-center gap-4 w-full">
-						<div class="flex flex-col gap-2 w-1/2">
+					<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+						<div class="flex flex-col gap-2 w-full md:w-1/2">
 							<label for="paymentReceivedBy" class="block font-semibold">Payment Receiver</label>
 							<select name="paymentReceivedBy" id="paymentReceivedBy" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 								<option disabled selected>Select Person</option>
 							</select>
 						</div>
-						<div class="flex flex-col gap-2 w-1/2">
+						<div class="flex flex-col gap-2 w-full md:w-1/2">
 							<label for="paymentMethod" class="block font-semibold">Payment Method</label>
 							<select name="paymentMethod" id="paymentMethod" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 								<option disabled selected>Select Method</option>
@@ -277,8 +294,8 @@
 			</form>
 		</div>
 	</section>
-	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-payment-modal">
-		<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+	<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-payment-modal">
+		<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 			<div class="flex justify-between items-center">
 				<h1 id="update-payment-heading" class="text-2xl font-bold">Update Payment</h1>
 				<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-payment-btn">

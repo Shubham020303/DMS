@@ -52,32 +52,32 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex flex-col h-screen">
+		<section class="flex flex-col min-h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18.5rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
-					<h1 class="text-3xl font-bold">Manage Courses</h1>
-					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-course">
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 class="text-2xl sm:text-3xl font-bold">Manage Courses</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap" id="add-course">
 						<p>Add Course</p>
 					</div>
 				</div>
-				<div id="wrapper" class="w-full mt-8"></div>
+				<div id="wrapper" class="w-full mt-8 overflow-x-auto"></div>
 			</div>
-			<div class="p-8 w-[calc(100vw-18.5rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
-					<h1 class="text-3xl font-bold">Manage Services</h1>
-					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-service">
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem]">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 class="text-2xl sm:text-3xl font-bold">Manage Services</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap" id="add-service">
 						<p>Add Service</p>
 					</div>
 				</div>
-				<div id="service-wrapper" class="w-full mt-8"></div>
+				<div id="service-wrapper" class="w-full mt-8 overflow-x-auto"></div>
 			</div>
 		</section>
 
 		<!-------------------------------------------- Add Course Modal -------------------------------------------->
 
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-course-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-course-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="course-model-heading" class="text-3xl font-bold">Add Course</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-course-modal">
@@ -152,8 +152,8 @@
 
 		<!-------------------------------------------- Add Service Modal -------------------------------------------->
 
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-service-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-service-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="service-model-heading" class="text-3xl font-bold">Add Service</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-service-modal">
@@ -202,8 +202,8 @@
 
 		<!-------------------------------------------- Update Course Modal -------------------------------------------->
 
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-course-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-course-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="update-course-heading" class="text-2xl font-bold">Update Course</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-course-btn">
@@ -227,8 +227,8 @@
 
 		<!-------------------------------------------- Update Service Modal -------------------------------------------->
 
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-service-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-service-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="update-service-heading" class="text-2xl font-bold">Update Service</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-service-btn">
@@ -252,8 +252,8 @@
 
 		<!-------------------------------------------- Delete Course Modal -------------------------------------------->
 
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-course-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="delete-course-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 class="text-2xl font-bold">Delete Course</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-course-btn">
@@ -281,8 +281,8 @@
 
 		<!-------------------------------------------- Delete Service Modal -------------------------------------------->
 
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-service-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="delete-service-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 class="text-2xl font-bold">Delete Service</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-service-btn">

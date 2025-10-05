@@ -53,22 +53,22 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex h-screen">
+		<section class="flex min-h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
-					<h1 class="text-3xl font-bold">Manage Linceses</h1>
-					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-license">
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 class="text-2xl sm:text-3xl font-bold">Manage Licenses</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap" id="add-license">
 						<p>Add License</p>
 					</div>
 				</div>
 				<div id="wrapper" class="w-full mt-8"></div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-license-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-license-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
-					<h1 id="license-model-heading" class="text-3xl font-bold">Add License</h1>
+					<h1 id="license-model-heading" class="text-xl sm:text-2xl lg:text-3xl font-bold">Add License</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-license-modal">
 						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
@@ -80,22 +80,22 @@
 					<div class="w-full">
 						<div class="mb-4 flex items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-full">
-								<label for="dlUser" class="block font-semibold">Name</label>
+								<label for="dlUser" class="block font-semibold text-sm sm:text-base">Name</label>
 								<select name="dlUser" id="dlUser" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 									<option disabled selected>Select Person</option>
 								</select>
 							</div>
 						</div>
 						<div class="my-6 flex items-center gap-4 w-full">
-							<h1 class="text-xl font-bold">Driving License Information</h1>
+							<h1 class="text-lg sm:text-xl font-bold">Driving License Information</h1>
 						</div>
-                              <div class="mb-4 flex items-center gap-4 w-full">
-                                   <div class="flex flex-col gap-2 w-1/2">
-                                        <label for="dlNo" class="block font-semibold">DL number</label>
+                              <div class="mb-4 flex flex-col sm:flex-row items-start gap-4 w-full">
+                                   <div class="flex flex-col gap-2 w-full sm:w-1/2">
+                                        <label for="dlNo" class="block font-semibold text-sm sm:text-base">DL number</label>
                                         <input type="text" name="dlNo" id="dlNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                    </div>
-                                   <div class="flex flex-col gap-2 w-1/2">
-								<label for="dlType" class="block font-semibold">License Type</label>
+                                   <div class="flex flex-col gap-2 w-full sm:w-1/2">
+								<label for="dlType" class="block font-semibold text-sm sm:text-base">License Type</label>
 								<select name="dlType" id="dlType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 									<option disabled selected>Select License</option>
 									<option value="Learning License">Learning License</option>
@@ -103,21 +103,21 @@
 								</select>
 							</div>
                               </div>
-						<div class="mb-4 flex items-start gap-4 w-full">
-							<div class="flex items-center gap-4 w-full">
-								<div class="flex flex-col gap-2 w-full">
-									<label for="dlIssueDate" class="block font-semibold">Issue Date</label>
+						<div class="mb-4 flex flex-col sm:flex-row items-start gap-4 w-full">
+							<div class="flex flex-col sm:flex-row items-start gap-4 w-full">
+								<div class="flex flex-col gap-2 w-full sm:w-1/2">
+									<label for="dlIssueDate" class="block font-semibold text-sm sm:text-base">Issue Date</label>
 									<input type="date" name="dlIssueDate" id="dlIssueDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 								</div>
-								<div class="flex flex-col gap-2 w-full">
-									<label for="dlExpiryDate" class="block font-semibold">Expiration Date</label>
+								<div class="flex flex-col gap-2 w-full sm:w-1/2">
+									<label for="dlExpiryDate" class="block font-semibold text-sm sm:text-base">Expiration Date</label>
 									<input type="date" name="dlExpiryDate" id="dlExpiryDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 								</div>
 							</div>
 						</div>
 					</div>
-					<div id="btns-container" class="flex justify-end">
-						<button id="add-license-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+					<div id="btns-container" class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-0">
+						<button id="add-license-btn" class="bg-indigo-600 text-white px-4 sm:px-6 py-2 rounded cursor-pointer sm:mr-2 text-sm sm:text-base">
 							<p>Add</p>
 						</button>
 						<botton id="close-add-license-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
@@ -127,8 +127,8 @@
 				</form>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-license-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-license-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="update-license-heading" class="text-2xl font-bold">Update Lincese</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-license-btn">
@@ -147,8 +147,8 @@
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-license-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="delete-license-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 class="text-2xl font-bold">Delete Lincese</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-license-btn">

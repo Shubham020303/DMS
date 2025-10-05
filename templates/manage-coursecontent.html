@@ -31,6 +31,23 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+			.gridjs-wrapper {
+				overflow-x: auto;
+			}
+			.gridjs-table {
+				min-width: 600px;
+			}
+			@media (max-width: 768px) {
+				.gridjs-table {
+					font-size: 0.875rem;
+				}
+				.gridjs-th {
+					padding: 8px 4px !important;
+				}
+				.gridjs-td {
+					padding: 8px 4px !important;
+				}
+			}
                .loader {
                     border: 16px solid #f3f3f3;
                     border-radius: 50%;
@@ -73,22 +90,22 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex h-screen">
+		<section class="flex min-h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
-					<h1 class="text-3xl font-bold">Manage Course Content</h1>
-					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-course-content">
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 class="text-2xl sm:text-3xl font-bold">Manage Course Content</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap" id="add-course-content">
 						<p>Add Course Content</p>
 					</div>
 				</div>
 				<div id="wrapper" class="w-full mt-8"></div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-course-content-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-course-content-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
-					<h1 id="course-content-model-heading" class="text-3xl font-bold">Add Course Content</h1>
+					<h1 id="course-content-model-heading" class="text-xl sm:text-2xl lg:text-3xl font-bold">Add Course Content</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-course-content-modal">
 						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
@@ -100,15 +117,15 @@
 					<div class="w-full">
                               <div class="mb-4 flex flex-col items-center gap-4 w-full">
                                    <div class="flex flex-col gap-2 w-full">
-                                        <label for="courseContentDescription" class="block font-semibold">Course Content Title</label>
+                                        <label for="courseContentDescription" class="block font-semibold text-sm sm:text-base">Course Content Title</label>
                                         <textarea rows="3" name="courseContentDescription" id="courseContentDescription"
                                              autocomplete="off" required
                                              class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
                                    </div>
                               </div>
-                              <div class="mb-4 flex items-center gap-4 w-full">
-                                   <div class="flex flex-col gap-2 w-full">
-                                        <label for="courseContentFile" class="block font-semibold">Course Content File</label>
+                              <div class="mb-4 flex flex-col sm:flex-row items-start gap-4 w-full">
+                                   <div class="flex flex-col gap-2 w-full sm:w-1/2">
+                                        <label for="courseContentFile" class="block font-semibold text-sm sm:text-base">Course Content File</label>
                                         <input 
                                              type="file" 
                                              name="courseContentFile" 
@@ -118,8 +135,8 @@
                                              accept="application/pdf"
                                              class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                    </div>
-                                   <div class="flex flex-col gap-2 w-full">
-                                        <label for="courseContentVideo" class="block font-semibold">Course Content Video</label>
+                                   <div class="flex flex-col gap-2 w-full sm:w-1/2">
+                                        <label for="courseContentVideo" class="block font-semibold text-sm sm:text-base">Course Content Video</label>
                                         <input 
                                              type="file" 
                                              name="courseContentVideo" 
@@ -131,19 +148,19 @@
                                    </div>
                               </div>
 					</div>
-					<div id="btns-container" class="flex justify-end">
-						<button id="add-course-content-btn" class="bg-indigo-600 text-white px-6 py-2 rounded cursor-pointer mr-2">
+					<div id="btns-container" class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-0">
+						<button id="add-course-content-btn" class="bg-indigo-600 text-white px-4 sm:px-6 py-2 rounded cursor-pointer sm:mr-2 text-sm sm:text-base">
 							<p>Add</p>
 						</button>
-						<botton id="close-add-course-content-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+						<botton id="close-add-course-content-modal" class="bg-red-700 text-white px-4 py-2 rounded cursor-pointer text-sm sm:text-base">
 							<p>Cancel</p>
 						</botton>
 					</div>
 				</form>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-course-content-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-course-content-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="update-course-content-heading" class="text-2xl font-bold">Update Course Content</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-course-content-btn">
@@ -162,8 +179,8 @@
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-course-content-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="delete-course-content-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 class="text-2xl font-bold">Delete Course Content</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-course-content-btn">

@@ -31,6 +31,23 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+			.gridjs-wrapper {
+				overflow-x: auto;
+			}
+			.gridjs-table {
+				min-width: 600px;
+			}
+			@media (max-width: 768px) {
+				.gridjs-table {
+					font-size: 0.875rem;
+				}
+				.gridjs-th {
+					padding: 8px 4px !important;
+				}
+				.gridjs-td {
+					padding: 8px 4px !important;
+				}
+			}
 			input[type="date"]::-webkit-calendar-picker-indicator {
 				background-position: right center;
 				background-size: auto;
@@ -52,48 +69,48 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex h-screen">
+		<section class="flex min-h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
-					<h1 class="text-3xl font-bold">Manage Branches</h1>
-					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-branch">
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 class="text-2xl sm:text-3xl font-bold">Manage Branches</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap" id="add-branch">
 						<p>Add Branch</p>
 					</div>
 				</div>
-				<div id="wrapper" class="w-full mt-8"></div>
+				<div id="wrapper" class="w-full mt-8 overflow-x-auto"></div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-branch-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-branch-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
-					<h1 id="branch-model-heading" class="text-3xl font-bold">Add Branch</h1>
+					<h1 id="branch-model-heading" class="text-xl sm:text-2xl lg:text-3xl font-bold">Add Branch</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-branch-modal">
 						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
 						</svg>
 					</div>
 				</div>
-				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-branch-form">
+				<form action="" method="POST" class="w-full flex flex-col gap-4 sm:gap-6" enctype="multipart/form-data" id="add-branch-form">
 					{%csrf_token%}
 					<div class="w-full">
-						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="branchName" class="block font-semibold">Branch Name</label>
+						<div class="mb-4 flex flex-col sm:flex-row items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full sm:w-1/2">
+								<label for="branchName" class="block font-semibold text-sm sm:text-base">Branch Name</label>
 								<input type="text" name="branchName" id="branchName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="branchPhoneNo" class="block font-semibold">Branch Phone Number</label>
+							<div class="flex flex-col gap-2 w-full sm:w-1/2">
+								<label for="branchPhoneNo" class="block font-semibold text-sm sm:text-base">Branch Phone Number</label>
 								<input type="text" name="branchPhoneNo" id="branchPhoneNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
-						<div id="password-container" class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="branchEmail" class="block font-semibold">Branch Email</label>
+						<div id="password-container" class="mb-4 flex flex-col sm:flex-row items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full sm:w-1/2">
+								<label for="branchEmail" class="block font-semibold text-sm sm:text-base">Branch Email</label>
 								<input type="email" name="branchEmail" id="branchEmail" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
-                                        <label for="branchIncharge" class="block font-semibold">Branch Incharge</label>
+							<div class="flex flex-col gap-2 w-full sm:w-1/2">
+                                        <label for="branchIncharge" class="block font-semibold text-sm sm:text-base">Branch Incharge</label>
                                         <select name="branchIncharge" id="branchIncharge" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
                                              <option disabled selected>Select User</option>
                                         </select>
@@ -115,8 +132,8 @@
 				</form>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-branch-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-branch-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="update-branch-heading" class="text-2xl font-bold">Update Branch</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-branch-btn">
@@ -135,8 +152,8 @@
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-branch-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="delete-branch-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 class="text-2xl font-bold">Delete Branch</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-branch-btn">
@@ -407,6 +424,12 @@
 				},
 				sort: true,
 				fixedHeader: true,
+				autoWidth: true,
+				style: {
+					table: {
+						'white-space': 'nowrap'
+					}
+				},
 				columns: [
                          {
 						id: "id",

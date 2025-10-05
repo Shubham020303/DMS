@@ -52,14 +52,14 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex h-screen">
+		<section class="flex min-h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div class="flex items-end gap-4">
-                            <h1 class="text-3xl font-bold">Manage Attendance</h1>
+                            <h1 class="text-2xl sm:text-3xl font-bold">Manage Attendance</h1>
                         </div>
-					<div class="flex items-center gap-4">
+					<div class="flex flex-wrap items-center gap-4">
 						<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-attendance">
 							<p>Add Attendance</p>
 						</div>
@@ -73,38 +73,38 @@
 						</div> -->
 					</div>
 				</div>
-                    <div class="flex items-center justify-between gap-4 my-8">
-					<div class="flex items-center gap-4">
-						<div class="flex flex-col gap-2 w-[200px]">
+                    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 my-8">
+					<div class="flex flex-col sm:flex-row items-stretch gap-4 flex-1">
+						<div class="flex flex-col gap-2 w-full sm:w-[200px]">
 							<label for="vehicle" class="block font-semibold">Vehicle</label>
 							<select name="vehicle" id="vehicle" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 								<option disabled selected value="">Select Vehicle</option>
 							</select>
 						</div>
-						<div class="flex flex-col gap-2 w-[200px]">
+						<div class="flex flex-col gap-2 w-full sm:w-[200px]">
 							<label for="branch" class="block font-semibold">Branch</label>
 							<select name="branch" id="branch" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 								<option disabled selected value="">Select Branch</option>
 							</select>
 						</div>
-						<!-- <div class="flex flex-col gap-2 w-[200px]">
+						<!-- <div class="flex flex-col gap-2 w-full sm:w-[200px]">
 							<label for="startDate" class="block font-semibold">Start Date</label>
 							<input type="date" name="startDate" id="startDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 						</div>
-						<div class="flex flex-col gap-2 w-[200px]">
+						<div class="flex flex-col gap-2 w-full sm:w-[200px]">
 							<label for="endDate" class="block font-semibold">End Date</label>
 							<input type="date" name="endDate" id="endDate" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 						</div> -->
 					</div>
-					<div id="clear-filters" class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer flex items-center gap-2">
+					<div id="clear-filters" class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
 						<p>Clear Filter</p>
 					</div>
                     </div>
 				<div id="wrapper" class="w-full"></div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-attendance-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-attendance-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="attendance-model-heading" class="text-3xl font-bold">Add Attendance</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-attendance-modal">
@@ -167,8 +167,8 @@
 				</form>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-attendance-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-attendance-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="update-attendance-heading" class="text-2xl font-bold">Update Attendance</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-attendance-btn">
@@ -187,8 +187,8 @@
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-attendance-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="delete-attendance-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 class="text-2xl font-bold">Delete Attendance</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-attendance-btn">
@@ -211,8 +211,8 @@
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="view-attendance-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-5 relative">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="view-attendance-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-5 max-h-[90vh] overflow-y-auto relative">
 				<div class="flex gap-2 items-center justify-between w-full">
 					<h1 class="text-2xl font-bold">Attendance</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-view-attendance-btn">

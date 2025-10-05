@@ -31,6 +31,23 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+			.gridjs-wrapper {
+				overflow-x: auto;
+			}
+			.gridjs-table {
+				min-width: 600px;
+			}
+			@media (max-width: 768px) {
+				.gridjs-table {
+					font-size: 0.875rem;
+				}
+				.gridjs-th {
+					padding: 8px 4px !important;
+				}
+				.gridjs-td {
+					padding: 8px 4px !important;
+				}
+			}
 			input[type="date"]::-webkit-calendar-picker-indicator {
 				background-position: right center;
 				background-size: auto;
@@ -52,22 +69,22 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex h-screen">
+		<section class="flex min-h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
-					<h1 class="text-3xl font-bold">Manage Vehicles</h1>
-					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer" id="add-vehicle">
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 class="text-2xl sm:text-3xl font-bold">Manage Vehicles</h1>
+					<div class="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap" id="add-vehicle">
 						<p>Add Vehicle</p>
 					</div>
 				</div>
-				<div id="wrapper" class="w-full mt-8"></div>
+				<div id="wrapper" class="w-full mt-8 overflow-x-auto"></div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-vehicle-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-vehicle-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
-					<h1 id="vehicle-model-heading" class="text-3xl font-bold">Add Vehicle</h1>
+					<h1 id="vehicle-model-heading" class="text-xl sm:text-2xl lg:text-3xl font-bold">Add Vehicle</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-vehicle-modal">
 						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
@@ -77,24 +94,24 @@
 				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-vehicle-form">
 					{%csrf_token%}
 					<!-- Step Indicator -->
-					<div class="w-full flex justify-around mb-4">
-						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="1">
-							<div class="progress-number w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1">1</div>
-							<span class="text-xs font-medium">Vehicle Info</span>
+					<div class="w-full flex justify-between mb-4 overflow-x-auto pb-2">
+						<div class="progress-step flex flex-col items-center cursor-pointer min-w-[80px] flex-1" data-step="1">
+							<div class="progress-number w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1 text-sm sm:text-base">1</div>
+							<span class="text-[10px] sm:text-xs font-medium text-center">Vehicle Info</span>
 						</div>
-						<div class="progress-step flex flex-col items-center cursor-pointer" data-step="2">
-							<div class="progress-number w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1">2</div>
-							<span class="text-xs font-medium">Slot Details</span>
+						<div class="progress-step flex flex-col items-center cursor-pointer min-w-[80px] flex-1" data-step="2">
+							<div class="progress-number w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center mb-1 text-sm sm:text-base">2</div>
+							<span class="text-[10px] sm:text-xs font-medium text-center">Slot Details</span>
 						</div>
 					</div>
 					<div class="form-step" data-step="1">
-						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="vehicleName" class="block font-semibold">Vehicle Name</label>
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
+								<label for="vehicleName" class="block font-semibold text-sm sm:text-base">Vehicle Name</label>
 								<input type="text" name="vehicleName" id="vehicleName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="vehicleType" class="block font-semibold">Vehicle Type</label>
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
+								<label for="vehicleType" class="block font-semibold text-sm sm:text-base">Vehicle Type</label>
 								<select name="vehicleType" id="vehicleType" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
 									<option disabled selected>Select Vehicle Type</option>
 									<option value="Sedan">Sedan</option>
@@ -104,29 +121,29 @@
 								</select>
 							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="vehicleNo" class="block font-semibold">Vehicle Number</label>
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
+								<label for="vehicleNo" class="block font-semibold text-sm sm:text-base">Vehicle Number</label>
 								<input type="text" name="vehicleNo" id="vehicleNo" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="insuranceValidity" class="block font-semibold">Insurance Validity</label>
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
+								<label for="insuranceValidity" class="block font-semibold text-sm sm:text-base">Insurance Validity</label>
 								<input type="date" name="insuranceValidity" id="insuranceValidity" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
-						<div id="password-container" class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="pollutionValidity" class="block font-semibold">Pollution Validity</label>
+						<div id="password-container" class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
+								<label for="pollutionValidity" class="block font-semibold text-sm sm:text-base">Pollution Validity</label>
 								<input type="date" name="pollutionValidity" id="pollutionValidity" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
-								<label for="fitnessValidity" class="block font-semibold">Fitness Validity</label>
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
+								<label for="fitnessValidity" class="block font-semibold text-sm sm:text-base">Fitness Validity</label>
 								<input type="date" name="fitnessValidity" id="fitnessValidity" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-full">
-								<label for="vehicleBranch" class="block font-semibold">Branch</label>
+								<label for="vehicleBranch" class="block font-semibold text-sm sm:text-base">Branch</label>
 								<select name="vehicleBranch" id="vehicleBranch" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 									<option disabled selected>Select Branch</option>
 								</select>
@@ -134,27 +151,27 @@
 						</div>
 					</div>
 					<div class="form-step" data-step="2">
-						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="slotTimeStart" class="block font-semibold">Start Time</label>
 								<input type="time" name="slotTimeStart" id="slotTimeStart" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="slotTimeEnd" class="block font-semibold">End Time</label>
 								<input type="time" name="slotTimeEnd" id="slotTimeEnd" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/2">
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="lunchTimeStart" class="block font-semibold">Lunch Start Time</label>
 								<input type="time" name="lunchTimeStart" id="lunchTimeStart" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/2">
+							<div class="flex flex-col gap-2 w-full md:w-1/2">
 								<label for="lunchTimeEnd" class="block font-semibold">Lunch End Time</label>
 								<input type="time" name="lunchTimeEnd" id="lunchTimeEnd" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
+						<div class="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
 							<div class="flex flex-col gap-2 w-full">
 								<label for="slotDuration" class="block font-semibold">Slot Timings</label>
 								<select name="slotDuration" id="slotDuration" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
@@ -182,8 +199,8 @@
 				</form>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-vehicle-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-vehicle-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="update-vehicle-heading" class="text-2xl font-bold">Update Vehicle</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-vehicle-btn">
@@ -202,8 +219,8 @@
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="delete-vehicle-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="delete-vehicle-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 class="text-2xl font-bold">Delete Vehicle</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-delete-vehicle-btn">
@@ -226,8 +243,8 @@
 				</div>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="qr-code-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="qr-code-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 class="text-2xl font-bold">QR Code</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-qr-code-btn">
@@ -641,6 +658,12 @@
 				},
 				sort: true,
 				fixedHeader: true,
+				autoWidth: true,
+				style: {
+					table: {
+						'white-space': 'nowrap'
+					}
+				},
 				columns: [{
 						id: "id",
 						name: "ID",

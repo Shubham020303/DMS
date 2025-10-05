@@ -31,6 +31,23 @@
 			.gridjs-search-input{
 				width: 100%;
 			}
+			.gridjs-wrapper {
+				overflow-x: auto;
+			}
+			.gridjs-table {
+				min-width: 600px;
+			}
+			@media (max-width: 768px) {
+				.gridjs-table {
+					font-size: 0.875rem;
+				}
+				.gridjs-th {
+					padding: 8px 4px !important;
+				}
+				.gridjs-td {
+					padding: 8px 4px !important;
+				}
+			}
                .loader {
                     border: 16px solid #f3f3f3;
                     border-radius: 50%;
@@ -73,11 +90,11 @@
 		</style>
 	</head>
 	<body>
-		<section class="flex h-screen">
+		<section class="flex min-h-screen">
 			{% include 'navbar.html' %}
-			<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-				<div class="w-full flex justify-between items-center">
-					<h1 class="text-3xl font-bold">Daily Schedule</h1>
+			<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+				<div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 class="text-2xl sm:text-3xl font-bold">Daily Schedule</h1>
 				</div>
 				<div class="my-5 pb-5 flex flex-col gap-5 bg-white rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
 					<div class="w-full">

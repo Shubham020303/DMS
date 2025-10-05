@@ -35,11 +35,25 @@
 
 <body>
 	<section class="flex min-h-screen bg-indigo-50">
+		<!-- Mobile Menu Button -->
+		<button id="mobile-menu-btn-ins" class="lg:hidden fixed top-4 left-4 z-50 bg-[#141414] text-white p-3 rounded-lg shadow-lg">
+			<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+			</svg>
+		</button>
 
-          <div class="fixed top-0 left-0 flex flex-col bg-clip-border bg-[#141414] text-white min-h-screen h-screen min-w-[18rem] w-full max-w-[18rem] p-4 shadow-xl shadow-blue-gray-900/5 z-10">
-               <div class="mb-2 p-4">
-                    <!-- <h5 class="block antialiased tracking-normal font-sans text-xl font-semibold leading-snug text-white">DMS</h5> -->
+		<!-- Overlay for mobile -->
+		<div id="mobile-overlay-ins" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+          <div id="sidebar-ins" class="fixed top-0 left-0 flex flex-col bg-clip-border bg-[#141414] text-white h-screen w-[18rem] p-4 shadow-xl shadow-blue-gray-900/5 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+               <div class="mb-2 p-4 flex items-center justify-between">
                     <img src="../static/images/IDEA-LOGO.png" class="w-[110px] h-[70px] object-contain" alt="logo">
+					<!-- Close button for mobile -->
+					<button id="close-menu-btn-ins" class="lg:hidden text-white">
+						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+						</svg>
+					</button>
                </div>
                <nav class="flex flex-col justify-between p-2 font-sans text-base font-normal text-white h-full">
                     <div class="flex flex-col gap-1">
@@ -87,9 +101,9 @@
                     </div>
                </nav>
           </div>
-		<div class="p-8 w-[calc(100vw-18rem)] ml-[18rem]">
-			<div class="w-full flex items-center justify-between">
-				<h1 class="text-3xl font-bold">Dashboard</h1>
+		<div class="p-4 sm:p-6 lg:p-8 w-full lg:w-[calc(100vw-18rem)] lg:ml-[18rem] mt-16 lg:mt-0">
+			<div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+				<h1 class="text-2xl sm:text-3xl font-bold">Dashboard</h1>
 				<div class="relative">
 					<div id="notificationBtn"
 						class="bg-white p-3 rounded-full shadow cursor-pointer flex items-center justify-center">
@@ -101,7 +115,7 @@
 						</svg>
 					</div>
 					<div id="notificationModal"
-						class="w-full min-w-[450px] max-w-[450px] absolute top-14 right-0 scale-y-0 opacity-0 origin-top bg-white rounded-lg shadowCustom overflow-hidden transition-all duration-300">
+						class="w-[calc(100vw-2rem)] sm:w-full sm:min-w-[450px] sm:max-w-[450px] absolute top-14 right-0 scale-y-0 opacity-0 origin-top bg-white rounded-lg shadowCustom overflow-hidden transition-all duration-300">
 						<div
 							class="flex items-start gap-2 text-sm text-indigo-700 px-4 border-[#141414] last-of-type:border-none cursor-pointer hover:bg-indigo-50 transition-all duration-300 scale-100 py-2 border-b">
 							<p>10 students registered</p>
@@ -201,8 +215,8 @@
 				</div>
 			</div> -->
 		</div>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="add-attendance-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-attendance-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="attendance-model-heading" class="text-3xl font-bold">Take Attendance</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-attendance-modal">
@@ -214,24 +228,22 @@
 				<form action="" method="POST" class="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-attendance-form">
 					{%csrf_token%}
 					<div class="w-full">
-						<div class="mb-4 flex items-start gap-4 w-full">
-							<div class="flex items-center gap-4 w-full">
-								<div class="flex flex-col gap-2 w-1/2">
+						<div class="mb-4 flex flex-col sm:flex-row items-stretch gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full sm:w-1/2">
                                              <label for="studentName" class="block font-semibold">Student</label>
                                              <input type="text" name="studentName" id="studentName" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                         </div>
-                                        <div class="flex flex-col gap-2 w-1/2">
+                                        <div class="flex flex-col gap-2 w-full sm:w-1/2">
                                              <label for="attendanceDate" class="block font-semibold">Date</label>
                                              <input type="date" name="attendanceDate" id="attendanceDate" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                         </div>
-							</div>
 						</div>
-						<div class="mb-4 flex items-center gap-4 w-full">
-							<div class="flex flex-col gap-2 w-1/3">
+						<div class="mb-4 flex flex-col sm:flex-row items-stretch gap-4 w-full">
+							<div class="flex flex-col gap-2 w-full sm:w-1/3">
 								<label for="inTime" class="block font-semibold">In Time</label>
 								<input type="time" name="inTime" id="inTime" autocomplete="off" pattern="[0-9]{10}" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
-							<div class="flex flex-col gap-2 w-1/3">
+							<div class="flex flex-col gap-2 w-full sm:w-1/3">
 								<label for="outTime" class="block font-semibold">Out Time</label>
 								<input type="time" name="outTime" id="outTime" autocomplete="off" required class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
 							</div>
@@ -257,8 +269,8 @@
 				</form>
 			</div>
 		</section>
-		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300" id="updated-attendance-modal">
-			<div class="bg-white p-8 rounded-lg w-1/2 flex flex-col gap-6">
+		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="updated-attendance-modal">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-1/2 flex flex-col gap-4 sm:gap-6 max-h-[90vh] overflow-y-auto">
 				<div class="flex justify-between items-center">
 					<h1 id="update-attendance-heading" class="text-2xl font-bold">Add Attendance</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-update-attendance-btn">
@@ -533,6 +545,44 @@
                               link.querySelector('div').classList.add('bg-indigo-500', 'bg-opacity-80', 'text-white');
                          }
                     });
+
+					// Mobile menu functionality
+					const mobileMenuBtn = document.getElementById('mobile-menu-btn-ins');
+					const closeMenuBtn = document.getElementById('close-menu-btn-ins');
+					const sidebar = document.getElementById('sidebar-ins');
+					const overlay = document.getElementById('mobile-overlay-ins');
+
+					function openMenu() {
+						sidebar.classList.remove('-translate-x-full');
+						overlay.classList.remove('hidden');
+					}
+
+					function closeMenu() {
+						sidebar.classList.add('-translate-x-full');
+						overlay.classList.add('hidden');
+					}
+
+					if (mobileMenuBtn) {
+						mobileMenuBtn.addEventListener('click', openMenu);
+					}
+					
+					if (closeMenuBtn) {
+						closeMenuBtn.addEventListener('click', closeMenu);
+					}
+					
+					if (overlay) {
+						overlay.addEventListener('click', closeMenu);
+					}
+
+					// Close menu when clicking on a link (mobile)
+					const sidebarLinks = sidebar.querySelectorAll('a');
+					sidebarLinks.forEach(link => {
+						link.addEventListener('click', () => {
+							if (window.innerWidth < 1024) {
+								closeMenu();
+							}
+						});
+					});
                });
           </script>
 	</section>
