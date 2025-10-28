@@ -419,20 +419,20 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === 'success') {
 							document.getElementById('add-course-content-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-course-content-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-course-content-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-course-content-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-course-content-message").innerText = "Course details updated successfully."
 							document.getElementById("update-course-content-heading").innerText = "Update Course Content";
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === 'error') {
+							console.error("Error:", data.message);
 							document.getElementById('add-course-content-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-course-content-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-course-content-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-course-content-modal").classList.add('scale-100', 'opacity-100');
-							document.getElementById("update-course-content-message").innerText = data.error;
+							document.getElementById("update-course-content-message").innerText = data.message;
 							document.getElementById("update-course-content-heading").innerText = "Error"
 						}
 					})
@@ -461,20 +461,20 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === 'success') {
 							document.getElementById('add-course-content-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-course-content-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-course-content-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-course-content-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-course-content-message").innerText = "Course content details added successfully."
 							document.getElementById("update-course-content-heading").innerText = "Add Course Content";
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === 'error') {
+							console.error("Error:", data.message);
 							document.getElementById('add-course-content-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-course-content-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-course-content-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-course-content-modal").classList.add('scale-100', 'opacity-100');
-							document.getElementById("update-course-content-message").innerText = data.error;
+							document.getElementById("update-course-content-message").innerText = data.message;
 							document.getElementById("update-course-content-heading").innerText = "Error"
 						}
 					})
@@ -505,12 +505,12 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log(data);
-						if (data.success) {
+						if (data.status === 'success') {
 							document.getElementById("delete-course-content-message-container").innerHTML = `<p>Deleted successfully</p>`;
 							document.getElementById("delete-course-content-btn").style.display = "none";
 							document.getElementById("close-delete-course-content-modal").innerText = "Close";
-						} else if (data.error) {
-							document.getElementById("delete-course-content-message-container").innerHTML = `<p>${data.error}</p>`;
+						} else if (data.success) {
+							document.getElementById("delete-course-content-message-container").innerHTML = `<p>${data.success}</p>`;
 							document.getElementById("delete-course-content-btn").style.display = "none";
 							document.getElementById("close-delete-course-content-modal").innerText = "Close";
 						}
@@ -608,7 +608,13 @@
 				],
 				server: {
 					url: '/getcourceContentData/',
-					then: data => data.map(courseContent => [courseContent.id, courseContent.courceContentDescription, courseContent.courcecontentFile, courseContent.courceContentVideo])
+					then: data => {
+						if (data.status !== 'success') {
+							console.error("Error fetching data:", data.error);
+							return [];
+						}
+						return data["data"].map(courseContent => [courseContent.id, courseContent.courceContentDescription, courseContent.courcecontentFile, courseContent.courceContentVideo])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -647,18 +653,22 @@
 				fetch(apiUrl)
 					.then(response => response.json())
 					.then(data => {
-						console.log(data);
+						if (data.status !== 'success') {
+							console.error("Error fetching data:", data.error);
+							return;
+						}
+						console.log(data["data"]);
 						document.getElementById("course-content-model-heading").innerText = headingText;
 						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
-						document.getElementById("courseContentDescription").value = data.courceContentDescription || "No Data Found";
+						document.getElementById("courseContentDescription").value = data["data"].courceContentDescription || "No Data Found";
 						// document.getElementById("courseContentFile").value = data.courcecontentFile || "No Data Found";
 						// document.getElementById("courseContentVideo").value = data.courceContentVideo || "No Data Found";
 
-                              if (data.courcecontentFile === null || data.courcecontentFile?.trim() === "") {
+                              if (data["data"].courcecontentFile === null || data["data"].courcecontentFile?.trim() === "") {
 							// document.getElementById("courseContentFile").src = "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
 						} else {
 							const courseContentFile = document.getElementById("courseContentFile");
-							const fileName = data.courcecontentFile.split("/").pop();
+							const fileName = data["data"].courcecontentFile.split("/").pop();
 							const file = new File([], fileName, {
 								type: "application/pdf",
 							});
@@ -668,11 +678,11 @@
                                    courseContentFile.setAttribute("data-name", fileName);
 						}
 
-                              if (data.courceContentVideo === null || data.courceContentVideo?.trim() === "") {
+                              if (data["data"].courceContentVideo === null || data["data"].courceContentVideo?.trim() === "") {
                                    // document.getElementById("courseContentVideo").src = "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
                               } else {
                                    const courseContentVideo = document.getElementById("courseContentVideo");
-                                   const fileName = data.courceContentVideo.split("/").pop();
+                                   const fileName = data["data"].courceContentVideo.split("/").pop();
                                    const file = new File([], fileName, {
                                         type: "video/mp4",
                                    });

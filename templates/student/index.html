@@ -97,9 +97,18 @@
 						</div>
 					</div>
 				</div>
+				{% if profilepic != '' and profilepic != None %}
 				<div class="w-full sm:w-1/4 h-[200px] sm:h-full rounded-lg overflow-hidden">
 					<img src="{{Profilepic}}" alt="profile pic" class="w-full h-full object-cover sm:object-contain">
 				</div>
+				{% else %}
+				<div class="w-full sm:w-1/4 h-[200px] rounded-lg overflow-hidden">
+					<svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+						<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+						<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+					</svg>
+				</div>
+				{% endif %}
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 				<div
@@ -108,9 +117,15 @@
 						<p class="text-2xl sm:text-3xl font-semibold">Course Details</p>
 					</div>
 					<div class="w-full flex flex-col gap-6">
-						<div class="flex flex-col gap-1">
-							<span class="text-sm text-indigo-600">Course Name</span>
-							<p class="text-xl font-semibold">{{course}}</p>
+						<div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+							<div class="flex flex-col gap-1">
+								<span class="text-sm text-indigo-600">Course Name</span>
+								<p class="text-xl font-semibold">{{course}}</p>
+							</div>
+							<div class="flex flex-col gap-1 sm:text-right">
+								<span class="text-sm text-indigo-600">Vehicle</span>
+								<p class="text-lg sm:text-xl font-semibold">{{vehicle}}</p>
+							</div>
 						</div>
 						<div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 							<div class="flex flex-col gap-1">
@@ -123,13 +138,13 @@
 							</div>
 						</div>
 						<div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-							<div class="flex flex-col gap-1">
-								<span class="text-sm text-indigo-600">Vehicle</span>
-								<p class="text-lg sm:text-xl font-semibold">{{vehicle}}</p>
-							</div>
-							<div class="flex flex-col gap-1 sm:text-right">
+							<div class="flex flex-col gap-1 sm:text-left">
 								<span class="text-sm text-indigo-600">Instructor</span>
 								<p class="text-lg sm:text-xl font-semibold">{{instructor}}</p>
+							</div>
+							<div class="flex flex-col gap-1 sm:text-right">
+								<span class="text-sm text-indigo-600">Instructor Number</span>
+								<p class="text-lg sm:text-xl font-semibold">{{instructorPhone	}}</p>
 							</div>
 						</div>
 					</div>

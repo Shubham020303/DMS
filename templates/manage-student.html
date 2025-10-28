@@ -65,7 +65,7 @@
 			</div>
 		</section>
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-student-modal">
-			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[95%] lg:w-[80%] xl:w-[70%] max-h-[90vh] flex flex-col gap-4 sm:gap-6">
+			<div class="bg-white p-4 sm:p-6 lg:p-8 rounded-lg w-full sm:w-[95%] lg:w-[60%] max-h-[90vh] flex flex-col gap-4 sm:gap-6">
 				<div class="flex justify-between items-center">
 					<h1 id="student-model-heading" class="text-xl sm:text-2xl lg:text-3xl font-bold">New Enrollment</h1>
 					<div class="bg-[#141414] flex items-center justify-center p-2 text-white rounded-full cursor-pointer" id="close-student-modal">
@@ -77,7 +77,7 @@
 				<form action="" method="POST" class="w-full flex flex-col gap-4 sm:gap-6 max-h-[70vh] overflow-y-auto pr-2" enctype="multipart/form-data" id="add-student-form">
 					{%csrf_token%}
 					<!-- Step Indicator -->
-					<div class="w-full flex justify-between mb-4 overflow-x-auto pb-2">
+					<div class="w-full flex justify-between min-h-[70px] overflow-x-auto">
 						<div class="progress-step flex flex-col items-center cursor-pointer min-w-[70px] flex-1" data-step="1">
 							<div class="progress-number w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1 text-xs sm:text-base">1</div>
 							<span class="text-[9px] sm:text-xs font-medium text-center">Personal Info</span>
@@ -102,7 +102,7 @@
 					<!-- Step 1: Personal Info -->
 					<div class="form-step" data-step="1">
 						<div class="mb-4 flex flex-col lg:flex-row items-start gap-4 w-full">
-							<div class="flex flex-col items-center gap-4 w-full order-2 lg:order-1">
+							<div class="flex flex-col items-center gap-4 w-1/2">
 								<div class="flex flex-col gap-2 w-full">
 									<label for="studentName" class="block font-semibold text-sm sm:text-base">Student Name</label>
 									<input type="text" name="studentName" id="studentName" autocomplete="off" required class="uppercase block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
@@ -120,7 +120,7 @@
 									</select>
 								</div>
 							</div>
-							<div class="flex justify-center w-full lg:w-1/2 order-1 lg:order-2">
+							<div class="flex justify-center w-full lg:w-1/2 order-1 lg:order-2 h-[232px]">
 								<div class="flex flex-col items-center justify-center gap-2 bg-gray-500 w-full h-48 sm:h-56 lg:h-full p-4 sm:p-8 rounded-lg cursor-pointer text-white text-xs relative overflow-hidden" id="image-upload">
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
 										<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
@@ -619,20 +619,33 @@
 				fetch("/getBranchData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+						if (data.status === "success") {
+							document.getElementById("branch").innerHTML += data["data"].map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+						} else {
+							document.getElementById("branch").innerHTML = "<option disabled>No Data Found</option>";
+						}
 					})
 
 				fetch("/getCourseData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("studentCourse").innerHTML += data.map(course => `<option value="${course.id}" data-fee="${course.courseFee}" data-duration=${course.courseDuration}>${course.courseName}</option>`).join('');
+						if (data.status === "success") {
+							document.getElementById("studentCourse").innerHTML += data["data"].map(course => `<option value="${course.id}" data-fee="${course.courseFee}" data-duration=${course.courseDuration}>${course.courseName}</option>`).join('');
+						} else {
+							document.getElementById("studentCourse").innerHTML = "<option disabled>No Data Found</option>";
+						}
 					})
 
                     fetch("/getInstructorData/")
                          .then(response => response.json())
                          .then(data => {
-                              document.getElementById("studentInstructor").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
-                              document.getElementById("paymentRecievedBy").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
+						if (data.status === "success") {
+							document.getElementById("studentInstructor").innerHTML += data["data"].map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
+							document.getElementById("paymentRecievedBy").innerHTML += data["data"].map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
+						} else {
+							document.getElementById("studentInstructor").innerHTML = "<option disabled>No Data Found</option>";
+							document.getElementById("paymentRecievedBy").innerHTML = "<option disabled>No Data Found</option>";
+						}
                          })
 
 				// fetch("/getSlotsData/")
@@ -797,7 +810,11 @@
 				fetch("/getAddOnServiceData/")
                          .then(response => response.json())
                          .then(data => {
-                              document.getElementById("services-container").innerHTML += data.map(service => `
+						if (data.status !== "success") {
+							document.getElementById("services-container").innerHTML = "<p>No Add-On Services Available.</p>";
+							return;
+						}
+                              document.getElementById("services-container").innerHTML += data["data"].map(service => `
 							<div class="border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
 								<div class="flex items-center">
 									<input 
@@ -957,7 +974,11 @@
 				fetch(baseURL)
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("studentSlot").innerHTML += data.map(slot => {
+						if (data.status !== "success") {
+							document.getElementById("studentSlot").innerHTML = "<option disabled>No Data Found</option>";
+							return;
+						}
+						document.getElementById("studentSlot").innerHTML += data["data"].map(slot => {
 							const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
 								`data-UsedTill='${slot.UsedTill}'` : "";
 							const style = slot.UsedTill && slot.UsedTill !== null ? 
@@ -992,7 +1013,11 @@
 				fetch(baseURL)
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("studentSlot").innerHTML += data.map(slot => {
+						if (data.status !== "success") {
+							document.getElementById("studentSlot").innerHTML = "<option disabled>No Data Found</option>";
+							return;
+						}
+						document.getElementById("studentSlot").innerHTML += data["data"].map(slot => {
 							const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
 								`data-UsedTill='${slot.UsedTill}'` : "";
 							const style = slot.UsedTill && slot.UsedTill !== null ? 
@@ -1946,7 +1971,11 @@
 									fetch(`/getStudentData/?studentId=${studentId}`)
 										.then(response => response.json())
 										.then(data => {
-											downloadPDFBrowser(data);
+											if (data.status !== "success") {
+												alert("Error fetching student data for PDF generation.");
+												return;
+											}
+											downloadPDFBrowser(data["data"]);
 										})
 								}
 							}, '');
@@ -1959,7 +1988,12 @@
 				],
 				server: {
 					url: '/getStudentData/',
-					then: data => data.map(student => [student.id, student.profilePic, student.name, student.email, student.phone, student.branch, student.status, student.bookingType])
+					then: data => {
+						if (data.status !== "success") {
+							return [];
+						}
+						return data["data"].map(student => [student.id, student.profilePic, student.name, student.email, student.phone, student.branch, student.status, student.bookingType])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -1982,48 +2016,52 @@
 					fetch(`/getStudentData/?studentId=${studentId}`)
 						.then(response => response.json())
 						.then(data => {
+							if (data.status !== "success") {
+								alert("Error fetching student data.");
+								return;
+							}
 							// Basic Info
-							document.getElementById("view-student-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
-							document.getElementById("view-student-name").innerText = data.name || "No Data Found";
-							document.getElementById("view-status").innerText = (data.status ? "Active" : "Inactive") || "No Status";
-							document.getElementById("view-status").className = `inline-block px-3 py-1 text-sm text-white rounded-full ${data.status ? 'bg-green-500' : 'bg-red-500'}`;
-							document.getElementById("view-student-email").innerText = data.email || "No Data Found";
-							document.getElementById("view-student-phone").innerText = data.phone || "No Data Found";
-							document.getElementById("view-student-blood").innerText = data.bloodGroup || "No Data Found";
-							document.getElementById("view-application-no").innerText = data.applicationNo || "No Data Found";
+							document.getElementById("view-student-image").src = data["data"].profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("view-student-name").innerText = data["data"].name || "No Data Found";
+							document.getElementById("view-status").innerText = (data["data"].status ? "Active" : "Inactive") || "No Status";
+							document.getElementById("view-status").className = `inline-block px-3 py-1 text-sm text-white rounded-full ${data["data"].status ? 'bg-green-500' : 'bg-red-500'}`;
+							document.getElementById("view-student-email").innerText = data["data"].email || "No Data Found";
+							document.getElementById("view-student-phone").innerText = data["data"].phone || "No Data Found";
+							document.getElementById("view-student-blood").innerText = data["data"].bloodGroup || "No Data Found";
+							document.getElementById("view-application-no").innerText = data["data"].applicationNo || "No Data Found";
 
 							// Personal Details
-							document.getElementById("view-student-dob").innerText = formatDateToLongDate(data.dob) || "No Data Found";
-							document.getElementById("view-student-gender").innerText = data.gender || "No Data Found";
-							document.getElementById("view-student-address").innerText = data.address || "No Data Found";
+							document.getElementById("view-student-dob").innerText = formatDateToLongDate(data["data"].dob) || "No Data Found";
+							document.getElementById("view-student-gender").innerText = data["data"].gender || "No Data Found";
+							document.getElementById("view-student-address").innerText = data["data"].address || "No Data Found";
 
 							// Course Details
-							document.getElementById("view-student-course").innerText = data.cource || "No Data Found";
-							document.getElementById("view-student-branch").innerText = data.branch || "No Data Found";
-							document.getElementById("view-student-instructor").innerText = data.instructor || "No Data Found";
-							document.getElementById("view-student-slot").innerText = data.slotTime || "No Data Found";
-							document.getElementById("view-start-date").innerText = formatDateToLongDate(data.startDate) || "No Data Found";
-							document.getElementById("view-end-date").innerText = formatDateToLongDate(data.endDate) || "No Data Found";
-							document.getElementById("view-booking-type").innerText = data.bookingType || "No Data Found";
+							document.getElementById("view-student-course").innerText = data["data"].cource || "No Data Found";
+							document.getElementById("view-student-branch").innerText = data["data"].branch || "No Data Found";
+							document.getElementById("view-student-instructor").innerText = data["data"].instructor || "No Data Found";
+							document.getElementById("view-student-slot").innerText = data["data"].slotTime || "No Data Found";
+							document.getElementById("view-start-date").innerText = formatDateToLongDate(data["data"].startDate) || "No Data Found";
+							document.getElementById("view-end-date").innerText = formatDateToLongDate(data["data"].endDate) || "No Data Found";
+							document.getElementById("view-booking-type").innerText = data["data"].bookingType || "No Data Found";
 
 							// License Details
-							document.getElementById("view-license-no").innerText = data.dlNo || "No Data Found";
-							document.getElementById("view-license-type").innerText = data.dlType || "No Data Found";
-							document.getElementById("view-license-issue").innerText = data.dlIssueDate || "No Data Found";
-							document.getElementById("view-license-expiry").innerText = data.dlExpiry || "No Data Found";
+							document.getElementById("view-license-no").innerText = data["data"].dlNo || "No Data Found";
+							document.getElementById("view-license-type").innerText = data["data"].dlType || "No Data Found";
+							document.getElementById("view-license-issue").innerText = data["data"].dlIssueDate || "No Data Found";
+							document.getElementById("view-license-expiry").innerText = data["data"].dlExpiry || "No Data Found";
 
 							// Payment Details
-							document.getElementById("view-total-amount").innerText = `₹${data.totalAmount || "0"}`;
-							document.getElementById("view-payment-due-date").innerText = formatDateToLongDate(data.paymentDueDate) || "No Data Found";
-							document.getElementById("view-payment-received").innerText = `₹${data.paymentReceived || "0"}`;
-							document.getElementById("view-payment-due").innerText = `₹${data.paymentDue || "0"}`;
-							document.getElementById("view-payment-received-by").innerText = data.paymentRecievedByName || "No Data Found";
+							document.getElementById("view-total-amount").innerText = `₹${data["data"].totalAmount || "0"}`;
+							document.getElementById("view-payment-due-date").innerText = formatDateToLongDate(data["data"].paymentDueDate) || "No Data Found";
+							document.getElementById("view-payment-received").innerText = `₹${data["data"].paymentReceived || "0"}`;
+							document.getElementById("view-payment-due").innerText = `₹${data["data"].paymentDue || "0"}`;
+							document.getElementById("view-payment-received-by").innerText = data["data"].paymentRecievedByName || "No Data Found";
 
 							// Add-On Services
 							const servicesContainer = document.getElementById("view-addon-services");
 							servicesContainer.innerHTML = '';
-							if (data.addOnService && data.addOnService.length > 0) {
-								data.addOnService.forEach(service => {
+							if (data["data"].addOnService && data["data"].addOnService.length > 0) {
+								data["data"].addOnService.forEach(service => {
 									servicesContainer.innerHTML += `
 										<div class="flex justify-between items-center p-4 bg-white rounded-lg border border-gray-200">
 											<span class="font-medium">${service[1]}</span>
@@ -2068,6 +2106,10 @@
 				fetch(`/getStudentData/?studentId=${studentId}`)
 				.then(response => response.json())
 				.then(data => {
+					if (data.status !== "success") {
+						alert("Error fetching student data.");
+						return;
+					}
 					const htmlContent = `
 						<!DOCTYPE html>
 						<html>
@@ -2206,6 +2248,10 @@
 				])
 				.then(responses => Promise.all(responses.map(r => r.json())))
 				.then(([studentData, attendanceData]) => {
+					if (studentData.status !== "success" || attendanceData.status !== "success") {
+						alert("Error fetching data for certificate generation.");
+						return;
+					}
 					const htmlContent = `
 						<!DOCTYPE html>
 						<html>
@@ -2418,33 +2464,37 @@
 				fetch(apiUrl)
 					.then(response => response.json())
 					.then(data => {
+						if (data.status !== "success") {
+							alert("Error fetching student data");
+							return;
+						}
 						console.log(data);
 						document.getElementById("student-model-heading").innerText = headingText;
 						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
-						document.getElementById("studentName").value = data.name || "No Data Found";
-						document.getElementById("studentEmail").value = data.email || "No Data Found";
-						document.getElementById("branch").value = data.branch || "No Data Found";
-						document.getElementById("phone").value = data.phone || "No Data Found";
-						document.getElementById("bloodGroup").value = data.bloodGroup || "No Data Found";
-						document.getElementById("studentCourse").value = data.courceId || "No Data Found";
-						document.getElementById("studentGender").value = data.gender || "No Data Found";
-						document.getElementById("studentInstructor").value = data.instructorId || "No Data Found";
-						document.getElementById("bookingType").value = data.bookingType || "No Data Found";
-						document.getElementById("courseStartDate").value = data.startDate || "No Data Found";
-						document.getElementById("courseEndDate").value = data.endDate || "No Data Found";
-						document.getElementById("dob").value = data.dob || "No Data Found";
-						document.getElementById("applicationNo").value = data.applicationNo || "No Data Found";
-						document.getElementById("address").value = data.address || "No Data Found";
+						document.getElementById("studentName").value = data["data"].name || "No Data Found";
+						document.getElementById("studentEmail").value = data["data"].email || "No Data Found";
+						document.getElementById("branch").value = data["data"].branch || "No Data Found";
+						document.getElementById("phone").value = data["data"].phone || "No Data Found";
+						document.getElementById("bloodGroup").value = data["data"].bloodGroup || "No Data Found";
+						document.getElementById("studentCourse").value = data["data"].courceId || "No Data Found";
+						document.getElementById("studentGender").value = data["data"].gender || "No Data Found";
+						document.getElementById("studentInstructor").value = data["data"].instructorId || "No Data Found";
+						document.getElementById("bookingType").value = data["data"].bookingType || "No Data Found";
+						document.getElementById("courseStartDate").value = data["data"].startDate || "No Data Found";
+						document.getElementById("courseEndDate").value = data["data"].endDate || "No Data Found";
+						document.getElementById("dob").value = data["data"].dob || "No Data Found";
+						document.getElementById("applicationNo").value = data["data"].applicationNo || "No Data Found";
+						document.getElementById("address").value = data["data"].address || "No Data Found";
 						// document.getElementById("totalAmount").value = data.totalAmount || "No Data Found";
-						document.getElementById("paymentDueDate").value = data.paymentDueDate || "No Data Found";
-						document.getElementById("paymentReceived").value = data.paymentReceived || "No Data Found";
-						document.getElementById("paymentRecievedBy").value = data.paymentRecievedBy || "No Data Found";
-						document.getElementById("paymentDue").value = data.paymentDue || "No Data Found";
-						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
-						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
-						document.getElementById("dlExpiry").value = data.dlExpiry || "No Data Found";
-						document.getElementById("dlType").value = data.dlType || "No Data Found";
-						data.addOnService.map((item,index) => {
+						document.getElementById("paymentDueDate").value = data["data"].paymentDueDate || "No Data Found";
+						document.getElementById("paymentReceived").value = data["data"].paymentReceived || "No Data Found";
+						document.getElementById("paymentRecievedBy").value = data["data"].paymentRecievedBy || "No Data Found";
+						document.getElementById("paymentDue").value = data["data"].paymentDue || "No Data Found";
+						document.getElementById("dlNo").value = data["data"].dlNo || "No Data Found";
+						document.getElementById("dlIssueDate").value = data["data"].dlIssueDate || "No Data Found";
+						document.getElementById("dlExpiry").value = data["data"].dlExpiry || "No Data Found";
+						document.getElementById("dlType").value = data["data"].dlType || "No Data Found";
+						data["data"].addOnService.map((item,index) => {
 							document.querySelectorAll("#services-container input").forEach((checkbox) => {
 								if (parseInt(checkbox.value) === parseInt(item)) {
 									checkbox.setAttribute("checked", true);
@@ -2453,20 +2503,20 @@
 						})
 						document.getElementById("student-image").classList.remove('hidden');
 						// add file to the profilePic input
-						if (data.profilePic === null || data.profilePic?.trim() === "") {
+						if (data["data"].profilePic === null || data["data"].profilePic?.trim() === "") {
 							document.getElementById("student-image").src = "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
 						} else {
-							document.getElementById("student-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
-							document.getElementById("profilePic").setAttribute("data-name", data.profilePic)
+							document.getElementById("student-image").src = data["data"].profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("profilePic").setAttribute("data-name", data["data"].profilePic)
 							const instructorProfilePic = document.getElementById("profilePic");
-							const fileName = data.profilePic;
+							const fileName = data["data"].profilePic;
 							const file = new File([], fileName, {
 								type: "image/*"
 							});
 							const dataTransfer = new DataTransfer();
 							dataTransfer.items.add(file);
 							instructorProfilePic.files = dataTransfer.files;
-							instructorProfilePic.setAttribute("data-name", data.profilePic)
+							instructorProfilePic.setAttribute("data-name", data["data"].profilePic)
 						}
 
 						const imageUpload = document.getElementById('image-upload');
@@ -2486,7 +2536,7 @@
 
 						const bookingType = document.getElementById("bookingType").value;
 						const selectedCourse = document.getElementById("studentCourse").value;
-						const slotId = data.slotId || "0";
+						const slotId = data["data"].slotId || "0";
 						
 						// Reset baseURL to original
 						baseURL = "/getSlotsData/";
@@ -2507,7 +2557,11 @@
 						fetch(baseURL)
 							.then(response => response.json())
 							.then(timeSlotData => {
-								document.getElementById("studentSlot").innerHTML += timeSlotData.map(slot => {
+								if (timeSlotData.status !== "success") {
+									document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">${timeSlotData.message}</option>`;
+									return;
+								}
+								document.getElementById("studentSlot").innerHTML += timeSlotData["data"].map(slot => {
 									const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
 										`data-UsedTill='${slot.UsedTill}'` : "";
 									const style = slot.UsedTill && slot.UsedTill !== null ? 
@@ -2543,7 +2597,11 @@
 									fetch(baseURL)
 										.then(response => response.json())
 										.then(courseTimeSlotData => {
-											document.getElementById("studentSlot").innerHTML += courseTimeSlotData.map(slot => {
+											if (courseTimeSlotData.status !== "success") {
+												document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">${courseTimeSlotData.message}</option>`;
+												return;
+											}
+											document.getElementById("studentSlot").innerHTML += courseTimeSlotData["data"].map(slot => {
 												const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
 													`data-UsedTill='${slot.UsedTill}'` : "";
 												const style = slot.UsedTill && slot.UsedTill !== null ? 
@@ -2585,7 +2643,11 @@
 									fetch(baseURL)
 										.then(response => response.json())
 										.then(bookingTypeTimeSlotData => {
-											document.getElementById("studentSlot").innerHTML += bookingTypeTimeSlotData.map(slot => {
+											if (bookingTypeTimeSlotData.status !== "success") {
+												document.getElementById("studentSlot").innerHTML = `<option disabled selected value="0">${bookingTypeTimeSlotData.message}</option>`;
+												return;
+											}
+											document.getElementById("studentSlot").innerHTML += bookingTypeTimeSlotData["data"].map(slot => {
 												const usedTillAttr = slot.slotUsed && slot.UsedTill !== null && !slot.slotPreBooked ? 
 													`data-UsedTill='${slot.UsedTill}'` : "";
 												const style = slot.UsedTill && slot.UsedTill !== null ? 

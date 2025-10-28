@@ -331,7 +331,11 @@
 				fetch("/getBranchData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("courseBranch").innerHTML += data.map(branch => `<option value="${branch.id}">${branch.branchName}</option>`).join('');
+						if (data.status !== "success") {
+							document.getElementById("courseBranch").innerHTML = "<option disabled selected>No Branch Found</option>";
+							return;
+						}
+						document.getElementById("courseBranch").innerHTML += data["data"].map(branch => `<option value="${branch.id}">${branch.branchName}</option>`).join('');
 					}).catch(error => {
 						console.error('Error:', error);
 						document.getElementById("courseBranch").innerHTML = "<option disabled selected>No Branch Found</option>";
@@ -340,7 +344,11 @@
 				fetch("/getVehicleData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("courseVehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.id}">${vehicle.vehicalName}</option>`).join('');
+						if (data.status !== "success") {
+							document.getElementById("courseVehicle").innerHTML = "<option disabled selected>No Vehicle Found</option>";
+							return;
+						}
+						document.getElementById("courseVehicle").innerHTML += data["data"].map(vehicle => `<option value="${vehicle.id}">${vehicle.vehicalName}</option>`).join('');
 					}).catch(error => {
 						console.error('Error:', error);
 						document.getElementById("courseVehicle").innerHTML = "<option disabled selected>No Vehicle Found</option>";
@@ -536,15 +544,15 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === "success") {
 							document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-course-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-course-message").innerText = "Course details updated successfully."
 							document.getElementById("update-course-heading").innerText = "Update Course"
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === "error") {
+							console.error("Error:", data.message);
 							document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
@@ -573,15 +581,15 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === "success") {
 							document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-course-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-course-message").innerText = "Course details added successfully."
 							document.getElementById("update-course-heading").innerText = "Add Course"
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === "error") {
+							console.error("Error:", data.message);
 							document.getElementById('add-course-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-course-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-course-modal").classList.remove('scale-0', 'opacity-0');
@@ -615,15 +623,15 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === "success") {
 							document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-service-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-service-message").innerText = "Service details updated successfully."
 							document.getElementById("update-service-heading").innerText = "Update Service"
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === "error") {
+							console.error("Error:", data.message);
 							document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
@@ -653,15 +661,15 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === "success") {
 							document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-service-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-service-message").innerText = "Service details added successfully."
 							document.getElementById("update-service-heading").innerText = "Add Service"
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === "error") {
+							console.error("Error:", data.message);
 							document.getElementById('add-service-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-service-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-service-modal").classList.remove('scale-0', 'opacity-0');
@@ -694,11 +702,11 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log(data);
-						if (data.success) {
+						if (data.status === "success") {
 							document.getElementById("delete-course-message-container").innerHTML = `<p>${data.success}</p>`;
 							document.getElementById("delete-course-btn").style.display = "none";
 							document.getElementById("close-delete-course-modal").innerText = "Close";
-						} else if (data.error) {
+						} else if (data.status === "error") {
 							document.getElementById("delete-course-message-container").innerHTML = `<p>${data.error}</p>`;
 							document.getElementById("delete-course-btn").style.display = "none";
 							document.getElementById("close-delete-course-modal").innerText = "Close";
@@ -721,12 +729,12 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log(data);
-						if (data.success) {
-							document.getElementById("delete-service-message-container").innerHTML = `<p>${data.success}</p>`;
+						if (data.status === "success") {
+							document.getElementById("delete-service-message-container").innerHTML = `<p>${data.message}</p>`;
 							document.getElementById("delete-service-btn").style.display = "none";
 							document.getElementById("close-delete-service-modal").innerText = "Close";
-						} else if (data.error) {
-							document.getElementById("delete-service-message-container").innerHTML = `<p>${data.error}</p>`;
+						} else if (data.status === "error") {
+							document.getElementById("delete-service-message-container").innerHTML = `<p>${data.message}</p>`;
 							document.getElementById("delete-service-btn").style.display = "none";
 							document.getElementById("close-delete-service-modal").innerText = "Close";
 						}
@@ -841,7 +849,12 @@
 				],
 				server: {
 					url: '/getCourseData/',
-					then: data => data.map(course => [course.id, course.courseName, course.courseDuration, course.courseFee, course.courceVehicle, course.courseBranch])
+					then: data => {
+						if (data.status !== "success") {
+							return [];
+						}
+						return data["data"].map(course => [course.id, course.courseName, course.courseDuration, course.courseFee, course.courceVehicle, course.courseBranch])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -930,7 +943,12 @@
 				],
 				server: {
 					url: '/getAddOnServiceData/',
-					then: data => data.map(service => [service.id, service.addOnServiceName, service.addOnServiceAmount, service.mandetory])
+					then: data => {
+						if (data.status !== "success") {
+							return [];
+						}
+						return data["data"].map(service => [service.id, service.addOnServiceName, service.addOnServiceAmount, service.mandetory])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -958,16 +976,20 @@
 				fetch(apiUrl)
 					.then(response => response.json())
 					.then(data => {
-						console.log(data);
+						if (data.status !== "success") {
+							console.error("Error:", data.message);
+							return;
+						}
+						console.log(data["data"]);
 						document.getElementById("course-model-heading").innerText = headingText;
 						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
-						document.getElementById("courseName").value = data.courseName || "No Data Found";
-						document.getElementById("courseDuration").value = data.courseDuration || "No Data Found";
-						document.getElementById("courceDescription").value = data.courceDescription || "No Data Found";
-						document.getElementById("courseFee").value = data.courseFee || "No Data Found";
-						document.getElementById("courseBranch").value = data.courseBranchId || "No Data Found";
-						document.getElementById("courseVehicle").value = data.courceVehicle || "No Data Found";
-						document.getElementById("courseSession").value = data.total_session || "No Data Found";
+						document.getElementById("courseName").value = data["data"].courseName || "No Data Found";
+						document.getElementById("courseDuration").value = data["data"].courseDuration || "No Data Found";
+						document.getElementById("courceDescription").value = data["data"].courceDescription || "No Data Found";
+						document.getElementById("courseFee").value = data["data"].courseFee || "No Data Found";
+						document.getElementById("courseBranch").value = data["data"].courseBranchId || "No Data Found";
+						document.getElementById("courseVehicle").value = data["data"].courceVehicle || "No Data Found";
+						document.getElementById("courseSession").value = data["data"].total_session || "No Data Found";
 						// document.getElementById("courceVehicle").value = data.courceVehicleId || "No Data Found";
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});

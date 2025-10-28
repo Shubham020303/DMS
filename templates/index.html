@@ -317,6 +317,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
 	<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+	<script src="/static/js/api.js"></script>
 	<script>
 		// const ctx = document.getElementById('myChart');
 
@@ -359,7 +360,9 @@
 			fetch("/getInstructorData/")
 				.then(response => response.json())
 				.then(data => {
-					document.getElementById("paymentReceivedBy").innerHTML += data.map(user => `<option value="${user.id}">${user.name}</option>`).join('');
+					if (data.status === "success") {
+						document.getElementById("paymentReceivedBy").innerHTML += data["data"].map(user => `<option value="${user.id}">${user.name}</option>`).join('');
+					}
 				})
 
 			const notificationList = document.getElementById('notification-list');
@@ -370,50 +373,53 @@
 				fetch('/getNotificationData/')
 					.then(response => response.json())
 					.then(data => {
-						const notificationContainer = document.getElementById('notification-container');
-						
-						// Show/hide notification bell based on notifications
-						if (data.length === 0) {
-							notificationContainer.style.display = 'none';
-							return;
-						} else {
-							notificationContainer.style.display = 'block';
-						}
-
-						// Update notification count
-						document.getElementById('notification-count').textContent = data.length;
-						
-						// Update notification list
-						const notificationList = document.getElementById('notification-list');
-						notificationList.innerHTML = data.map(notification => `
-							<div class="notification-item group bg-white hover:bg-gray-50 transition-all duration-200" data-id="${notification.id}">
-								<div class="p-4 flex items-start gap-3 border-b border-gray-100">
-									<div class="flex-1">
-										<p class="text-sm font-medium text-gray-900">
-											${notification.notificationTitle}
-										</p>
-										<div class="flex items-center gap-2 text-xs text-gray-500 mt-1">
-											<span>${notification.notificationTime}</span>
-											<span>•</span>
-											<span>${formatDateToLongDate(notification.notificationDate)}</span>
+						if (data.status === "success") {
+							
+							const notificationContainer = document.getElementById('notification-container');
+							
+							// Show/hide notification bell based on notifications
+							if (data["data"].length === 0) {
+								notificationContainer.style.display = 'none';
+								return;
+							} else {
+								notificationContainer.style.display = 'block';
+							}
+	
+							// Update notification count
+							document.getElementById('notification-count').textContent = data["data"].length;
+							
+							// Update notification list
+							const notificationList = document.getElementById('notification-list');
+							notificationList.innerHTML = data["data"].map(notification => `
+								<div class="notification-item group bg-white hover:bg-gray-50 transition-all duration-200" data-id="${notification.id}">
+									<div class="p-4 flex items-start gap-3 border-b border-gray-100">
+										<div class="flex-1">
+											<p class="text-sm font-medium text-gray-900">
+												${notification.notificationTitle}
+											</p>
+											<div class="flex items-center gap-2 text-xs text-gray-500 mt-1">
+												<span>${notification.notificationTime}</span>
+												<span>•</span>
+												<span>${formatDateToLongDate(notification.notificationDate)}</span>
+											</div>
 										</div>
+										<button class="mark-read-btn flex items-center gap-2 bg-indigo-100 text-indigo-600 text-xs px-2 py-1 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-200" data-id="${notification.id}">
+											Mark as read
+										</button>
 									</div>
-									<button class="mark-read-btn flex items-center gap-2 bg-indigo-100 text-indigo-600 text-xs px-2 py-1 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-200" data-id="${notification.id}">
-										Mark as read
-									</button>
 								</div>
-							</div>
-						`).join('');
-
-						// Add click event to mark as read button
-
-						const markAsReadButtons = notificationList.querySelectorAll('.mark-read-btn');
-						markAsReadButtons.forEach(button => {
-							button.addEventListener('click', () => {
-								const notificationId = button.getAttribute('data-id');
-								markNotificationAsRead(notificationId);
+							`).join('');
+	
+							// Add click event to mark as read button
+	
+							const markAsReadButtons = notificationList.querySelectorAll('.mark-read-btn');
+							markAsReadButtons.forEach(button => {
+								button.addEventListener('click', () => {
+									const notificationId = button.getAttribute('data-id');
+									markNotificationAsRead(notificationId);
+								});
 							});
-						});
+						}
 					})
 					.catch(error => {
 						console.error('Error fetching notifications:', error);
@@ -422,33 +428,13 @@
 			}
 
 			function markNotificationAsRead(notificationId) {
-				let formData = new FormData();
-				formData.append('notificationId', notificationId);
-				fetch('/manage-Notification/', {
-					method: 'POST',
-					body: formData
-				})
-				.then(response => response.json())
-				.then(data => {
-					if (data.success) {
-						const notificationItem = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
-						if (notificationItem) {
-							notificationItem.classList.add('sliding-out');
-							
-							setTimeout(() => {
-								notificationItem.remove();
-								
-								const remainingNotifications = document.querySelectorAll('.notification-item');
-								if (remainingNotifications.length === 0) {
-									document.getElementById('notification-container').style.display = 'none';
-								}
-								
-								const count = document.getElementById('notification-count');
-								count.textContent = remainingNotifications.length;
-							}, 200);
+				notificationAPI.markAsRead(notificationId)
+					.then(data => {
+						if (data.status === 'success') {
+							removeNotificationFromUI(notificationId);
 						}
-					}
-				});
+					})
+					.catch(error => console.error('Error marking notification as read:', error));
 			}
 
 			// Initial fetch
@@ -594,101 +580,57 @@
 		// 	applyFilters();
 		// })
 
-		document.getElementById("add-payment-form").addEventListener("submit", (e) => {
-			if (document.getElementById('add-payment-btn').innerText === "Update") {
-				e.preventDefault();
-				const form = e.target; // Get the form element
-				const formData = new FormData(form); // Correctly create FormData
+		document.getElementById("add-payment-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const isUpdate = document.getElementById('add-payment-btn').innerText === "Update";
 
-				fetch("/manage-payment/", {
-					method: "POST", // Change to PUT if updating
-					body: formData
-				})
-				.then(response => response.json())
+        try {
+            const data = Object.fromEntries(formData.entries());
+            const response = isUpdate ? 
+                await paymentAPI.updatePayment(data.studentId, data) :
+                await paymentAPI.addPayment(data);
+
+            // Show success modal
+            showPaymentModal(true, response.message);
+            // Refresh payment grids
+            paymentGrid.forceRender();
+            receivedPaymentGrid.forceRender();
+
+        } catch (error) {
+            showPaymentModal(false, error.message);
+        }
+    });
+
+		// Update notification handling
+		function markNotificationAsRead(notificationId) {
+			notificationAPI.markAsRead(notificationId)
 				.then(data => {
-					console.log("Success:", data);
-					if (data.success) {
-						document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
-						document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
-						document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
-						document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
-						document.getElementById("update-payment-message").innerText = "Payment details updated successfully."
-						document.getElementById("update-payment-heading").innerText = "Update Payment"
-					} else if (data.error) {
-						console.error("Error:", data.error);
-						document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
-						document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
-						document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
-						document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
-						document.getElementById("update-payment-message").innerText = data.error;
-						document.getElementById("update-payment-heading").innerText = "Error"
+					if (data.status === 'success') {
+						removeNotificationFromUI(notificationId);
 					}
 				})
-				.catch(error => {
-					console.error("Error:", error);
-					document.getElementById('add-paymnet-modal').classList.remove('scale-100', 'opacity-100');
-					document.getElementById('add-paymnet-modal').classList.add('scale-0', 'opacity-0');
-					document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
-					document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
-					document.getElementById("update-payment-message").innerText = "Error updating payment information."
-				});
-			} else {
-				e.preventDefault();
-				const form = e.target; // Get the form element
-				const formData = new FormData(form); // Correctly create FormData
+				.catch(error => console.error('Error marking notification as read:', error));
+		}
 
-				fetch("/manage-payment/", {
-					method: "POST", // Change to PUT if updating
-					body: formData
-				})
-				.then(response => response.json())
-				.then(data => {
-					console.log("Success:", data);
-					if (data.success) {
-						document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
-						document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
-						document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
-						document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
-						document.getElementById("update-payment-message").innerText = "Payment details added successfully."
-						document.getElementById("update-payment-heading").innerText = "Add Payment"
-					} else if (data.error) {
-						console.error("Error:", data.error);
-						document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
-						document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
-						document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
-						document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
-						document.getElementById("update-payment-message").innerText = data.error;
-						document.getElementById("update-payment-heading").innerText = "Error"
-					}
-				})
-				.catch(error => {
-					console.error("Error:", error);
-					document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
-					document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
-					document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
-					document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
-					document.getElementById("update-payment-message").innerText = "Error adding payment information."
-				});
-			}
-		})
+		// Helper function to show payment modal
+		function showPaymentModal(success, message) {
+			const modal = document.getElementById("updated-payment-modal");
+			const msgElement = document.getElementById("update-payment-message");
+			const headingElement = document.getElementById("update-payment-heading");
 
-		document.getElementById("paymentReceived").addEventListener("input", () => {
-			const paymentReceivedInput = document.getElementById("paymentReceived");
-			const paymentDueInput = document.getElementById("paymentDue");
+			// Hide payment form modal
+			document.getElementById('add-payment-modal').classList.remove('scale-100', 'opacity-100');
+			document.getElementById('add-payment-modal').classList.add('scale-0', 'opacity-0');
 
-			const originalPaymentDue = parseFloat(paymentDueInput.getAttribute("data-original")) || 0;
-			let paymentReceived = parseFloat(paymentReceivedInput.value) || 0;
+			// Show result modal
+			modal.classList.remove('scale-0', 'opacity-0');
+			modal.classList.add('scale-100', 'opacity-100');
+			msgElement.innerText = message;
+			headingElement.innerText = success ? "Success" : "Error";
+		}
 
-			// Ensure payment received does not exceed the original due
-			if (paymentReceived > originalPaymentDue) {
-				paymentReceived = originalPaymentDue;
-				paymentReceivedInput.value = originalPaymentDue; // Reset input value
-			}
-
-			// Update payment due dynamically
-			paymentDueInput.value = originalPaymentDue - paymentReceived;
-		});
-
+		// Initialize grids with new API handlers
 		const paymentGrid = new gridjs.Grid({
 			search: true,
 			// pagination: {
@@ -764,11 +706,21 @@
 								fetch(`/getReamainingPaymentData/?studentId=${studentId}`)
 									.then(response => response.json())
 									.then(data => {
-										console.log("API Response:", data);
-
-										document.getElementById("studentName").value = data.name;
-										document.getElementById("paymentDue").value = data.paymentDue;
-										document.getElementById("paymentDue").setAttribute("data-original", data.paymentDue);
+										if (data.status === "success") {
+											console.log("API Response:", data);
+	
+											document.getElementById("studentName").value = data["data"].name;
+											document.getElementById("paymentDue").value = data["data"].paymentDue;
+											document.getElementById("paymentDue").setAttribute("data-original", data["data"].paymentDue);
+										} else {
+											console.error("API Error:", data);
+											document.getElementById("update-payment-modal").classList.remove('scale-100', 'opacity-100');
+											document.getElementById("update-payment-modal").classList.add('scale-0', 'opacity-0');
+											document.getElementById("updated-payment-modal").classList.remove('scale-0', 'opacity-0');
+											document.getElementById("updated-payment-modal").classList.add('scale-100', 'opacity-100');
+											document.getElementById("update-payment-message").innerText = "Error fetching payment information.";
+											document.getElementById("update-payment-heading").innerText = "Error"
+										}
 									})
 									.catch(error => console.error("Fetch error:", error));
 
@@ -790,7 +742,24 @@
 			],
 			server: {
 				url: '/getReamainingPaymentData/',
-				then: data => data.map(payment => [payment.studentId, payment.name, payment.courseName, payment.amountPaid, payment.amountPending, payment.TotalAmount, payment.paymentDueDate])
+				then: data => {
+						if (data.status === "success") {
+						return data["data"].map(payment => [
+							payment.studentId, 
+							payment.name.toUpperCase(), 
+							payment.courseName.toUpperCase(), 
+							payment.amountPaid, 
+							payment.amountPending, 
+							payment.TotalAmount, 
+							payment.paymentDueDate
+						])
+					} else {
+						document.querySelector(".gridjs-tbody").innerHTML = `
+                                   <tr class="gridjs-tr"><td role="alert" colspan="7" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
+                              `;
+                              return [];
+					}
+				}
 			},
 			className: {
 				th: '!bg-black !text-white',
@@ -834,7 +803,23 @@
 			],
 			server: {
 				url: '/getPaymentData/',
-				then: data => data.map(payment => [payment.studentId, payment.Name, payment.paymentAmount, payment.paymentDate, payment.paymentReceivedByName, payment.paymentMethod])
+				then: data => {
+					if (data.status === "success") {
+						return data["data"].map(payment => [
+							payment.studentId, 
+							payment.Name.toUpperCase(), 
+							payment.paymentAmount, 
+							payment.paymentDate, 
+							payment.paymentReceivedByName.toUpperCase(), 
+							payment.paymentMethod.toUpperCase()
+						])
+					} else {
+						document.querySelector(".gridjs-tbody").innerHTML = `
+                                   <tr class="gridjs-tr"><td role="alert" colspan="5" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
+                              `;
+                              return [];
+					}
+				}
 			},
 			className: {
 				th: '!bg-black !text-white',
@@ -958,7 +943,22 @@
 			],
 			server: {
 				url: '/getEearningData/',
-				then: data => data.map(earning => [earning.branch, earning.branchInCharge, earning.totalAmountPaid, earning.totalAmountRemaining, earning.totalEarning])
+				then: data => {
+					if (data.status === "success") {
+						return data["data"].map(earning => [
+							earning.branch.toUpperCase(), 
+							earning.branchInCharge.toUpperCase(), 
+							earning.totalAmountPaid, 
+							earning.totalAmountRemaining, 
+							earning.totalEarning
+						])
+					} else {
+						document.querySelector(".gridjs-tbody").innerHTML = `
+							<tr class="gridjs-tr"><td role="alert" colspan="5" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
+						`;
+						return [];
+					}
+				}
 			},
 			className: {
 				th: '!bg-black !text-white',
@@ -983,7 +983,21 @@
 			],
 			server: {
 				url: '/getStudentOnLeaveData/',
-				then: data => data.map(onLeave => [onLeave.studentName, onLeave.date, onLeave.slotTime, onLeave.status])
+				then: data => {
+					if (data.status === "success") {
+						return data["data"].map(onLeave => [
+							onLeave.studentName.toUpperCase(), 
+							onLeave.date, 
+							onLeave.slotTime.toUpperCase(), 
+							onLeave.status.toUpperCase()
+						])
+					} else {
+						document.querySelector(".gridjs-tbody").innerHTML = `
+							<tr class="gridjs-tr"><td role="alert" colspan="4" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
+						`;
+						return [];
+					}
+				}
 			},
 			className: {
 				th: '!bg-black !text-white',

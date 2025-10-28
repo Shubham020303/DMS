@@ -271,7 +271,11 @@
 				fetch("/getBranchData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("vehicleBranch").innerHTML += data.map(branch => `<option value="${branch.id}">${branch.branchName}</option>`).join('');
+						if (data.status !== 'success') {
+							document.getElementById("vehicleBranch").innerHTML += `<option disabled selected>No Branches Available</option>`;
+							return;
+						}
+						document.getElementById("vehicleBranch").innerHTML += data["data"].map(branch => `<option value="${branch.id}">${branch.branchName}</option>`).join('');
 					})
 				
 				const steps = document.querySelectorAll('.form-step');
@@ -551,15 +555,15 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === 'success') {
 							document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-vehicle-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-vehicle-message").innerText = "Vehicle details updated successfully."
 							document.getElementById("update-vehicle-heading").innerText = "Update Vehicle"
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === 'error') {
+							console.error("Error:", data.message);
 							document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
@@ -596,15 +600,15 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === 'success') {
 							document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-vehicle-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-vehicle-message").innerText = "Vehicle details added successfully."
 							document.getElementById("update-vehicle-heading").innerText = "Add Vehicle"
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === 'error') {
+							console.error("Error:", data.message);
 							document.getElementById('add-vehicle-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-vehicle-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-vehicle-modal").classList.remove('scale-0', 'opacity-0');
@@ -717,7 +721,11 @@
 									fetch(qrCodeUrl)
 										.then(response => response.json())
 										.then(data => {
-											document.getElementById("qr-code-image").src = `/` + data.qrCodeImage;
+											if (data.status !== "success") {
+												console.error(data.message);
+												return;
+											}
+											document.getElementById("qr-code-image").src = data["data"].qrCodeImage;
 											document.getElementById('qr-code-modal').classList.remove('scale-0', 'opacity-0');
 											document.getElementById('qr-code-modal').classList.add('scale-100', 'opacity-100');
 										})
@@ -749,7 +757,13 @@
 				],
 				server: {
 					url: '/getVehicleData/',
-					then: data => data.map(vehicle => [vehicle.id, vehicle.vehicalName, vehicle.vehicleNo, vehicle.insuranceValidity, vehicle.pollutionValidity, vehicle.fitnessValidity])
+					then: data => {
+						if (data.status !== "success") {
+							console.error(data.message);
+							return [];
+						}
+						return data["data"].map(vehicle => [vehicle.id, vehicle.vehicalName, vehicle.vehicleNo, vehicle.insuranceValidity, vehicle.pollutionValidity, vehicle.fitnessValidity])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -780,15 +794,19 @@
 				fetch(apiUrl)
 					.then(response => response.json())
 					.then(data => {
-						console.log(data);
+						if (data.status !== "success") {
+							console.error(data.message);
+							return;
+						}
+						console.log(data["data"]);
 						document.getElementById("vehicle-model-heading").innerText = headingText;
 						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
-						document.getElementById("vehicleName").value = data.vehicalName || "No Data Found";
-						document.getElementById("vehicleType").value = data.vehicleType || "No Data Found";
-						document.getElementById("vehicleNo").value = data.vehicleNo || "No Data Found";
-						document.getElementById("insuranceValidity").value = data.insuranceValidity || "No Data Found";
-						document.getElementById("pollutionValidity").value = data.pollutionValidity || "No Data Found";
-						document.getElementById("fitnessValidity").value = data.fitnessValidity || "No Data Found";
+						document.getElementById("vehicleName").value = data["data"].vehicalName || "No Data Found";
+						document.getElementById("vehicleType").value = data["data"].vehicleType || "No Data Found";
+						document.getElementById("vehicleNo").value = data["data"].vehicleNo || "No Data Found";
+						document.getElementById("insuranceValidity").value = data["data"].insuranceValidity || "No Data Found";
+						document.getElementById("pollutionValidity").value = data["data"].pollutionValidity || "No Data Found";
+						document.getElementById("fitnessValidity").value = data["data"].fitnessValidity || "No Data Found";
 
 						const steps = document.querySelectorAll('.form-step');
 						const progressStep = document.querySelectorAll('.progress-step');

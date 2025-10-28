@@ -69,24 +69,16 @@
                     100% { transform: rotate(360deg); }
                }
 
-			input[type="date"]::-webkit-calendar-picker-indicator {
-				background-position: right center;
-				background-size: auto;
-				cursor: pointer;
-				position: absolute;
-				right: 8px;
-				top: 50%;
-				transform: translateY(-50%);
+			.date-input-wrapper {
+				position: absolute !important;
+				right: 310px !important;
+				top: 8px !important;
+				z-index: 50;
 			}
 
-			input[type="date"]::-webkit-datetime-edit,
-			input[type="date"]::-webkit-datetime-edit-fields-wrapper,
-			input[type="date"]::-webkit-datetime-edit-text,
-			input[type="date"]::-webkit-datetime-edit-month-field,
-			input[type="date"]::-webkit-datetime-edit-day-field,
-			input[type="date"]::-webkit-datetime-edit-year-field {
-				color: transparent;
-			}
+			/* .gridjs-search {
+				margin-right: 200px !important;
+			} */
 		</style>
 	</head>
 	<body>
@@ -97,7 +89,10 @@
 					<h1 class="text-2xl sm:text-3xl font-bold">Daily Schedule</h1>
 				</div>
 				<div class="my-5 pb-5 flex flex-col gap-5 bg-white rounded-xl shadow-[3px_8px_20px_-10px_#00000015]">
-					<div class="w-full">
+					<div class="w-full relative">
+						<div class="date-input-wrapper absolute top-2 w-48 z-50">
+							<input type="date" class="block w-full rounded-lg bg-white px-[13px] py-[10px] text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+						</div>
 						<div id="daily-time-slots" class="w-full"></div>
 					</div>
 				</div>
@@ -110,63 +105,13 @@
 		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
           <!-- <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script> -->
 		<script>
-			document.addEventListener('DOMContentLoaded', () => {
-				initializeDateInputs();
-			})
-
-			function initializeDateInputs() {
-				// Select all date inputs
-				const dateInputs = document.querySelectorAll('input[type="date"]');
-				
-				dateInputs.forEach(input => {
-					// Create a custom placeholder
-					const placeholder = document.createElement('span');
-					placeholder.textContent = 'dd-mm-yyyy';
-					placeholder.className = 'date-placeholder text-black text-sm pointer-events-none absolute left-3 top-1/2 -translate-y-1/2';
-					
-					// Wrap input in a relative positioned container
-					const wrapper = document.createElement('div');
-					wrapper.className = 'relative';
-					input.parentNode.insertBefore(wrapper, input);
-					wrapper.appendChild(input);
-					wrapper.appendChild(placeholder);
-					
-					// Function to format date for display
-					const formatDateForDisplay = (date) => {
-						if (!date) return '';
-						const [year, month, day] = date.split('-');
-						return `${day}-${month}-${year}`;
-					};
-					
-					// Function to handle date change
-					const handleDateChange = () => {
-						const value = input.value;
-						if (value) {
-							// Store the YYYY-MM-DD format in value attribute
-							input.setAttribute('data-value', value);
-							// Show formatted date as text
-							placeholder.textContent = formatDateForDisplay(value);
-							placeholder.classList.remove('text-black');
-							placeholder.classList.add('text-black');
-						} else {
-							placeholder.textContent = 'dd-mm-yyyy';
-							placeholder.classList.remove('text-black');
-							placeholder.classList.add('text-black');
-						}
-					};
-					
-					// Initial state
-					if (input.value) {
-						handleDateChange();
-					}
-					
-					// Event listeners
-					input.addEventListener('change', handleDateChange);
-					input.addEventListener('blur', handleDateChange);
-					
-					// Hide the default date input display
-					input.style.color = 'transparent';
-				});
+			let currentGrid = null;
+			function updateDateRight() {
+				const dateWrapper = document.querySelector('.date-input-wrapper');
+				const searchInput = document.querySelector(".gridjs-search-input");
+				if (dateWrapper && searchInput) {
+					dateWrapper.style.right = `${searchInput.offsetWidth + 16}px`;
+				}
 			}
 
                function showLoader() {
@@ -181,15 +126,40 @@
                     document.getElementsByTagName("body")[0].style.overflow = "visible";
                }
 
+			function handleDateChange(event) {
+    const selectedDate = event.target.value;
+    const container = document.getElementById('daily-time-slots');
+    showLoader();
+    
+    // Initialize new grid with the selected date
+    initializeDailyTimeSlotsGrid(selectedDate).then(grid => {
+        // Clear previous grid if exists
+        if (currentGrid) {
+            currentGrid.destroy();
+        }
+        // Store and render new grid
+        currentGrid = grid;
+        container.innerHTML = '';
+        currentGrid.render(container);
+        hideLoader();
+    });
+}
+
+			document.querySelector('input[type="date"]').addEventListener('change', handleDateChange);
+
 			// Function to initialize the grid with dynamic columns
-			async function initializeDailyTimeSlotsGrid() {
+			async function initializeDailyTimeSlotsGrid(date = null) {
 				try {
 					// First fetch the data to get vehicle names
-					const response = await fetch('/getSlotWiseData/');
+					const url = date 
+						? `/getSlotWiseData/?date=${date}`
+						: '/getSlotWiseData/';
+					
+					const response = await fetch(url);
 					const data = await response.json();
 					
 					// Get unique vehicle names for columns
-					const vehicleNames = [...new Set(data.map(vehicle => vehicle.vehicleName))];
+					const vehicleNames = [...new Set(data["data"].map(vehicle => vehicle.vehicleName))];
 					
 					// Create the grid with dynamic columns
 					const dailyTimeSlotsGrid = new gridjs.Grid({
@@ -206,7 +176,7 @@
 							const slotMap = new Map();
 							
 							// Process each vehicle's slots
-							data.forEach(vehicle => {
+							data["data"].forEach(vehicle => {
 								vehicle.slots.forEach(slot => {
 									if (!slotMap.has(slot.slotTime)) {
 										slotMap.set(slot.slotTime, {
@@ -218,7 +188,8 @@
 									// Add vehicle info to this slot
 									slotMap.get(slot.slotTime).vehicleData[vehicle.vehicleName] = {
 										student: slot.student,
-										branch: slot.branch
+										branch: slot.branch,
+										attendanceStatus: slot.attendanceStatus
 									};
 								});
 							});
@@ -231,9 +202,31 @@
 								vehicleNames.forEach(vehicleName => {
 									const vehicleInfo = slotData.vehicleData[vehicleName];
 									if (vehicleInfo) {
-										row.push(vehicleInfo.student || '--');
+										// Parse slot time and compare with current time
+										const timeRange = slotData.slotTime.split(' - ')[0]; // Get start time
+										const [hours, minutes] = timeRange.split(':'); // Parse HH:mm:ss format
+										const slotDateTime = new Date();
+										slotDateTime.setHours(parseInt(hours), parseInt(minutes), 0);
+										const currentTime = new Date();
+
+										let cellContent = vehicleInfo.student || '--';
+										let cellStyle = '';
+
+										if (vehicleInfo.student && slotDateTime < currentTime) {
+											if (vehicleInfo.attendanceStatus === 'NotMarked') {
+												cellStyle = 'color: red;';
+												cellContent = `${vehicleInfo.student} (${vehicleInfo.attendanceStatus})`;
+											} else if (vehicleInfo.attendanceStatus) {
+												cellStyle = 'color: green;';
+												cellContent = `${vehicleInfo.student} (${vehicleInfo.attendanceStatus})`;
+											}
+										}
+
+										row.push(gridjs.html(
+										`<div style="${cellStyle}">${cellContent}</div>`
+										));
 									} else {
-										row.push('Slot Not Available'); // No slot for this vehicle at this time
+										row.push('Slot Not Available');
 									}
 								});
 								
@@ -246,6 +239,8 @@
 							search: '!float-right !w-[25%]',
 						}
 					});
+
+					updateDateRight();
 					
 					return dailyTimeSlotsGrid;
 					
@@ -275,11 +270,18 @@
 
 			// Or with async/await
 			async function setupGrid() {
-				const dailyTimeSlotsGrid = await initializeDailyTimeSlotsGrid();
-				dailyTimeSlotsGrid.render(document.getElementById('daily-time-slots'));
+				const container = document.getElementById('daily-time-slots');
+				currentGrid = await initializeDailyTimeSlotsGrid();
+				container.innerHTML = '';
+				currentGrid.render(container);
+				setTimeout(updateDateRight, 100);
 			}
 
-			document.querySelector(".gridjs-search-input").placeholder = "Search...";
+			window.addEventListener('DOMContentLoaded', setupGrid);
+			window.addEventListener('resize', updateDateRight);
+			window.addEventListener('load', updateDateRight);
+
+			// document.querySelector(".gridjs-search-input").placeholder = "Search...";
 		</script>
 	</body>
 </html>

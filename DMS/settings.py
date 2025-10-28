@@ -32,7 +32,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 
-ALLOWED_HOSTS = ['ideadrivingschool.cloud', 'www.ideadrivingschool.cloud']
+ALLOWED_HOSTS = ['ideadrivingschool.cloud', 'www.ideadrivingschool.cloud','*']
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = ["null","http://ideadrivingschool.cloud","https://ideadrivingschool.cloud"]
 CORS_ALLOW_CREDENTIALS = True
@@ -59,9 +59,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middleware.RequestResponseLoggingMiddleware',  # Logging middleware
 ]
 
 ROOT_URLCONF = 'DMS.urls'
+WSGI_APPLICATION = 'DMS.wsgi.application'
 
 TEMPLATES = [
     {
@@ -79,7 +81,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'DMS.wsgi.application'
 
 
 # Database
@@ -128,6 +129,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATIC_URL = 'static/'
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -138,3 +142,28 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Logging configuration
+# https://docs.djangoproject.com/en/stable/topics/logging/
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'dms.log'),
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

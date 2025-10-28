@@ -78,18 +78,22 @@
 		</div>
 		<div class="flex flex-col gap-1">
 			{% if user.is_authenticated %}
-			<div role="button" tabindex="0" class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
-				<div class="grid place-items-center mr-4">
-					{% if profilepic != '' %}
-					<img src="{{ profilepic }}" class="w-5 h-5 rounded-full" alt="Profile Picture">
-					{% else %}
-					<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-						<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-						<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-					</svg>
-					{% endif %}
+			<div class="relative">
+				<div id="user-element" role="button" tabindex="0" class="user-element flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
+					<div class="grid place-items-center mr-4">
+						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 16 16">
+							<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+							<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+						</svg>
+					</div>
+					{{ user.username }}
 				</div>
-				{{ user.username }}
+				<!-- Change password popup -->
+				<div id="password-popup" class="hidden absolute w-full py-2 bg-indigo-500 rounded-lg shadow-xl bottom-full left-0 mb-2 cursor-pointer">
+					<button id="change-password-btn" class="w-full px-4 py-2 text-left text-white hover:bg-opacity-80 cursor-pointer">
+						Change Password
+					</button>
+				</div>
 			</div>
 			<a href="/signout/">
 				<div role="button" tabindex="0" class="flex items-center w-full p-3 rounded-lg text-start leading-tight transition-all hover:bg-indigo-500 hover:bg-opacity-80 hover:text-white outline-none cursor-pointer">
@@ -105,6 +109,42 @@
 			{% endif %}
 		</div>
 	</nav>
+</div>
+
+<div id="password-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
+	<div class="bg-white p-6 rounded-lg shadow-xl w-96">
+		<h2 class="text-2xl sm:text-3xl font-bold mb-4">Change Password</h2>
+		<p id="form-error" class="hidden text-sm text-red-500 mb-4"></p>
+		<form id="password-change-form" class="space-y-4">
+			<div>
+				<label class="block font-semibold text-sm sm:text-base mb-2" for="old-password">Current Password</label>
+				<input type="password" id="old-password" name="old_password" class="w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+				<p id="old-password-error" class="hidden mt-1 text-sm text-red-500"></p>
+			</div>
+			<div>
+				<label class="block font-semibold text-sm sm:text-base mb-2" for="new-password">New Password</label>
+				<input type="password" id="new-password" name="new_password" class="w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+				<p id="new-password-error" class="hidden mt-1 text-sm text-red-500"></p>
+			</div>
+			<div>
+				<label class="block font-semibold text-sm sm:text-base mb-2" for="confirm-password">Confirm New Password</label>
+				<input type="password" id="confirm-password" name="confirm_password" class="w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+				<p id="confirm-password-error" class="hidden mt-1 text-sm text-red-500"></p>
+			</div>
+			<div class="flex justify-end space-x-3 mt-6">
+				<button type="button" id="cancel-password-change" class="px-4 py-2 text-black hover:bg-gray-200 rounded-lg transition-colors">
+					Cancel
+				</button>
+				<button type="submit" class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors flex items-center justify-center min-w-[120px]">
+					<span id="button-text">Change Password</span>
+					<svg id="button-spinner" class="hidden w-5 h-5 ml-2 animate-spin" viewBox="0 0 24 24" fill="none">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+				</button>
+			</div>
+		</form>
+	</div>
 </div>
 
 <script>
@@ -153,6 +193,131 @@
 					closeMenu();
 				}
 			});
+		});
+
+		const userElement = document.getElementById('user-element');
+		const passwordPopup = document.getElementById('password-popup');
+
+		userElement.addEventListener('click', () => {
+			passwordPopup.classList.toggle('hidden');
+		});
+
+		// Close popup when clicking outside
+		document.addEventListener('click', (e) => {
+			if (!userElement.contains(e.target) && !passwordPopup.contains(e.target)) {
+				passwordPopup.classList.add('hidden');
+			}
+		});
+
+		// Password change functionality
+		const passwordModal = document.getElementById('password-modal');
+		const changePasswordBtn = document.getElementById('change-password-btn');
+		const cancelPasswordBtn = document.getElementById('cancel-password-change');
+		const passwordChangeForm = document.getElementById('password-change-form');
+
+		function showPasswordModal() {
+			passwordModal.classList.remove('hidden');
+		}
+
+		function hidePasswordModal() {
+			passwordModal.classList.add('hidden');
+			passwordChangeForm.reset();
+		}
+
+		changePasswordBtn.addEventListener('click', showPasswordModal);
+		cancelPasswordBtn.addEventListener('click', hidePasswordModal);
+
+		passwordChangeForm.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			
+			// Clear previous error messages
+			const errorElements = document.querySelectorAll('[id$="-error"]');
+			errorElements.forEach(el => {
+				el.classList.add('hidden');
+				el.textContent = '';
+			});
+			
+			const buttonText = document.getElementById('button-text');
+			const buttonSpinner = document.getElementById('button-spinner');
+			const submitButton = passwordChangeForm.querySelector('button[type="submit"]');
+			
+			const oldPassword = document.getElementById('old-password').value;
+			const newPassword = document.getElementById('new-password').value;
+			const confirmPassword = document.getElementById('confirm-password').value;
+
+			// Field validation
+			let hasError = false;
+			
+			if (!oldPassword) {
+				showError('old-password-error', 'Current password is required');
+				hasError = true;
+			}
+			
+			if (!newPassword) {
+				showError('new-password-error', 'New password is required');
+				hasError = true;
+			}
+			
+			if (!confirmPassword) {
+				showError('confirm-password-error', 'Please confirm your new password');
+				hasError = true;
+			}
+			
+			if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+				showError('form-error', 'Password and confirm password do not match');
+				hasError = true;
+			}
+
+			if (hasError) return;
+
+			// Show loading state
+			buttonText.textContent = 'Changing...';
+			buttonSpinner.classList.remove('hidden');
+			submitButton.disabled = true;
+
+			const formData = new FormData();
+			formData.append('current_password', oldPassword);
+			formData.append('new_password', newPassword);
+
+			try {
+				const response = await fetch('/student/change-password/', {
+					method: 'POST',
+					body: formData
+				});
+
+				const data = await response.json();
+				
+				if (data.status === 'success') {
+					showError('form-error', 'Password changed successfully', 'text-green-500');
+					setTimeout(() => {
+						hidePasswordModal();
+					}, 1500);
+				} else {
+					showError('form-error', data.message || 'Failed to change password');
+				}
+			} catch (error) {
+				showError('form-error', 'An error occurred while changing password');
+			} finally {
+				// Reset loading state
+				buttonText.textContent = 'Change Password';
+				buttonSpinner.classList.add('hidden');
+				submitButton.disabled = false;
+			}
+		});
+
+		// Add this helper function to show errors
+		function showError(elementId, message, className = 'text-red-500') {
+			const errorElement = document.getElementById(elementId);
+			errorElement.textContent = message;
+			errorElement.classList.remove('hidden', 'text-red-500', 'text-green-500');
+			errorElement.classList.add(className);
+		}
+
+		// Close modal when clicking outside
+		passwordModal.addEventListener('click', (e) => {
+			if (e.target === passwordModal) {
+				hidePasswordModal();
+			}
 		});
 	});
 </script>

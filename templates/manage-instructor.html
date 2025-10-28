@@ -460,7 +460,11 @@
 				fetch("/getBranchData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+						if (data.status !== 'success') {
+							document.getElementById("branch").innerHTML += `<option disabled selected>No Branches Available</option>`;
+							return;
+						}
+						document.getElementById("branch").innerHTML += data['data'].map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
 					})
 				
 				// fetch("/getVehicleData/")
@@ -1175,7 +1179,13 @@
 				],
 				server: {
 					url: '/getInstructorData/',
-					then: data => data.map(instructor => [instructor.id, instructor.profilePic, instructor.name, instructor.phone, instructor.branch])
+					then: data => {
+						if (data.status !== "success") {
+							console.error("Error fetching instructor data");
+							return [];
+						}
+						return data["data"].map(instructor => [instructor.id, instructor.profilePic, instructor.name, instructor.phone, instructor.branch])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -1195,13 +1205,17 @@
 					fetch(`/getInstructorData/?instructorId=${instructorId}`)
 						.then(response => response.json())
 						.then(data => {
-							console.log(data);
+							if (data.status !== "success") {
+								console.error("Error fetching instructor data");
+								return;
+							}
+							console.log(data["data"]);
 
-							document.getElementById("instructor-view-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
-							document.getElementById("instructor-name").innerText = data.name || "No Data Found";
-							document.getElementById("instructor-email").innerText = data.email || "No Data Found";
-							document.getElementById("instructor-phone").innerText = data.phone || "No Data Found";
-							document.getElementById("instructor-bg").innerText = data.bloodGroup || "No Data Found";
+							document.getElementById("instructor-view-image").src = data["data"].profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("instructor-name").innerText = data["data"].name || "No Data Found";
+							document.getElementById("instructor-email").innerText = data["data"].email || "No Data Found";
+							document.getElementById("instructor-phone").innerText = data["data"].phone || "No Data Found";
+							document.getElementById("instructor-bg").innerText = data["data"].bloodGroup || "No Data Found";
 						})
 					// fetchInstructorData(`/getInstructorData/?instructorId=${instructorId}`, "Instructor Details", false, true);
 					document.getElementById('view-instructor-modal').classList.remove('scale-0', 'opacity-0');
@@ -1213,40 +1227,44 @@
 				fetch(apiUrl)
 					.then(response => response.json())
 					.then(data => {
-						console.log(data);
+						if (data.status !== "success") {
+							console.error("Error fetching instructor data");
+							return;
+						}
+						console.log(data["data"]);
 						document.getElementById("instructon-model-heading").innerText = headingText;
 						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
-						document.getElementById("name").value = data.name || "No Data Found";
-						document.getElementById("branch").value = data.branch || "No Data Found";
-						document.getElementById("email").value = data.email || "No Data Found";
-						document.getElementById("mobile").value = data.phone || "No Data Found";
-						document.getElementById("bloodGroup").value = data.bloodGroup || "No Data Found";
-						document.getElementById("dob").value = data.dob || "No Data Found";
+						document.getElementById("name").value = data["data"].name || "No Data Found";
+						document.getElementById("branch").value = data["data"].branch || "No Data Found";
+						document.getElementById("email").value = data["data"].email || "No Data Found";
+						document.getElementById("mobile").value = data["data"].phone || "No Data Found";
+						document.getElementById("bloodGroup").value = data["data"].bloodGroup || "No Data Found";
+						document.getElementById("dob").value = data["data"].dob || "No Data Found";
 						// document.getElementById("vehicle").value = data.vehicle || "No Data Found";
-						document.getElementById("dlNo").value = data.dlNo || "No Data Found";
-						document.getElementById("dlIssueDate").value = data.dlIssueDate || "No Data Found";
-						document.getElementById("dlExpiry").value = data.dlExpiry || "No Data Found";
+						document.getElementById("dlNo").value = data["data"].dlNo || "No Data Found";
+						document.getElementById("dlIssueDate").value = data["data"].dlIssueDate || "No Data Found";
+						document.getElementById("dlExpiry").value = data["data"].dlExpiry || "No Data Found";
 						document.getElementById("instructor-image").classList.remove('hidden');
 						// add file to the profilePhoto input
-						if (data.profilePic === null || data.profilePic?.trim() === "") {
+						if (data["data"].profilePic === null || data["data"].profilePic?.trim() === "") {
 							document.getElementById("instructor-image").src = "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
 						} else {
-							document.getElementById("instructor-image").src = data.profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
-							document.getElementById("profilePhoto").setAttribute("data-name", data.profilePic)
+							document.getElementById("instructor-image").src = data["data"].profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("profilePhoto").setAttribute("data-name", data["data"].profilePic)
 							const instructorProfilePic = document.getElementById("profilePhoto");
-							const fileName = data.profilePic;
+							const fileName = data["data"].profilePic;
 							const file = new File([], fileName, {
 								type: "image/*"
 							});
 							const dataTransfer = new DataTransfer();
 							dataTransfer.items.add(file);
 							instructorProfilePic.files = dataTransfer.files;
-							instructorProfilePic.setAttribute("data-name", data.profilePic)
+							instructorProfilePic.setAttribute("data-name", data["data"].profilePic)
 						}
 
-						handleDocumentData("adharcard", data.adharCard, "aadhar-upload");
-						handleDocumentData("aggrement", data.aggrementDoc, "agreement-upload");
-						handleDocumentData("policeVerification", data.policeVerificationDoc, "police-upload");
+						handleDocumentData("adharcard", data["data"].adharCard, "aadhar-upload");
+						handleDocumentData("aggrement", data["data"].aggrementDoc, "agreement-upload");
+						handleDocumentData("policeVerification", data["data"].policeVerificationDoc, "police-upload");
 
 						const imageUpload = document.getElementById('image-upload');
 						const image = document.getElementById('profilePhoto');
