@@ -5,6 +5,8 @@
      <meta charset="UTF-8">
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <title>Course Details | DMS</title>
+     <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+	<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
      <script src="/static/js/tailwind.js"></script>
 </head>
 
@@ -15,11 +17,120 @@
                <div class="w-full flex justify-between items-center">
                     <h1 class="text-2xl sm:text-3xl font-bold">Course Details</h1>
                </div>
-               <div class="w-full h-full flex justify-center items-center">
-                    <h1 class="text-3xl font-bold">Coming Soon</h1>
-               </div>
+               <div id="wrapper" class="w-full mt-8"></div>
           </div>
      </section>
+
+     <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+	<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+     <script>
+          const courseContentGrid = new gridjs.Grid({
+               search: true,
+               pagination: {
+                    limit: 5,
+                    summary: false
+               },
+               sort: true,
+               fixedHeader: true,
+               columns: [{
+                         id: "id",
+                         name: "ID",
+                         width: '5%',
+                         formatter: (cell, row) => {
+                              cell = `<span class="text-indigo-600 font-semibold">${cell}</span>`;
+                              return gridjs.html(cell);
+                         },
+                         hidden: true
+                    },
+                    "Cource Content Description",
+                    {
+                         name:"Cource Content File",
+                         formatter: (cell, row) => {
+                              if (cell === null || cell === "") {
+                                   return gridjs.html(`<p class="text-red-600">No PDF Found</p>`);
+                              }
+                              return gridjs.html(`<a href="${cell}" target="_blank" class="text-blue-600 underline">View PDF</a>`);
+                         }
+                    },
+                    {
+                         name:"Cource Content Video",
+                         formatter: (cell, row) => {
+                              if (cell === null || cell === "") {
+                                   return gridjs.html(`<p class="text-red-600">No Video Found</p>`);
+                              }
+                              return gridjs.html(`<video class="w-full h-1/2 aspect-video" controls>
+                                   <source src="${cell}" type="video/mp4">
+                                   Your browser does not support the video tag.
+                              </video>`);
+                         }
+                    },
+                    // {
+                    //      name: "Action",
+                    //      formatter: (cell, row) => {
+                    //           let editBtn = gridjs.h('button', {
+                    //                className: 'p-3 bg-indigo-600 text-white rounded-lg cursor-pointer',
+                    //                innerHTML: `
+                    //                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                    //                     <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                    //                     <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                    //                     </svg>
+                    //                `,
+                    //                onClick: () => {
+                    //                     fetchCourseContentData(`/getcourceContentData/?courceContentId=${row.cells[0].data}`, "Edit Course Content Details", true, false);
+                    //                     document.getElementById("add-course-content-btn").innerText = "Update";
+
+                    //                     document.getElementById("add-course-content-form").innerHTML += `<input type="hidden" name="courceContentId" id="courceContentId" value="${row.cells[0].data}">`;
+                    //                     document.getElementById('add-course-content-modal').classList.remove('scale-0', 'opacity-0');
+                    //                     document.getElementById('add-course-content-modal').classList.add('scale-100', 'opacity-100');
+                    //                }
+                    //           }, '');
+                    //           let deleteBtn = gridjs.h('button', {
+                    //                className: 'p-3 bg-red-600 text-white rounded-lg cursor-pointer',
+                    //                innerHTML: `
+                    //                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                    //                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                    //                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                    //                     </svg>
+                    //                `,
+                    //                onClick: () => {
+                    //                     courseContentId = row.cells[0].data;
+                    //                     document.getElementById("delete-course-content-btn").setAttribute("data-id", courseContentId);
+                    //                     document.getElementById("delete-course-content-message").innerHTML = `Are you sure you want to delete <b>${row.cells[1].data}</b>'s details?`;
+                    //                     document.getElementById('delete-course-content-modal').classList.remove('scale-0', 'opacity-0');
+                    //                     document.getElementById('delete-course-content-modal').classList.add('scale-100', 'opacity-100');
+                    //                }
+                    //           }, '');
+                    //           return gridjs.h('div', {
+                    //                className: 'flex gap-4'
+                    //           }, editBtn, deleteBtn);
+                    //      },
+                    //      width: '11%'
+                    // }
+               ],
+               server: {
+                    url: '/getcourceContentData/',
+                    then: data => {
+                         if (data.status === "success") {
+                              return data["data"].map(courseContent => [courseContent.id, courseContent.courceContentDescription, courseContent.courcecontentFile, courseContent.courceContentVideo])
+                         } else {
+                              document.querySelector(".gridjs-tbody").innerHTML = `
+                                   <tr class="gridjs-tr"><td role="alert" colspan="4" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
+                              `;
+                              return [];
+                         }
+                    }
+               },
+               className: {
+                    th: '!bg-black !text-white',
+                    sort: '!bg-black !text-white',
+                    search: '!float-right !w-[25%]',
+               }
+          })
+
+          courseContentGrid.render(document.getElementById("wrapper"))
+
+          document.querySelector(".gridjs-search-input").placeholder = "Search...";
+     </script>
 </body>
 
 </html>

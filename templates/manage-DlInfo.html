@@ -226,7 +226,11 @@
 				fetch("/getUserProfileData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("dlUser").innerHTML += data.map(user => `<option value="${user.id}">${user.Name}</option>`).join('');
+						if (data.status !== 'success') {
+							document.getElementById("dlUser").innerHTML = `<option disabled selected>No users found</option>`;
+							return;
+						}
+						document.getElementById("dlUser").innerHTML += data['data'].map(user => `<option value="${user.id}">${user.Name}</option>`).join('');
 					})
 
 				initializeDateInputs();
@@ -371,20 +375,20 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === 'success') {
 							document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-license-message").innerText = "License details updated successfully."
 							document.getElementById("update-license-heading").innerText = "Update License"
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === 'error') {
+							console.error("Error:", data.message);
 							document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
-							document.getElementById("update-license-message").innerText = data.error;
+							document.getElementById("update-license-message").innerText = data.message;
 							document.getElementById("update-license-heading").innerText = "Error"
 						}
 					})
@@ -409,20 +413,20 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log("Success:", data);
-						if (data.success) {
+						if (data.status === 'success') {
 							document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
 							document.getElementById("update-license-message").innerText = "License details added successfully."
 							document.getElementById("update-license-heading").innerText = "Add License"
-						} else if (data.error) {
-							console.error("Error:", data.error);
+						} else if (data.status === 'error') {
+							console.error("Error:", data.message);
 							document.getElementById('add-license-modal').classList.remove('scale-100', 'opacity-100');
 							document.getElementById('add-license-modal').classList.add('scale-0', 'opacity-0');
 							document.getElementById("updated-license-modal").classList.remove('scale-0', 'opacity-0');
 							document.getElementById("updated-license-modal").classList.add('scale-100', 'opacity-100');
-							document.getElementById("update-license-message").innerText = data.error;
+							document.getElementById("update-license-message").innerText = data.message;
 							document.getElementById("update-license-heading").innerText = "Error"
 						}
 					})
@@ -449,12 +453,12 @@
 					.then(response => response.json())
 					.then(data => {
 						console.log(data);
-						if (data.success) {
+						if (data.status === 'success') {
 							document.getElementById("delete-license-message-container").innerHTML = `<p>Deleted successfully</p>`;
 							document.getElementById("delete-license-btn").style.display = "none";
 							document.getElementById("close-delete-license-modal").innerText = "Close";
-						} else if (data.error) {
-							document.getElementById("delete-license-message-container").innerHTML = `<p>${data.error}</p>`;
+						} else if (data.status === 'error') {
+							document.getElementById("delete-license-message-container").innerHTML = `<p>${data.message}</p>`;
 							document.getElementById("delete-license-btn").style.display = "none";
 							document.getElementById("close-delete-license-modal").innerText = "Close";
 						}
@@ -540,7 +544,13 @@
 				],
 				server: {
 					url: '/getDlInfoData/',
-					then: data => data.map(dlInfo => [dlInfo.id, dlInfo.Name, dlInfo.dlNo, dlInfo.dlIssueDate, dlInfo.dlExpiry, dlInfo.dlType])
+					then: data => {
+						if (data.status !== "success") {
+							console.error("Error fetching license data:", data.message);
+							return [];
+						}
+						return data["data"].map(dlInfo => [dlInfo.id, dlInfo.Name, dlInfo.dlNo, dlInfo.dlIssueDate, dlInfo.dlExpiry, dlInfo.dlType])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -560,12 +570,16 @@
 					fetch(`/getDlInfoData/?dlId=${dlId}`)
 						.then(response => response.json())
 						.then(data => {
-							console.log(data);
+							if (data.status !== "success") {
+								console.error("Error fetching license data:", data.message);
+								return;
+							}
+							console.log(data["data"]);
 
-							document.getElementById("person-name").innerText = data.Name || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
-							document.getElementById("person-dlNo").innerText = data.dlNo || "No Data Found";
-							document.getElementById("person-dlissuedate").innerText = data.dlIssueDate || "No Data Found";
-							document.getElementById("person-dlexpirydate").innerText = data.dlExpiry || "No Data Found";
+							document.getElementById("person-name").innerText = data["data"].Name || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
+							document.getElementById("person-dlNo").innerText = data["data"].dlNo || "No Data Found";
+							document.getElementById("person-dlissuedate").innerText = data["data"].dlIssueDate || "No Data Found";
+							document.getElementById("person-dlexpirydate").innerText = data["data"].dlExpiry || "No Data Found";
                                    // if (data.dlType === "Learning License") {
                                    //      document.getElementById("view-license-modal-box").classList.remove("bg-gradient-to-br", "from-red-100", "to-yellow-100")
                                    //      document.getElementById("view-license-modal-box").classList.add("bg-white")

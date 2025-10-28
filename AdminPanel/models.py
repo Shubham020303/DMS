@@ -21,6 +21,9 @@ class UserProfile(models.Model):
     is_branchAdmin = models.BooleanField(default=False)
     is_superAdmin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
+
 
     def __str__(self):
         return self.user.username
@@ -30,6 +33,8 @@ class Branch(models.Model):
     branchPhoneNo = models.CharField(max_length=10)
     branchEmail = models.EmailField()
     branchIncharge = models.OneToOneField(UserProfile, on_delete=models.CASCADE,null=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -46,7 +51,8 @@ class Vehicle(models.Model):
     qrCodeData = models.CharField(max_length=64,blank=True,null=True)
     qrCodeImage = models.ImageField(upload_to='vehicle_qrcodes/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
-   
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
 
 
     def __str__(self):
@@ -79,6 +85,8 @@ class Slot(models.Model):
     slotUsed = models.BooleanField(default=False)
     slotPreBooked = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
 
 
     def __str__(self):
@@ -91,6 +99,8 @@ class AddOnService(models.Model):
     serviceFee = models.IntegerField()
     mandetory = models.BooleanField(default=False) 
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
 
     def __str__(self):
         return self.serviceName
@@ -106,7 +116,8 @@ class DLInfo(models.Model):
     dlType = models.CharField(max_length=20,choices=choises,blank=True,null=True)
     dlUser = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
-
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
 
     def __str__(self):
         return self.dlNo + ' - ' + self.dlUser.user.first_name
@@ -121,6 +132,9 @@ class Instructor(models.Model):
     aggreementDoc = models.FileField(upload_to='instructorDoc/',null=True,blank=True)
     policeVerificationDoc = models.FileField(upload_to='instructorDoc/',null=True,blank=True)
     is_active = models.BooleanField(default=True)    
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
+
     def __str__(self):
         return self.user.user.first_name
 
@@ -137,6 +151,9 @@ class Cource(models.Model):
     total_session = models.IntegerField(default=0,null=True,blank=True)
     Branch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
+
     def __str__(self):
         return self.courceName
 
@@ -161,6 +178,9 @@ class Student(models.Model):
     addOnService = models.ManyToManyField(AddOnService)
     student_staus = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
+
     def __str__(self):
         return self.user.user.first_name
 
@@ -191,6 +211,7 @@ class Attendance(models.Model):
         ('Present', 'Present'),
         ('Absent', 'Absent'),
         ('Leave', 'Leave'),
+
     )
     class Meta:
         unique_together = ('student', 'date')
@@ -199,9 +220,12 @@ class Attendance(models.Model):
     status = models.CharField(max_length=10,choices=choices,null=True,blank=True)
     timeIn = models.TimeField(null=True,blank=True)
     timeOut = models.TimeField(null=True,blank=True)
-    
     is_active = models.BooleanField(default=True)
-    
+    reason = models.TextField(null=True,blank=True)
+    created_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE,null=True,blank=True,related_name='created_by')
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
+
     def __str__(self):
         return self.student.user.user.first_name + ' - ' + str(self.date)
 
@@ -241,11 +265,13 @@ class Complain(models.Model):
     compalainFor = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     compalainTitle = models.CharField(max_length=500,null=True,blank=True)
     complainDescription = models.TextField()
-    complainDate = models.DateField()
-    complainTime = models.TimeField(default=time(0, 0))
     complainResolved = models.BooleanField(default=False)
+    action_taken = models.TextField(null=True,blank=True)
+    resolved_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE,null=True,blank=True,related_name='modified_by')
+    resolved_at = models.DateTimeField(null=True,blank=True,default=datetime.now())
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    modified_at = models.DateTimeField(auto_now=True,null=True,blank=True)
     complainBranch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
-    is_active = models.BooleanField(default=True)
     def __str__(self):
         return self.compalainFor.user.first_name + ' - ' + self.compalainTitle
     
@@ -255,8 +281,7 @@ class Payment(models.Model):
     paymentAmount = models.IntegerField()
     paymentMethod = models.CharField(max_length=50)
     paymentRecevedBy = models.ForeignKey(UserProfile, on_delete=models.CASCADE,null=True,blank=True)
-    is_active = models.BooleanField(default=True)
-
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     def __str__(self):
         return self.student.user.user.first_name
     
@@ -267,8 +292,20 @@ class Notification(models.Model):
     notificationTime = models.TimeField(default=time(0, 0))
     notificationBranch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
     notificationIsRead = models.BooleanField(default=False)
-
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
 
     def __str__(self):
         return self.notificationTitle
 
+
+class StudentCouseHistory(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    cource = models.ForeignKey(Cource, on_delete=models.CASCADE)
+    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
+    courceEnrollDate = models.DateField()
+    courceCompletionDate = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    created_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE,null=True,blank=True)
+
+    def __str__(self):
+        return self.student.user.user.first_name + ' - ' + self.previousCource

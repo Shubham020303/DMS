@@ -6,383 +6,469 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from datetime import datetime,timedelta
-from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment,AddOnService,Notification)
+from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Complain,CourceContent,Slot,Payment,AddOnService,Notification,StudentCouseHistory)
 from django.core.paginator import Paginator
+from utils.response import success_response, error_response,validation_error_response
+import logging
 # Create your views here.
-@login_required(login_url='signin/')
-def getReamainingPaymentData(request):
-    studentid= request.GET.get('studentId',None)
-    if studentid:
-        student = Student.objects.get(id=studentid)
-        data = {
-            'name': student.user.user.first_name,
-            'studentId': student.id,
-            'paymentDue': student.amountPending
 
-        }
-        return JsonResponse(data, safe=False)
-    else:
-        three_days_ago = datetime.today() - timedelta(days=3)
-        students = Student.objects.filter(amountPending__gt=0, paymentDueDate__lte=three_days_ago)
-        print("Students with pending payments:", students)
-        data = []
-        for student in students:
-            data.append({
-                'name': student.user.user.first_name,
-                'studentId': student.id,
-                'courseName': student.cource.courceName,
-                'amountPending': student.amountPending,
-                'amountPaid': student.amountPaid,
-                'TotalAmount': int(student.amountPending) + int(student.amountPaid),
-                'paymentDueDate': student.paymentDueDate
-            })  
-        return JsonResponse(data, safe=False)
+logger = logging.getLogger(__name__)
+
+def _parse_date_string(date_str):
+    return datetime.strptime(date_str, "%Y-%m-%d").date()
+
+@login_required(login_url='signin/')
+def getcurrentUserData(request):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            user_profile = UserProfile.objects.filter(user=user).first()
+            if user_profile:
+                data = {
+                    'id': user.id,
+                    'name': user.first_name,
+                    'email': user.email,
+                    'phone': user_profile.phoneNo,
+                    'profilePic': user_profile.profilePic.url if user_profile.profilePic else '',
+                    'is_superAdmin': user_profile.is_superAdmin,
+                    'is_instructor': user_profile.is_instructor,
+                    'is_branchAdmin': user_profile.is_branchAdmin,
+                    'is_student': user_profile.is_student,
+                }
+                return success_response(data=data, message="Current user data fetched successfully")
+            else:
+                return error_response(message="User profile not found", status=404)
+        else:
+            return validation_error_response(message="User is not authenticated", status=401)
+    except Exception as e:
+        return error_response(message=str(e))
     
 @login_required(login_url='signin/')
+@csrf_exempt
+def change_password(request):
+    if request.method == 'POST':
+        try:
+
+            if request.user.is_anonymous:
+                return error_response(message="User is not authenticated", status=401)
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+
+            if not request.user.check_password(current_password):
+                return error_response(message="Current password is incorrect", status=400)
+
+            request.user.set_password(new_password)
+            request.user.save()
+            return success_response(message="Password changed successfully")
+        except Exception as e:
+            return error_response(message=str(e))
+
+    return  error_response(message="Invalid request method", status=405)
+
+@login_required(login_url='signin/')
+def getReamainingPaymentData(request):
+    try:
+        studentid= request.GET.get('studentId',None)
+        if studentid:
+            student = Student.objects.filter(id=studentid).first()
+            if not student:
+                return error_response(message="Student not found", status=404)
+            data = {
+                'name': student.user.user.first_name,
+                'studentId': student.id,
+                'paymentDue': student.amountPending
+
+            }
+            return success_response(data=data, message="Remaining payment fetched successfully for a studnet ID")
+        else:
+            three_days_ago = datetime.today() - timedelta(days=3)
+            students = Student.objects.filter(amountPending__gt=0, paymentDueDate__lte=three_days_ago)
+            print("Students with pending payments:", students)
+            data = []
+            for student in students:
+                data.append({
+                    'name': student.user.user.first_name,
+                    'studentId': student.id,
+                    'courseName': student.cource.courceName,
+                    'amountPending': student.amountPending,
+                    'amountPaid': student.amountPaid,
+                    'TotalAmount': int(student.amountPending) + int(student.amountPaid),
+                    'paymentDueDate': student.paymentDueDate
+                })  
+            
+                        
+            return success_response(data=data, message="Remaining payments fetched successfully for all students")
+    except Exception as e:
+        return error_response(message=str(e))
+        
+@login_required(login_url='signin/')
 def getSlotWiseData(request):
-
-    slots = Slot.objects.all()
-    today = datetime.today().date()
-    vehicle = Vehicle.objects.all()  
-    data = []
-    for i in vehicle:
-        if i.is_active == True:
-            tempData = {
-                'vehicleName': i.vehicleName,
-                }
-            slots = Slot.objects.filter(vehicle=i)
-            
-            temp_slot_data = []
-            for slot in slots:
-                if slot.is_active == True:
-                    student = Student.objects.filter(cource__vehicle=i,slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
-                    slot_data = {
-                        'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
-                        'branch': slot.slotBranch.branchName,
-                        'student': student.first().user.user.first_name if student.exists() else None,
+    try:
+        date = request.GET.get('date', None)
+        today = datetime.today().date()
+        if not date:
+            date = today
+        vehicle = Vehicle.objects.all()  
+        data = []
+        for i in vehicle:
+            if i.is_active == True:
+                tempData = {
+                    'vehicleName': i.vehicleName,
                     }
-                    temp_slot_data.append(slot_data)
-                tempData['slots'] = temp_slot_data
-            data.append(tempData)
-    return JsonResponse(data, safe=False)
-            
-    # for slot in slots:
-    #         student = Student.objects.filter(slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
-    #         for i in student:
-
-    #             slot_data = {
+                slots = Slot.objects.filter(vehicle=i)
                 
-    #                 'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
-    #                 'studentName': student_name,
-    #                 'branch': student.Branch.branchName if student_name else None,
-    #                 'vehicle':student.cource.vehicle.vehicleName if student_name else None,
-    #                 'vehicles': [{vehicle.vehicleName:'True' if student.cource.vehicle.id == vehicle.id else 'False'} for vehicle in Vehicle.objects.all()],
-    #                 # 'vehicle': student.instructor.instructorVehicle.vehicleName if student_name else None
-    #             }
-    #             if slot.slotStart < datetime.strptime('12:00', '%H:%M').time():
-    #                 morning_slots.append(slot_data)
-    #             else:
-    #                 evening_slots.append(slot_data)
+                temp_slot_data = []
+                for slot in slots:
+                    if slot.is_active == True:
+                        student = Student.objects.filter(cource__vehicle=i,slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
+                        if student.exists():
+                            attandance = Attendance.objects.filter(student=student.first(),date=date).first()
+                        slot_data = {
+                            'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
+                            'branch': slot.slotBranch.branchName,
+                            'student': student.first().user.user.first_name if student.exists() else None,
+                            "attendanceStatus": attandance.status if student.exists() and attandance else "NotMarked"
+                        }
+                        temp_slot_data.append(slot_data)
+                    tempData['slots'] = temp_slot_data
+                data.append(tempData)
                 
-    # key = lambda x: x['slotTime']
-    # morning_slots.sort(key=key)
-    # evening_slots.sort(key=key)
-    # data = {
-    #         'morning': morning_slots,
-    #         'evening': evening_slots
-    #     }   
-    # return JsonResponse(data, safe=False)
+        return success_response(data=data, message="slotwise data fetched successfully")
+    except Exception as e:
+        return error_response(message=str(e))            
 @login_required(login_url='signin/')
 def getStudentOnLeaveData(request):
-    next_day = datetime.today().date() + timedelta(days=1)
-    today =datetime.today().date()
-    attendance = Attendance.objects.filter(status='Leave', date__gte=today, date__lte=next_day)
-    data = []
-    for i in attendance:
-        data.append({
-            'studentName': i.student.user.user.first_name,
-            "slotTime": f'{i.student.slot.slotStart} - {i.student.slot.slotEnd}',
-            'date': i.date,
-            'status': i.status
-        })
-    return JsonResponse(data, safe=False)
+    try:
+        next_day = datetime.today().date() + timedelta(days=1)
+        today =datetime.today().date()
+        attendance = Attendance.objects.filter(status='Leave', date__gte=today, date__lte=next_day)
+        data = []
+        for i in attendance:
+            data.append({
+                'studentName': i.student.user.user.first_name,
+                "slotTime": f'{i.student.slot.slotStart} - {i.student.slot.slotEnd}',
+                'date': i.date,
+                'status': i.status
+            })
+        return success_response(data=data, message="Students on leave fetched successfully")
+    except Exception as e:
+        return error_response(message=str(e))
 
+@login_required(login_url='signin/')  
 def getEearningData(request):
-    branches = Branch.objects.all()
-    data = []
-    for branch in branches:
-        students = Student.objects.filter(Branch=branch)
-        
-        total_amount_paid = 0
-        total_amount_remaining = 0
-        for student in students:
-            total_amount_paid += student.amountPaid
-            total_amount_remaining += student.amountPending
-        total_earning = total_amount_paid + total_amount_remaining
-        data.append({
-            'branch': branch.branchName,
-            'branchInCharge': branch.branchIncharge.user.first_name,
-            'totalEarning': total_earning,
-            'totalAmountPaid': total_amount_paid,
-            'totalAmountRemaining': total_amount_remaining
-        })
-    return JsonResponse(data, safe=False)
+    try:
+        branches = Branch.objects.all()
+        data = []
+        for branch in branches:
+            students = Student.objects.filter(Branch=branch)
+            
+            total_amount_paid = 0
+            total_amount_remaining = 0
+            for student in students:
+                total_amount_paid += student.amountPaid
+                total_amount_remaining += student.amountPending
+            total_earning = total_amount_paid + total_amount_remaining
+            data.append({
+                'branch': branch.branchName,
+                'branchInCharge': branch.branchIncharge.user.first_name,
+                'totalEarning': total_earning,
+                'totalAmountPaid': total_amount_paid,
+                'totalAmountRemaining': total_amount_remaining
+            })
+        return success_response(data=data, message="Earning data fetched successfully for all branches")
+    except Exception as e:
+        return error_response(message=str(e))
+    
 @login_required(login_url='signin/')
 def index(request):
     return render(request, 'index.html')
 
 @csrf_exempt
 def signin(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        next_url = request.POST.get('next') or request.GET.get('next') or 'index/'
-        
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            # Check if the user is a is_superAdmin
-            userProf = UserProfile.objects.filter(user=user).first()
-            if not userProf.is_superAdmin:
-                return render(request, 'signin.html', {'error': 'You are not authorized to access this page.'})
+    try:
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            next_url = request.POST.get('next') or request.GET.get('next') or 'index/'
+            
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                # Check if the user is a is_superAdmin
+                userProf = UserProfile.objects.filter(user=user).first()
+                if not userProf.is_superAdmin:
+                    return render(request, 'signin.html', {'error': 'You are not authorized to access this page.'})
+                else:
+                    login(request, user)
+                    return redirect(next_url)
             else:
-                login(request, user)
-                return redirect(next_url)
-        else:
-            return render(request, 'signin.html', {'error': 'Invalid username or password'})
-    # Pass 'next' to the template if present
-    next_url = request.GET.get('next', '')
-    return render(request, 'signin.html', {'next': next_url})
-@login_required(login_url='signin')
+                return render(request, 'signin.html', {'error': 'Invalid username or password'})
+        # Pass 'next' to the template if present
+        next_url = request.GET.get('next', '')
+        return render(request, 'signin.html', {'next': next_url})
+    except Exception as e:
+        return render(request, 'signin.html', {'error': str(e)})
+@login_required(login_url='signin/')
 def signout(request):
     logout(request)
     return redirect('signin/')
 
 @login_required(login_url='signin/')
 def getInstructorData(request):
-    userid = request.GET.get('instructorId',None)
-    if userid:
-        instructor = Instructor.objects.filter(user=userid).first()
-        if instructor:
-            DlInfo = DLInfo.objects.filter(dlUser=instructor.user).first()
-            print("DLINFO",DLInfo)
-            data = {
-                'id': instructor.user.user.id,
-                'name': instructor.user.user.first_name,
-                'email': instructor.user.user.email,
-                'dob': instructor.dob,
-                'phone': instructor.user.phoneNo,
-                'branch': instructor.instructorBranch.branchName,
-                # 'vehicle': instructor.instructorVehicle.id,
-                'bloodGroup': instructor.user.bloodGroup,
-                'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
-                'dlNo': DlInfo.dlNo,
-                'dlIssueDate': DlInfo.dlIssueDate,
-                'dlExpiry': DlInfo.dlExpiry,
-                'adharCard': instructor.adharCard.url if instructor.adharCard else None,
-                'aggrementDoc': instructor.aggreementDoc.url if instructor.aggreementDoc else None,
-                'policeVerificationDoc': instructor.policeVerificationDoc.url if instructor.policeVerificationDoc else None,
-
-
-            }
-            return JsonResponse(data)
-        
-    else:
-        instructors = Instructor.objects.all()
-        data = []
-        for instructor in instructors:
-            if instructor.user.is_active == True:
-                data.append({
-                    'id': instructor.user.id,
+    try:
+        userid = request.GET.get('instructorId',None)
+        if userid:
+            instructor = Instructor.objects.filter(user=userid).first()
+            if instructor:
+                DlInfo = DLInfo.objects.filter(dlUser=instructor.user).first()
+                print("DLINFO",DLInfo)
+                data = {
+                    'id': instructor.user.user.id,
                     'name': instructor.user.user.first_name,
                     'email': instructor.user.user.email,
+                    'dob': instructor.dob,
                     'phone': instructor.user.phoneNo,
                     'branch': instructor.instructorBranch.branchName,
-                    # 'vehicle': instructor.instructorVehicle.vehicleName,
+                    # 'vehicle': instructor.instructorVehicle.id,
                     'bloodGroup': instructor.user.bloodGroup,
                     'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
+                    'dlNo': DlInfo.dlNo if DlInfo else None,
+                    'dlIssueDate': DlInfo.dlIssueDate if DlInfo else None,
+                    'dlExpiry': DlInfo.dlExpiry if DlInfo else None,
+                    'adharCard': instructor.adharCard.url if instructor.adharCard else None,
+                    'aggrementDoc': instructor.aggreementDoc.url if instructor.aggreementDoc else None,
+                    'policeVerificationDoc': instructor.policeVerificationDoc.url if instructor.policeVerificationDoc else None,
+                }
+                return success_response(data=data, message="Instructor data fetched successfully for a specific ID")
+            else:
+                return error_response(message="Instructor not found", status=404)
+            
+        else:
+            instructors = Instructor.objects.all()
+            data = []
+            for instructor in instructors:
+                if instructor.is_active == True:
+                    data.append({
+                        'id': instructor.user.id,
+                        'name': instructor.user.user.first_name,
+                        'email': instructor.user.user.email,
+                        'phone': instructor.user.phoneNo,
+                        'branch': instructor.instructorBranch.branchName,
+                        # 'vehicle': instructor.instructorVehicle.vehicleName,
+                        'bloodGroup': instructor.user.bloodGroup,
+                        'profilePic': instructor.user.profilePic.url if instructor.user.profilePic else '',
 
-                })
-        return JsonResponse(data, safe=False)
+                    })
+            return success_response(data=data, message="Instructor data fetched successfully for all instructors")
+    except Exception as e:
+        return error_response(message=str(e))        
         
-    
 @csrf_exempt
 @login_required(login_url='signin/')
 def manage_instructor(request):
     if request.method == 'POST':
-        instructorid= request.POST.get('instructorId',None)
+        instructorid = request.POST.get('instructorId')
         name = request.POST.get('name')
-        email = request.POST.get('email')
+        email = request.POST.get('email',None)
         phone = request.POST.get('mobile')
         dob = request.POST.get('dob')
         branch = request.POST.get('branch')
-        vehicle = request.POST.get('vehicle')
         profilepic = request.FILES.get('profilePhoto')
         bloodGroup = request.POST.get('bloodGroup')
         dlNo = request.POST.get('dlNo')
         dlIssueDate = request.POST.get('dlIssueDate')
         dlExpiry = request.POST.get('dlExpiry')
         adharcard = request.FILES.get('adharcard')
-        aggrement  = request.FILES.get('aggrement')
+        aggrement = request.FILES.get('aggrement')
         policeVerification = request.FILES.get('policeVerification')
-        try:
-            if instructorid:
-                try:
-                    instructor = Instructor.objects.get(user__id=instructorid)
-                    user = User.objects.get(id=instructor.user.user.id)
-                    user.first_name = name
-                    user.email = email
-                    user.save()
-                    userProfile = UserProfile.objects.get(id=instructor.user.id)
-                    userProfile.phoneNo = phone
-                    userProfile.bloodGroup = bloodGroup
-                    if profilepic:
-                        userProfile.profilePic = profilepic
-                    userProfile.save()
-                    instructor.instructorBranch = Branch.objects.get(branchName=branch)
-                    # instructor.instructorVehicle = Vehicle.objects.get(id=vehicle)
-                    instructor.dob = dob
-                    if adharcard:
-                        instructor.adharCard = adharcard
-                    if aggrement:
-                        instructor.aggreementDoc = aggrement
-                    if policeVerification:
-                        instructor.policeVerificationDoc = policeVerification
-                    instructor.save()
-                    if dlNo and dlIssueDate and dlExpiry:
-                        dlinfo = DLInfo.objects.get(dlUser=instructor.user)
-                        dlinfo.dlNo = dlNo
-                        dlinfo.dlIssueDate = dlIssueDate
-                        dlinfo.dlExpiry = dlExpiry
-                        dlinfo.save()
-                    # dlinfo = DLInfo.objects.get(dlUser=userprofile)
-                    # dlinfo.dlNo = dlNo
-                    # dlinfo.dlIssueDate = dlIssueDate
-                    # dlinfo.dlExpiry = dlExpiry
-                    # dlinfo.save()
-                    return JsonResponse({'status': 'success'})
-                except Exception as e:
-                    return JsonResponse({'status': 'error', 'message': str(e)})
-            else: 
-                try:  
-                    newuser = User.objects.create_user(username=email, email=email, password=dob, first_name=name)
-                    userprofile = UserProfile(user=newuser, phoneNo=phone, is_instructor=True, profilePic=profilepic ,bloodGroup=bloodGroup)
-                    newuser.save()
-                    userprofile.save()
-                    branch = Branch.objects.get(branchName=branch)
-    
-                    instructor = Instructor(user=userprofile, instructorBranch=branch,dob=dob)
-                    dlInfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
-                    dlInfo.save()
-                    if adharcard:
-                        instructor.adharCard = adharcard
-                    if aggrement:
-                        instructor.aggreementDoc = aggrement
-                    if policeVerification:
-                        instructor.policeVerificationDoc = policeVerification
-                    instructor.save()
-                    # dlinfo = DLInfo(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
-                    # dlinfo.save()
-                    return JsonResponse({'status': 'success'})
-                except Exception as e:
-                    if newuser:
-                        userprofile = UserProfile.objects.get(user=newuser)
-                        if userprofile:
-                            userprofile.delete()
-                        newuser.delete()
-                    if dlInfo:
-                        dlInfo.delete()
-                    if instructor:
-                        instructor.delete()
-                    return JsonResponse({'status': 'error', 'message': str(e)})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'Main message': str(e)})
+
+        if instructorid:
+            # --- UPDATE Flow ---
+            try:
+                instructor = Instructor.objects.get(user__id=instructorid)
+                user = instructor.user.user
+                user.first_name = name
+                user.email = email
+                user.save()
+
+                userProfile = instructor.user
+                userProfile.phoneNo = phone
+                userProfile.bloodGroup = bloodGroup
+                if profilepic:
+                    userProfile.profilePic = profilepic
+                userProfile.save()
+
+                instructor.instructorBranch = Branch.objects.get(branchName=branch)
+                instructor.dob = dob
+                if adharcard:
+                    instructor.adharCard = adharcard
+                if aggrement:
+                    instructor.aggreementDoc = aggrement
+                if policeVerification:
+                    instructor.policeVerificationDoc = policeVerification
+                instructor.save()
+
+                if dlNo and dlIssueDate and dlExpiry:
+                    dlinfo = DLInfo.objects.get(dlUser=userProfile)
+                    dlinfo.dlNo = dlNo
+                    dlinfo.dlIssueDate = dlIssueDate
+                    dlinfo.dlExpiry = dlExpiry
+                    dlinfo.save()
+
+                return success_response(message="Instructor updated successfully")
+
+            except Exception as e:
+                return error_response(message=str(e))
+
+        else:
+            # --- CREATE Flow ---
+            newuser = None
+            userprofile = None
+            instructor = None
+            dlInfo = None
+
+            try:
+                newuser = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=dob,
+                    first_name=name
+                )
+
+                userprofile = UserProfile.objects.create(
+                    user=newuser,
+                    phoneNo=phone,
+                    is_instructor=True,
+                    profilePic=profilepic,
+                    bloodGroup=bloodGroup
+                )
+
+                branch_obj = Branch.objects.get(branchName=branch)
+
+                instructor = Instructor.objects.create(
+                    user=userprofile,
+                    instructorBranch=branch_obj,
+                    dob=dob
+                )
+
+                if adharcard:
+                    instructor.adharCard = adharcard
+                if aggrement:
+                    instructor.aggreementDoc = aggrement
+                if policeVerification:
+                    instructor.policeVerificationDoc = policeVerification
+                instructor.save()
+
+                dlInfo = DLInfo.objects.create(
+                    dlNo=dlNo,
+                    dlIssueDate=dlIssueDate,
+                    dlExpiry=dlExpiry,
+                    dlUser=userprofile
+                )
+
+                return success_response(message="Instructor created successfully")
+
+            except Exception as e:
+                # Clean up partially created data
+                if dlInfo:
+                    dlInfo.delete()
+                if instructor:
+                    instructor.delete()
+                if userprofile:
+                    userprofile.delete()
+                if newuser:
+                    newuser.delete()
+                return error_response(message=str(e))
+
     if request.method == 'DELETE':
         try:
             id = request.GET.get('instructorId')
-            userProf = UserProfile.objects.get(id=id)
-            user = User.objects.get(id=userProf.user.id)
-            userProf.is_active = False
-            userProf.save()
-            # user.delete()
-            return JsonResponse({'status': 'success'})
+            instructor = Instructor.objects.get(user__id=id)
+            instructor.is_active = False
+            instructor.save()
+            return success_response(message="Instructor deleted successfully")
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
-    
+            return error_response(message=str(e))
+
     return render(request, 'manage-instructor.html')
 
 
 @login_required(login_url='signin/')
 def getStudentData(request):
     studentid = request.GET.get('studentId',None)
-    if studentid:
-        student = Student.objects.filter(id=studentid).first()
-        dlinfo = DLInfo.objects.filter(dlUser=student.user).first()
-        data = {
-                'id': student.id,
-                'name': student.user.user.first_name,
-                'email': student.user.user.email,
-                'phone': student.user.phoneNo,
-                'dob': student.dob,
-                'applicationNo': student.applicationNo,
-                'address': student.address,
-                'branch': student.Branch.branchName,
-                'bloodGroup': student.user.bloodGroup,
-                'profilePic': student.user.profilePic.url if student.user.profilePic else '',
-                'gender': student.gender,
-                "bookingType": student.booking_Type,
-                'cource': student.cource.courceName,
-                'courceId': student.cource.id,
-                'instructor': student.instructor.user.user.first_name,
-                'instructorId': student.instructor.user.id,
-                'slotTime': f'{student.slot.slotStart} - {student.slot.slotEnd}',
-                'slotId': student.slot.id,
-                'startDate': student.courceEnrollDate,
-                'endDate': student.courceEndDate,
-                'totalAmount': int(student.amountPending) + int(student.amountPaid),
-                'paymentReceived': student.amountPaid,
-                'paymentDue': student.amountPending,
-                'paymentDueDate': student.paymentDueDate,
-                'status': student.student_staus,
-                'addOnService': [(addOnService.id, addOnService.serviceName, addOnService.serviceFee) for addOnService in student.addOnService.all()],
-                'dlNo': dlinfo.dlNo if dlinfo else '',
-                'dlIssueDate': dlinfo.dlIssueDate if dlinfo else '',
-                'dlExpiry': dlinfo.dlExpiry if dlinfo else '',
-                'dlType': dlinfo.dlType if dlinfo else '',
-            }
-        paymetRecieved = Payment.objects.filter(student=student).order_by('-paymentDate').first()
-        if paymetRecieved:
-            data['paymentRecievedBy'] = paymetRecieved.paymentRecevedBy.id
-            data['paymentRecievedByName'] = paymetRecieved.paymentRecevedBy.user.first_name
-        return JsonResponse(data)
-    else:
-        students = Student.objects.all()
-        data = []
-        for student in students:
-            if student.is_active == True:
-                data.append({
+    try:
+        if studentid:
+            student = Student.objects.filter(id=studentid).first()
+            if not student:
+                return error_response(message="Student not found", status=404)
+            dlinfo = DLInfo.objects.filter(dlUser=student.user).first()
+            data = {
                     'id': student.id,
                     'name': student.user.user.first_name,
                     'email': student.user.user.email,
                     'phone': student.user.phoneNo,
-                    'applicationNo': student.applicationNo,
                     'dob': student.dob,
+                    'applicationNo': student.applicationNo,
                     'address': student.address,
                     'branch': student.Branch.branchName,
                     'bloodGroup': student.user.bloodGroup,
-                    'profilePic': student.user.profilePic.url if student.user.profilePic else None,
+                    'profilePic': student.user.profilePic.url if student.user.profilePic else '',
                     'gender': student.gender,
                     "bookingType": student.booking_Type,
                     'cource': student.cource.courceName,
+                    'courceId': student.cource.id,
                     'instructor': student.instructor.user.user.first_name,
+                    'instructorId': student.instructor.user.id,
+                    'slotTime': f'{student.slot.slotStart} - {student.slot.slotEnd}',
+                    'slotId': student.slot.id,
                     'startDate': student.courceEnrollDate,
                     'endDate': student.courceEndDate,
-                    'status': "Active" if student.student_staus else "Inactive",
-                    'addOnService': [addOnService.serviceName for addOnService in student.addOnService.all()],
-                    
-                })
+                    'totalAmount': int(student.amountPending) + int(student.amountPaid),
+                    'paymentReceived': student.amountPaid,
+                    'paymentDue': student.amountPending,
+                    'paymentDueDate': student.paymentDueDate,
+                    'status': student.student_staus,
+                    'addOnService': [(addOnService.id, addOnService.serviceName, addOnService.serviceFee) for addOnService in student.addOnService.all()],
+                    'dlNo': dlinfo.dlNo if dlinfo else '',
+                    'dlIssueDate': dlinfo.dlIssueDate if dlinfo else '',
+                    'dlExpiry': dlinfo.dlExpiry if dlinfo else '',
+                    'dlType': dlinfo.dlType if dlinfo else '',
+                }
+            paymetRecieved = Payment.objects.filter(student=student).order_by('-paymentDate').first()
+            if paymetRecieved:
+                data['paymentRecievedBy'] = paymetRecieved.paymentRecevedBy.id
+                data['paymentRecievedByName'] = paymetRecieved.paymentRecevedBy.user.first_name
+            return success_response(data=data, message="Student data fetched successfully for a specific ID")
+        else:
+            students = Student.objects.all()
+            data = []
+            for student in students:
+                if student.is_active == True:
+                    data.append({
+                        'id': student.id,
+                        'name': student.user.user.first_name,
+                        'email': student.user.user.email,
+                        'phone': student.user.phoneNo,
+                        'applicationNo': student.applicationNo,
+                        'dob': student.dob,
+                        'address': student.address,
+                        'branch': student.Branch.branchName,
+                        'bloodGroup': student.user.bloodGroup,
+                        'profilePic': student.user.profilePic.url if student.user.profilePic else None,
+                        'gender': student.gender,
+                        "bookingType": student.booking_Type,
+                        'cource': student.cource.courceName,
+                        'instructor': student.instructor.user.user.first_name,
+                        'startDate': student.courceEnrollDate,
+                        'endDate': student.courceEndDate,
+                        'status': "Active" if student.student_staus else "Inactive",
+                        'addOnService': [addOnService.serviceName for addOnService in student.addOnService.all()],
+                        
+                    })
 
-        return JsonResponse(data, safe=False)
-    
+            return success_response(data=data, message="Student data fetched successfully for all students")
+    except Exception as e:
+        return error_response(message=str(e))
+        
 @csrf_exempt
 @login_required(login_url='signin/')
 def manage_student(request):
@@ -418,11 +504,18 @@ def manage_student(request):
             addOnService = list(addOnService)
      
         try:
+            # parse dob into a date object early
+            dob_date = None
+            if dob:
+                try:
+                    dob_date = _parse_date_string(dob)
+                except ValueError as e:
+                    return error_response(message=str(e), status=400)
+
             if Student.objects.filter(id=id).exists():
                 student = Student.objects.get(id=id)
                 student.user.user.first_name = name
                 student.user.user.email = email
-                student.user.user.username = email
                 student.user.user.save()
                 student.user.phoneNo = phone
                 student.user.bloodGroup = bloodGroup
@@ -464,8 +557,11 @@ def manage_student(request):
                 for addOnServiceId in addOnService:
                     student.addOnService.add(AddOnService.objects.get(id=addOnServiceId))
                 student.save()
+                stundetHistory = StudentCouseHistory(student=student,cource=cource,instructor=instructor,startDate=startDate,endDate=endDate)
+                stundetHistory.save()
+
                 
-                return JsonResponse({'status': 'success'})
+                return success_response(message="Student updated successfully")
             else:
                 newuser = None
                 userprofile = None
@@ -474,7 +570,14 @@ def manage_student(request):
                     if User.objects.filter(username=phone).exists():
                         newuser = User.objects.get(username=phone)    
                     else:
-                        newuser = User.objects.create_user(username=phone, password=dob, first_name=name)
+                        # use formatted DOB (ddmmyyyy) as password
+                        if not dob_date:
+                            return error_response(message="DOB is required for new student", status=400)
+                        dobstr = dob_date.strftime('%d%m%Y')
+                        newuser = User.objects.create_user(username=phone, password=dobstr, first_name=name, email=email)
+
+                    
+                    
                     userprofile = UserProfile(user=newuser, phoneNo=phone, is_student=True, profilePic=profilepic ,bloodGroup=bloodGroup)
                     userprofile.save()
                     branch = Branch.objects.get(branchName=branch)
@@ -489,13 +592,15 @@ def manage_student(request):
                         slot.slotPreBooked = False
                         slot.slotUsed = True
                         slot.save()
-                    # Dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile)
                     if paymentDueDate == "":
                         paymentDueDate = None
+                    
 
-                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate,booking_Type=bookingType)
+                    student = Student(user=userprofile, applicationNo=applicationNo, dob=dob_date, address=address,Branch=branch,gender=gender, cource=cource, instructor=instructor, slot=slot,courceEnrollDate=startDate,courceEndDate = endDate,amountPaid=paymentRecieved,amountPending=paymentDue,paymentDueDate=paymentDueDate,booking_Type=bookingType)
                     # paymentBy = Instructor.objects.get(user__id=paymentRecievedBy) 
+                    print("stdent",student)
                     payment = Payment(student=student,paymentDate=datetime.today().date(),paymentAmount=paymentRecieved,paymentMethod='Cash',paymentRecevedBy=UserProfile.objects.get(id=paymentRecievedBy))
+                    print("payment",payment)
                     print(addOnService)
                     student.save()
                     addontoatal = 0
@@ -508,29 +613,29 @@ def manage_student(request):
                     # student.amountPending = int(student.amountPending) + addontoatal
                     student.save()
 
+                    
                     payment.save()
                     if dlNo:
                         print("DLINFO",dlNo)
                         dlinfo = DLInfo.objects.create(dlNo=dlNo, dlIssueDate=dlIssueDate, dlExpiry=dlExpiry, dlUser=userprofile,dlType=dlType)
                         dlinfo.save()
-
+                    
+                    stundetHistory = StudentCouseHistory(student=student,cource=cource,instructor=instructor,courceEnrollDate=startDate,courceCompletionDate=endDate,created_by=userprofile)
+                    stundetHistory.save()
+                    return success_response(message="Student created successfully")
                 except Exception as e:
                     print(e)
                     if newuser:
-                        # if userprofile:
-                        #     userprofile.delete()
-                        # if Dlinfo:
-                        #     Dlinfo.delete()
                         newuser.delete()
-                        slot.slotPreBooked = False
-                        slot.slotUsed = False
+                        if bookingType == 'Pre-Booking':
+                            slot.slotPreBooked = False
+                        else:
+                            slot.slotUsed = False
                         slot.save() 
+                    return error_response(message=str(e))
 
-                    return JsonResponse({'status': 'error', 'message': str(e)})
-                return JsonResponse({'status': 'success'})
         except Exception as e:
-                
-                return JsonResponse({'status': 'error', 'message': str(e)})
+                return error_response(message=str(e))
     if request.method == 'DELETE':
         try:
             id = request.GET.get('studentId')
@@ -544,54 +649,64 @@ def manage_student(request):
             userProf.delete()
             student.delete()
             user.delete()
-            return JsonResponse({'status': 'success'})
+            return success_response(message="Student deleted successfully")
         except Exception as e:
             print(e)
-            return JsonResponse({'status': 'error', 'message': str(e)})
+            return error_response(message=str(e))
 
 
     return render(request, 'manage-student.html')
 
 @login_required(login_url='signin/')
 def getBranchAdminData(request):
-    users = UserProfile.objects.filter(is_branchAdmin=True,is_student=False)
-    data = []
-    for user in users:
-        data.append({
-            'id': user.id,
-            'name': user.user.first_name,
-        })
-    return JsonResponse(data, safe=False)
+    try:
+        users = UserProfile.objects.filter(is_branchAdmin=True)
+        if not users:
+            return error_response(message="No branch admin found", status=404)
+        
+        data = []
+        for user in users:
+            data.append({
+                'id': user.id,
+                'name': user.user.first_name,
+            })
+        return success_response(data=data, message="Branch admin data fetched successfully")
+    except Exception as e:
+        return error_response(message=str(e))
 
 @login_required(login_url='signin/')
 def getBranchData(request):
     branchid = request.GET.get('branchId',None)
-    if branchid:
-        branch = Branch.objects.filter(id=branchid).first()
-        
-        data = {
-                'id': branch.id,
-                'branchName': branch.branchName,
-                'branchAddress': branch.branchAddress,
-                'branchPhoneNo': branch.branchPhoneNo,
-                'branchEmail': branch.branchEmail,
-                'branchIncharge': branch.branchIncharge.user.first_name,
-                'branchInchargeId': branch.branchIncharge.id,
-            }
-        return JsonResponse(data)
-    else:
-            branches = Branch.objects.all()
-            data = []
-            for branch in branches:
-                data.append({
+    try:
+        if branchid:
+            branch = Branch.objects.filter(id=branchid).first()
+            if not branch:
+                return error_response(message="Branch not found", status=404)
+            data = {
                     'id': branch.id,
                     'branchName': branch.branchName,
                     'branchAddress': branch.branchAddress,
                     'branchPhoneNo': branch.branchPhoneNo,
                     'branchEmail': branch.branchEmail,
                     'branchIncharge': branch.branchIncharge.user.first_name,
-                })
-            return JsonResponse(data, safe=False)
+                    'branchInchargeId': branch.branchIncharge.id,
+                }
+            return success_response(data=data, message="Branch data fetched successfully for a specific ID")
+        else:
+                branches = Branch.objects.all()
+                data = []
+                for branch in branches:
+                    data.append({
+                        'id': branch.id,
+                        'branchName': branch.branchName,
+                        'branchAddress': branch.branchAddress,
+                        'branchPhoneNo': branch.branchPhoneNo,
+                        'branchEmail': branch.branchEmail,
+                        'branchIncharge': branch.branchIncharge.user.first_name,
+                    })
+                return success_response(data=data, message="Branch data fetched successfully for all branches")
+    except Exception as e:
+        return error_response(message=str(e))
 @csrf_exempt
 @login_required(login_url='signin/')
 def manage_branch(request):
@@ -602,27 +717,27 @@ def manage_branch(request):
         branchPhoneNo = request.POST.get('branchPhoneNo')
         branchEmail = request.POST.get('branchEmail')
         branchIncharge = request.POST.get('branchIncharge')
-
-        if Branch.objects.filter(id=id).exists():
-            branch = Branch.objects.get(id=id)
-            branch.branchName = branchName
-            branch.branchAddress = branchAddress
-            branch.branchEmail = branchEmail
-            branch.branchPhoneNo = branchPhoneNo
-            branch.branchIncharge = UserProfile.objects.get(id=branchIncharge)
-            branch.save()
-            return JsonResponse({'status': 'success', 'message': 'Branch updated successfully'})
-        else:
-            try:
-                user = UserProfile.objects.get(id=branchIncharge)
-                branch = Branch(branchName=branchName, branchAddress=branchAddress, branchPhoneNo=branchPhoneNo, branchEmail=branchEmail, branchIncharge=user)
-                user = UserProfile.objects.get(id=branchIncharge)
-                user.is_branchAdmin = True
-                user.save()
+        try:
+            if Branch.objects.filter(id=id).exists():
+                branch = Branch.objects.get(id=id)
+                branch.branchName = branchName
+                branch.branchAddress = branchAddress
+                branch.branchEmail = branchEmail
+                branch.branchPhoneNo = branchPhoneNo
+                branch.branchIncharge = UserProfile.objects.get(id=branchIncharge)
                 branch.save()
-                return JsonResponse({'status': 'success'})
-            except Exception as e:
-                return JsonResponse({'status': 'error', 'message': str(e)})
+                return success_response(message="Branch updated successfully")
+            else:
+    
+                    user = UserProfile.objects.get(id=branchIncharge)
+                    branch = Branch(branchName=branchName, branchAddress=branchAddress, branchPhoneNo=branchPhoneNo, branchEmail=branchEmail, branchIncharge=user)
+                    user = UserProfile.objects.get(id=branchIncharge)
+                    user.is_branchAdmin = True
+                    user.save()
+                    branch.save()
+                    return success_response(message="Branch created successfully")
+        except Exception as e:
+            return error_response(message=str(e))
     if request.method == 'DELETE':
         try:
             id = request.GET.get('branchId')
@@ -637,39 +752,42 @@ def manage_branch(request):
 @login_required(login_url='signin/')
 def getVehicleData(request):
     vehicalId = request.GET.get('vehicleId', None)
-    print(vehicalId)
-        # Fetch a single vehicle by ID if 'vehicalId' is provided
-    if vehicalId:
-        vehicle = Vehicle.objects.get(id=vehicalId)
-        vehicalData = {
-            'id': vehicle.id,
-            'vehicalName': vehicle.vehicleName,
-            'vehicleNo': vehicle.vehicleNo,
-            'vehicleType': vehicle.vehicleType,
-            'insuranceValidity': vehicle.insuranceValidity.strftime('%Y-%m-%d'),
-            'pollutionValidity': vehicle.pollutionValidity.strftime('%Y-%m-%d'),
-            'fitnessValidity': vehicle.fitnessValidity.strftime('%Y-%m-%d'),
-            'qrCodeImage': vehicle.qrCodeImage.url if vehicle.qrCodeImage else None
-        }
-        print(vehicalData)
-        return JsonResponse(vehicalData)
-    else:
-        vehicle = Vehicle.objects.all()
-        vehicalData = []
-        for i in vehicle:
-            vehicalData.append({
-                'id': i.id,
-                'vehicalName': i.vehicleName,
-                'vehicleNo': i.vehicleNo,
-                'vehicleType': i.vehicleType,
-                'insuranceValidity': i.insuranceValidity.strftime('%Y-%m-%d'),
-                'pollutionValidity': i.pollutionValidity.strftime('%Y-%m-%d'),
-                'fitnessValidity': i.fitnessValidity.strftime('%Y-%m-%d'),
-                'branch': i.vehicleBranch.branchName,
-                'qrCodeImage': i.qrCodeImage.url if i.qrCodeImage else None
-            })
-        
-        return JsonResponse(vehicalData,safe=False)
+    
+    try:
+        if vehicalId:
+            vehicle = Vehicle.objects.filter(id=vehicalId).first()
+            if not vehicle:
+                return error_response(message="Vehicle not found", status=404)
+            vehicalData = {
+                'id': vehicle.id,
+                'vehicalName': vehicle.vehicleName,
+                'vehicleNo': vehicle.vehicleNo,
+                'vehicleType': vehicle.vehicleType,
+                'insuranceValidity': vehicle.insuranceValidity.strftime('%Y-%m-%d'),
+                'pollutionValidity': vehicle.pollutionValidity.strftime('%Y-%m-%d'),
+                'fitnessValidity': vehicle.fitnessValidity.strftime('%Y-%m-%d'),
+                'qrCodeImage': vehicle.qrCodeImage.url if vehicle.qrCodeImage else None
+            }
+            return success_response(data=vehicalData, message="Vehicle data fetched successfully for a specific ID")
+        else:
+            vehicle = Vehicle.objects.all()
+            vehicalData = []
+            for i in vehicle:
+                vehicalData.append({
+                    'id': i.id,
+                    'vehicalName': i.vehicleName,
+                    'vehicleNo': i.vehicleNo,
+                    'vehicleType': i.vehicleType,
+                    'insuranceValidity': i.insuranceValidity.strftime('%Y-%m-%d'),
+                    'pollutionValidity': i.pollutionValidity.strftime('%Y-%m-%d'),
+                    'fitnessValidity': i.fitnessValidity.strftime('%Y-%m-%d'),
+                    'branch': i.vehicleBranch.branchName,
+                    'qrCodeImage': i.qrCodeImage.url if i.qrCodeImage else None
+                })
+            
+            return success_response(data=vehicalData, message="Vehicle data fetched successfully for all vehicles")
+    except Exception as e:
+        return error_response(message=str(e))
 @csrf_exempt
 @login_required(login_url='signin/')
 def manage_vehicle(request):
@@ -777,34 +895,40 @@ def manage_vehicle(request):
 @login_required(login_url='signin/')
 def getCourseData(request):
     courseId = request.GET.get('courseId', None)
-    if courseId:
-        course = Cource.objects.get(id=courseId)
-        courseData = {
-            'id': course.id,
-            'courseName': course.courceName,
-            'courseDuration': course.courceDuration,
-            'courceDescription': course.courceDescription,
-            'courseFee': course.courceFee,
-            'courceVehicle': course.vehicle.id,
-            'courseBranch': course.Branch.branchName,
-            'courseBranchId': course.Branch.id,
-            'total_session': course.total_session
-        }
-        return JsonResponse(courseData)
-    else:
-        course = Cource.objects.all()
-        courseData = []
-        for i in course:
-            courseData.append({
-                'id': i.id,
-                'courseName': i.courceName,
-                'courseDuration': i.courceDuration,
-                'courseFee': i.courceFee,
-                'courceVehicle': i.vehicle.vehicleName,
-                'courseBranch': i.Branch.branchName
-            })
-        
-        return JsonResponse(courseData,safe=False)
+    try:
+        if courseId:
+            course = Cource.objects.filter(id=courseId).first()
+            if not course:
+                return error_response(message="Course not found", status=404)
+            courseData = {
+                'id': course.id,
+                'courseName': course.courceName,
+                'courseDuration': course.courceDuration,
+                'courceDescription': course.courceDescription,
+                'courseFee': course.courceFee,
+                'courceVehicle': course.vehicle.id,
+                'courseBranch': course.Branch.branchName,
+                'courseBranchId': course.Branch.id,
+                'total_session': course.total_session
+            }
+            return success_response(data=courseData, message="Course data fetched successfully for a specific ID")
+        else:
+            course = Cource.objects.all()
+            courseData = []
+            for i in course:
+                if i.is_active == True:
+                    courseData.append({
+                        'id': i.id,
+                        'courseName': i.courceName,
+                        'courseDuration': i.courceDuration,
+                        'courseFee': i.courceFee,
+                        'courceVehicle': i.vehicle.vehicleName,
+                        'courseBranch': i.Branch.branchName
+                    })
+            
+            return success_response(data=courseData, message="Course data fetched successfully for all courses")
+    except Exception as e:
+        return error_response(message=str(e))
 @csrf_exempt
 @login_required(login_url='signin/')
 def manage_course(request):
@@ -820,7 +944,11 @@ def manage_course(request):
         
         if Cource.objects.filter(id=courceId).exists():
             try:
-                course = Cource.objects.get(id=courceId)
+                course = Cource.objects.filter(id=courceId).first()
+                if not course:
+                    return error_response(message="Course not found", status=404)
+                if course.is_active == False:
+                    return error_response(message="Cannot update an inactive course", status=400)
                 course.courceName = courseName
                 course.courceDuration = courseDuration
                 course.courceDescription = courceDescription
@@ -829,10 +957,10 @@ def manage_course(request):
                 course.vehicle = Vehicle.objects.get(id=courseVehicle)
                 course.Branch = Branch.objects.get(id=courseBranch)
                 course.save()
-                return JsonResponse({'success': 'Course updated successfully'})
+                return success_response(message="Course updated successfully")
             except Exception as e:
-                print(e)
-                return JsonResponse({'error': 'Error updating course'}, status=400)
+                
+                return error_response(message=str(e))
         else:
             try:
                 course = Cource.objects.create(
@@ -845,72 +973,83 @@ def manage_course(request):
                     total_session = totalsession
                 )
                 course.save()
-                return JsonResponse({'success': 'Course Create  successfully'})
+                return success_response(message="Course created successfully")
             except Exception as e:
-                print(e)
-                return JsonResponse({'error': 'Error creating course'}, status=400)
+                return error_response(message=str(e))
 
     if request.method == 'DELETE':
-            courseId = request.GET.get('courseId')
-            if courseId:
-                try:
-                    course = Cource.objects.get(id=courseId)
-                    course.delete()
+            courseId = request.GET.get('courseId',None)
+            try:
 
-                    return JsonResponse({'success': 'Course deleted successfully'})
-                except Cource.DoesNotExist:
-                    return JsonResponse({'error': 'Course not found'}, status=404)
-            else:
-                return JsonResponse({'error': 'No course ID provided'}, status=400)
+                course = Cource.objects.filter(id=courseId).first()
+                if not course:
+                    return error_response(message="Course not found", status=404)
+                
+                course.is_active = False
+
+                return success_response(message="Course deleted successfully")
+            except Exception as e:
+                return error_response(message=str(e))
 
     return render(request, 'manage-course.html')
 
 @login_required(login_url='signin/')
 def getComplainData(request):
     complainId = request.GET.get('complainId', None)
-    if complainId:
-        complain = Complain.objects.get(id=complainId)
-        complainData = {
-            'id': complain.id,
-            'complainName': complain.compalainTitle,
-            'complainDescription': complain.complainDescription,
-            'complainDate': complain.complainDate,
-            'complainStatus': complain.complainResolved,
-            'complainBranch': complain.complainBranch.branchName,
-            'complainFrom': complain.compalainForm.user.user.first_name,
-            'complainFor': complain.compalainFor.user.first_name
-        }
-        return JsonResponse(complainData)
-    else:
-        complain = Complain.objects.all()
-        complainData = []
-        for i in complain:
-            complainData.append({
-            'id': i.id,
-            'complainName': i.compalainTitle,
-            'complainDescription': i.complainDescription,
-            'complainDate': i.complainDate,
-            'complainStatus': i.complainResolved,
-            'complainBranch': i.complainBranch.branchName,
-            'complainFrom': i.compalainForm.user.user.first_name,
-            'complainFor': i.compalainFor.user.first_name
-            })
-        
-        return JsonResponse(complainData,safe=False)
+    try:
+        if complainId:
+            complain = Complain.objects.filter(id=complainId).first()
+            if not complain:
+                return error_response(message="Complain not found", status=404)
+            complainData = {
+                'id': complain.id,
+                'complainName': complain.compalainTitle,
+                'complainDescription': complain.complainDescription,
+                'complainDate': complain.created_at,
+                'complainStatus': complain.complainResolved,
+                'complainBranch': complain.complainBranch.branchName,
+                'complainFrom': complain.compalainForm.user.user.first_name,
+                'complainFor': complain.compalainFor.user.first_name
+            }
+            return success_response(data=complainData, message="Complain data fetched successfully for a specific ID")
+        else:
+            complain = Complain.objects.all()
+            complainData = []
+            for i in complain:
+                complainData.append({
+                'id': i.id,
+                'complainName': i.compalainTitle,
+                'complainDescription': i.complainDescription,
+                'complainDate': i.created_at.date(),
+                'complainStatus': i.complainResolved,
+                'complainBranch': i.complainBranch.branchName,
+                'complainFrom': i.compalainForm.user.user.first_name,
+                'complainFor': i.compalainFor.user.first_name
+                })
+            
+            return success_response(data=complainData, message="Complain data fetched successfully for all complains")
+    except Exception as e:
+        return error_response(message=str(e))
 @csrf_exempt
 @login_required(login_url='signin/')
 def manage_complain(request):
     if request.method == 'POST':
-        complainId = request.POST.get('complainId',None)
-        if complainId:
-            complain = Complain.objects.get(id=complainId)
+        complainId = request.POST.get('complainId')
+        action_taken = request.POST.get('actionTaken')
+
+        try:
+            complain = Complain.objects.filter(id=complainId).first()
+            if not complain:
+                return error_response(message="Complain not found", status=404)
+            complain.action_taken = action_taken
+            complain.resolved_by = request.user
+            complain.resolved_at = datetime.now()
             complain.complainResolved = True
             complain.save()
-            return JsonResponse({'success': 'Complain Resolved successfully'})
-        else:
-            return JsonResponse({'error': 'No complain ID provided'}, status=400)
+            return success_response(message="Complain updated successfully")
+        except Exception as e:
+            return error_response(message=str(e))
     return render(request, 'manage-complain.html')
-
 
 # def DeleteALlComplain(request):
 #     complain = Complain.objects.all()
@@ -919,27 +1058,33 @@ def manage_complain(request):
 @login_required(login_url='signin/')
 def getcourceContentData(request):
     courceContentId = request.GET.get('courceContentId', None)
-    if courceContentId:
-        courceContent = CourceContent.objects.get(id=courceContentId)
-        courceContentData = {
-            'id': courceContent.id,
-            'courceContentDescription': courceContent.contentDescription,
-            'courcecontentFile': courceContent.contentFile.url if courceContent.contentFile else '',
-            'courceContentVideo': courceContent.contentVideo.url if courceContent.contentVideo else '',
-    }
-        return JsonResponse(courceContentData)
-    else:
-        courceContent = CourceContent.objects.all()
-        courceContentData = []
-        for i in courceContent:
-            courceContentData.append({
-            'id': i.id,
-            'courceContentDescription': i.contentDescription,
-            'courcecontentFile': i.contentFile.url if i.contentFile else '',
-            'courceContentVideo': i.contentVideo.url if i.contentVideo else '',
-            })
-        
-        return JsonResponse(courceContentData,safe=False)
+    try:
+        if courceContentId:
+            courceContent = CourceContent.objects.filter(id=courceContentId).first()
+            if not courceContent:
+                return error_response(message="CourceContent not found", status=404)
+            
+            courceContentData = {
+                'id': courceContent.id,
+                'courceContentDescription': courceContent.contentDescription,
+                'courcecontentFile': courceContent.contentFile.url if courceContent.contentFile else '',
+                'courceContentVideo': courceContent.contentVideo.url if courceContent.contentVideo else '',
+            }
+            return success_response(data=courceContentData, message="CourceContent data fetched successfully for a specific ID")
+        else:
+            courceContent = CourceContent.objects.all()
+            courceContentData = []
+            for i in courceContent:
+                courceContentData.append({
+                'id': i.id,
+                'courceContentDescription': i.contentDescription,
+                'courcecontentFile': i.contentFile.url if i.contentFile else '',
+                'courceContentVideo': i.contentVideo.url if i.contentVideo else '',
+                })
+            
+            return success_response(data=courceContentData, message="CourceContent data fetched successfully for all CourceContents")
+    except Exception as e:
+        return error_response(message=str(e))
     
 @csrf_exempt
 @login_required(login_url='signin/')
@@ -951,35 +1096,35 @@ def manageCourseContent(request):
         courcevideo = request.FILES.get('courseContentVideo',None)
         try:
             if courceContentId:
-                try:
-                    courceContent = CourceContent.objects.get(id=courceContentId)
+                    courceContent = CourceContent.objects.filter(id=courceContentId).first()
+                    if not courceContent:
+                        return error_response(message="CourceContent not found", status=404)
                     courceContent.contentDescription = courcedesc
                     if courcefile:
                         courceContent.contentFile = courcefile
                     if courcevideo:
                         courceContent.contentVideo = courcevideo
                     courceContent.save()
-                    return JsonResponse({'success': 'CourceContent updated successfully'})
-                except Exception as e:
-                    return JsonResponse({'error': 'CourceContent not updated'}, status=404)
+                    return success_response(message="CourceContent updated successfully")
+               
             else:
-                try:
+               
                     courceContent = CourceContent(contentDescription=courcedesc,contentFile=courcefile,contentVideo=courcevideo)
                     courceContent.save()
-                    return JsonResponse({'success': 'CourceContent added successfully'})
-                except Exception as e:
-                    return JsonResponse({'error': 'CourceContent not added'}, status=404)
+                    return success_response(message="CourceContent created successfully")
+                
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return error_response(message=str(e))
     if request.method == 'DELETE':
-       courceContentId = request.GET.get('courceContentId', None)
-       if courceContentId:
-            courceContent = CourceContent.objects.get(id=courceContentId)
-
+        courceContentId = request.GET.get('courceContentId', None)
+        try:
+            courceContent = CourceContent.objects.filter(id=courceContentId).first()
+            if not courceContent:
+                return error_response(message="CourceContent not found", status=404)
             courceContent.delete()
-            return JsonResponse({'success': 'CourceContent deleted successfully'})
-       else:
-           return JsonResponse({'error': 'No courceContent ID provided'}, status=400)     
+            return success_response(message="CourceContent deleted successfully")
+        except Exception as e:
+            return error_response(message=str(e))
     return render(request, 'manage-coursecontent.html')
 
 @login_required(login_url='signin/')
@@ -987,8 +1132,11 @@ def getSlotsData(request):
     # slotsId = request.GET.get('slotId', None)
     courseId = request.GET.get('courseId', None)
     bookingType = request.GET.get('bookingType', None)
-    course = Cource.objects.filter(id=courseId).first()
-    if course:
+    try:
+        course = Cource.objects.filter(id=courseId).first()
+        if not course:
+            return JsonResponse({'error': 'Course not found'}, status=404)
+       
         slots = Slot.objects.filter(vehicle=course.vehicle).all()
         slotData = []
         if not bookingType:
@@ -1000,11 +1148,11 @@ def getSlotsData(request):
                         'slotEndTime': i.slotEnd,
                         'slotBranch': i.slotBranch.branchName,
                         'slotUsed': i.slotUsed,
-                        'slotPreBooked': i.slotPreBooked
+                        'slotPreBooked': i.slotPreBooked,
+                        # 'UsedTill': Student.objects.filter(slot=i).last().courceEndDate if Student.objects.filter(slot=i).exists() else None
                     })
         if bookingType == 'Pre-Booking':
             slots =  Slot.objects.filter(vehicle=course.vehicle).all()
-            # print(slots)
             for i in slots:
                     slotData.append({
                         'id': i.id,
@@ -1016,9 +1164,11 @@ def getSlotsData(request):
                         'UsedTill': Student.objects.filter(slot=i).last().courceEndDate if Student.objects.filter(slot=i).exists() else None
                     })
 
-        return JsonResponse(slotData,safe=False)
-    
-    return JsonResponse({'error': 'No slots found for this course'}, status=404)
+        return success_response(data=slotData, message="Slot data fetched successfully")
+        
+        
+    except Exception as e:
+        return error_response(message=str(e))
 
 @csrf_exempt
 @login_required(login_url='signin/')
@@ -1073,74 +1223,72 @@ def getAttendanceData(request):
     id = request.GET.get('studentId', None)
     # startDate = request.GET.get('startDate', None)
     # endDate = request.GET.get('endDate', None)
-    if id:
-        try:
-            attendance = Attendance.objects.filter(student__id=id)
-            attendanceData = []
-            for i in attendance:
-                time1 = i.timeIn
-                time2 = i.timeOut
-                date = i.date
-                if time1 and time2:
-                    date1 = datetime.combine(date, time1)
-                    date2 = datetime.combine(date, time2)
-                    diff = date2 - date1
-                else:
-                    diff = None                
-                data = {
-                    'id': i.id,
-                    'student': i.student.user.user.first_name,
-                    'studentId': i.student.id,
-                    'date': i.date,
-                    'timeIn': i.timeIn,
-                    'timeOut': i.timeOut,
-                    'totalTime': int(diff.total_seconds() / 60) if diff else None,
-                    'status': i.status,
-                    'duration': diff,
-                }
-                
-                attendanceData.append(data)
-            data = lambda x: x['date']
-            attendanceData.sort(key=data)
-            return JsonResponse(attendanceData,safe=False)
-        except Attendance.DoesNotExist:
-            return JsonResponse({'error': 'Attendance not found'}, status=404)
-    
-    else:
-        try:
-            
-
-            student = Student.objects.all()
-            student = student.filter(id__in=Attendance.objects.all().values_list('student', flat=True))
-            if VehicleName:
-                student = student.filter(instructor__instructorVehicle__vehicleName=VehicleName)
-            if branch:
-                student = student.filter(Branch__branchName=branch)
-            # student  = student.filter(student = Attendance.objects.all())
-            print("Student",student)
-            studentData = []
-            for i in student:
-                if i.is_active == True:
+    try:
+        if id:
+                attendance = Attendance.objects.filter(student__id=id)
+                attendanceData = []
+                for i in attendance:
+                    time1 = i.timeIn
+                    time2 = i.timeOut
+                    date = i.date
+                    if time1 and time2:
+                        date1 = datetime.combine(date, time1)
+                        date2 = datetime.combine(date, time2)
+                        diff = date2 - date1
+                    else:
+                        diff = None                
                     data = {
                         'id': i.id,
-                        'student': i.user.user.first_name,
-                        'studentId': i.id,
-                        'courceName': i.cource.courceName,
-                        'startDate': i.courceEnrollDate,
-                        'endDate': i.courceEndDate,
-                        'attened_session': i.attened_session,
-                        'total_session' : i.cource.total_session,
-                        'duration': i.cource.courceDuration,
+                        'student': i.student.user.user.first_name,
+                        'studentId': i.student.id,
+                        'date': i.date,
+                        'timeIn': i.timeIn,
+                        'timeOut': i.timeOut,
+                        'totalTime': int(diff.total_seconds() / 60) if diff else None,
+                        'status': i.status,
+                        'duration': diff,
                     }
-                    studentData.append(data)
-            return JsonResponse(studentData,safe=False)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+                    
+                    attendanceData.append(data)
+                data = lambda x: x['date']
+                attendanceData.sort(key=data)
+                return success_response(data=attendanceData, message="Attendance data fetched successfully for a specific student")
+            
+        
+        else:
+                student = Student.objects.all()
+                student = student.filter(id__in=Attendance.objects.all().values_list('student', flat=True))
+                if VehicleName:
+                    student = student.filter(instructor__instructorVehicle__vehicleName=VehicleName)
+                if branch:
+                    student = student.filter(Branch__branchName=branch)
+                # student  = student.filter(student = Attendance.objects.all())
+                print("Student",student)
+                studentData = []
+                for i in student:
+                    if i.is_active == True:
+                        data = {
+                            'id': i.id,
+                            'student': i.user.user.first_name,
+                            'studentId': i.id,
+                            'courceName': i.cource.courceName,
+                            'startDate': i.courceEnrollDate,
+                            'endDate': i.courceEndDate,
+                            'attened_session': i.attened_session,
+                            'total_session' : i.cource.total_session,
+                            'duration': i.cource.courceDuration,
+                        }
+                        studentData.append(data)
+                return success_response(data=studentData, message="Student data fetched successfully for all students with attendance records")
+            
+    except Exception as e:
+        return error_response(message=str(e))
 @csrf_exempt
 @login_required(login_url='signin/')
 def manageAttendance(request):
     if request.method == 'POST':
         attendanceId = request.POST.get('attendanceId',None)
+        reason = request.POST.get('reason',None)
         student = request.POST.get('studentName')
         date = request.POST.get('attendanceDate')
         inTime = request.POST.get('inTime',None)
@@ -1152,22 +1300,27 @@ def manageAttendance(request):
             if attendanceId:
                 try:
                     attendance = Attendance.objects.get(id=attendanceId)
-                    attendance.student = Student.objects.get(id=student)
-                    attendance.date = date
-                    attendance.timeIn = inTime
-                    attendance.timeOut = outTime
-                    attendance.status = status
+
+                    attendance.is_active = False
+                    attendance.reason = reason
                     attendance.save()
-                    student = Student.objects.get(id=student)
-                    student.attened_session = int(student.attened_session) + int(sessionCount)
-                    print("sa",student.attened_session)
-                    student.save()
+                    # attendance.student = Student.objects.get(id=student)
+                    # attendance.date = date
+                    # attendance.timeIn = inTime
+                    # attendance.timeOut = outTime
+                    # attendance.status = status
+                    # attendance.created_by = UserProfile.objects.get(user=request.user)
+                    # attendance.save()
+                    # student = Student.objects.get(id=student)
+                    # student.attened_session = int(student.attened_session) - int(sessionCount)
+                    # # print("sa",student.attened_session)
+                    # student.save()
                     return JsonResponse({'success': 'Attendance updated successfully'})
                 except Exception as e:
                     return JsonResponse({'error': 'Attendance not updated'}, status=404)
             else:
                 try:
-                    attendance = Attendance(student=Student.objects.get(id=student),date=date,timeIn=inTime,timeOut=outTime,status=status)
+                    attendance = Attendance(student=Student.objects.get(id=student),date=date,timeIn=inTime,timeOut=outTime,status=status,created_by=UserProfile.objects.get(user=request.user))
                     attendance.save()
                     if status == 'Present':
                         student = Student.objects.get(id=student)
@@ -1225,21 +1378,27 @@ def manageAttendance(request):
     return render(request, 'manage-attendance.html')
 @login_required(login_url='signin/')
 def getUserProfileData(request):
-    users = UserProfile.objects.all()
-    userData = []
-    for i in users:
-        data = {
-            'id': i.id,
-            'Name': i.user.first_name,
-        }
-        userData.append(data)
-    return JsonResponse(userData,safe=False)
+    try:
+        users = UserProfile.objects.all()
+        userData = []
+        for i in users:
+            data = {
+                'id': i.id,
+                'Name': i.user.first_name,
+            }
+            userData.append(data)
+        # return JsonResponse(userData,safe=False)
+        return success_response(data=userData, message="User data fetched successfully for all users")
+    except Exception as e:
+        return error_response(message=str(e))
 @login_required(login_url='signin/')
 def getDlInfoData(request):
     dlinfo = request.GET.get('dlId', None)
-    if dlinfo:
-        try:
-            dlinfo = DLInfo.objects.get(id=dlinfo)
+    try:
+        if dlinfo:
+            dlinfo = DLInfo.objects.filter(id=dlinfo).first()
+            if not dlinfo:
+                return JsonResponse({'error': 'DlInfo not found'}, status=404)
             data = {
                 'id': dlinfo.id,
                 'Name': dlinfo.dlUser.user.first_name,
@@ -1249,25 +1408,24 @@ def getDlInfoData(request):
                 'dlExpiry': dlinfo.dlExpiry,
                 'dlType': dlinfo.dlType,
             }
-            return JsonResponse(data,safe=False)
-        except DLInfo.DoesNotExist:
-            return JsonResponse({'error': 'DlInfo not found'}, status=404)
-    
-    dlInfo = DLInfo.objects.all()
-    dlInfoData = []
-    for i in dlInfo:
-        data = {
-            'id': i.id,
-            'Name': i.dlUser.user.first_name,
-            # 'userID': i.dlUser.id,
-            'dlNo': i.dlNo,
-            'dlIssueDate': i.dlIssueDate,
-            'dlExpiry': i.dlExpiry,
-            'dlType': i.dlType,
-        }
-        dlInfoData.append(data)
-    return JsonResponse(dlInfoData,safe=False)
-
+            return success_response(data=data, message="DlInfo data fetched successfully for a specific ID")
+        
+        dlInfo = DLInfo.objects.all()
+        dlInfoData = []
+        for i in dlInfo:
+            data = {
+                'id': i.id,
+                'Name': i.dlUser.user.first_name,
+                # 'userID': i.dlUser.id,
+                'dlNo': i.dlNo,
+                'dlIssueDate': i.dlIssueDate,
+                'dlExpiry': i.dlExpiry,
+                'dlType': i.dlType,
+            }
+            dlInfoData.append(data)
+        return success_response(data=dlInfoData, message="DlInfo data fetched successfully for all DlInfo") 
+    except Exception as e:
+        return error_response(message=str(e))
 @login_required(login_url='signin/')
 @csrf_exempt
 def manageDlInfo(request):
@@ -1281,7 +1439,6 @@ def manageDlInfo(request):
 
         try:
             if dlId:
-                try:
                     dlinfo = DLInfo.objects.get(id=dlId)
                     dlinfo.dlNo = dlNo 
                     dlinfo.dlIssueDate = dlIssueDate
@@ -1289,54 +1446,53 @@ def manageDlInfo(request):
                     dlinfo.dlType = dlType
                     dlinfo.dlUser = UserProfile.objects.get(id=dlUser)
                     dlinfo.save()
-                    return JsonResponse({'success': 'DlInfo updated successfully'})
-                except Exception as e:
-                    return JsonResponse({'error': 'DlInfo not updated'}, status=404)
+                    return success_response(message="DlInfo updated successfully")
             else:
-                try:
+                
                     dlUser = UserProfile.objects.get(id=dlUser)
                     dlinfo = DLInfo(dlNo=dlNo,dlIssueDate=dlIssueDate,dlExpiry=dlExpiry,dlType=dlType,dlUser=dlUser)
                     dlinfo.save()
-                    return JsonResponse({'success': 'DlInfo added successfully'})
-                except Exception as e:
-                    if "UNIQUE constraint failed" in str(e): #check for unique constraint violation.
-                        return JsonResponse({'error': 'DlInfo already Exists'}, status=400)
-                    return JsonResponse({'error': 'DlInfo not added'}, status=404)
+                    return success_response(message="DlInfo added successfully")
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-        
+            if "UNIQUE constraint failed" in str(e): #check for unique constraint violation.
+                return error_response(message="DlInfo already Added", status=400)
+            
+            return error_response(message=str(e), status=400)        
     if request.method == 'DELETE':
         dlId = request.GET.get('dlId', None)
         try:
-            if dlId:
-                dlinfo = DLInfo.objects.get(id=dlId)
+                dlinfo = DLInfo.objects.filter(id=dlId).first()
+                if not dlinfo:
+                    return error_response(message="DlInfo not found", status=404)
                 dlinfo.delete()
-                return JsonResponse({'success': 'DlInfo deleted successfully'})
-            else:
-                return JsonResponse({'error': 'No DlInfo ID provided'}, status=400)
+                return success_response(message="DlInfo deleted successfully")
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return error_response(message=str(e), status=400)
         
     return render(request, 'manage-DlInfo.html')
 
 @login_required(login_url='signin/')
 def getPaymentData(request):
-    three_days_ago = datetime.today() - timedelta(days=3)
-    payments = Payment.objects.filter(paymentDate__gte=three_days_ago)
-    paymentData = []
-    for i in payments:
-        data = {
-            'id': i.id,
-            'Name': i.student.user.user.first_name,
-            'studentID': i.student.id,
-            'paymentAmount': i.paymentAmount,
-            'paymentDate': i.paymentDate,
-            'paymentRecevedBy': i.paymentRecevedBy.id,
-            'paymentReceivedByName': i.paymentRecevedBy.user.first_name,
-            'paymentMethod': i.paymentMethod,
-        }
-        paymentData.append(data)
-    return JsonResponse(paymentData,safe=False)
+    try:
+        three_days_ago = datetime.today() - timedelta(days=3)
+        payments = Payment.objects.filter(paymentDate__gte=three_days_ago)
+        
+        paymentData = []
+        for i in payments:
+            data = {
+                'id': i.id,
+                'Name': i.student.user.user.first_name,
+                'studentID': i.student.id,
+                'paymentAmount': i.paymentAmount,
+                'paymentDate': i.paymentDate,
+                'paymentRecevedBy': i.paymentRecevedBy.id,
+                'paymentReceivedByName': i.paymentRecevedBy.user.first_name,
+                'paymentMethod': i.paymentMethod,
+            }
+            paymentData.append(data)
+        return success_response(data=paymentData, message="Payment data fetched successfully for all payments")
+    except Exception as e:
+        return error_response(message=str(e))
 @login_required(login_url='signin/')
 def managePayment(request):
     if request.method == 'POST':
@@ -1347,53 +1503,63 @@ def managePayment(request):
         paymentMode = request.POST.get('paymentMethod')
         studentId = request.POST.get('studentId')
 
-        if paymentId:
-            payment = Payment.objects.get(id=paymentId)
-            payment.paymentAmount = paymentAmount
-            payment.paymentDate = paymentDate
-            payment.paymentRecevedBy = UserProfile.objects.get(id=paymentBy)
-            payment.paymentMethod = paymentMode
-            payment.save()
-            student =  Student.objects.get(id=studentId)
-            student.amountPaid = student.amountPaid + int(paymentAmount)
-            student.amountPending = student.amountPending - int(paymentAmount)
-            student.save()
-            return JsonResponse({'success': 'Payment updated successfully'})
-        else:
-            payment =  Payment(student = Student.objects.get(id=studentId),paymentAmount=paymentAmount,paymentDate=paymentDate,paymentRecevedBy=UserProfile.objects.get(id=paymentBy),paymentMethod=paymentMode)
-            payment.save()
-            student =  Student.objects.get(id=studentId)
-            student.amountPaid = student.amountPaid + int(paymentAmount)
-            student.amountPending = student.amountPending - int(paymentAmount)
-            student.save()
-            
-            return JsonResponse({'success': 'Payment added successfully'})
+        try:
+            if paymentId:
+                payment = Payment.objects.filter(id=paymentId).first()
+                if not payment:
+                    return error_response(message="Payment not found", status=404)
+                payment.paymentAmount = paymentAmount
+                payment.paymentDate = paymentDate
+                payment.paymentRecevedBy = UserProfile.objects.get(id=paymentBy)
+                payment.paymentMethod = paymentMode
+                payment.save()
+                student =  Student.objects.get(id=studentId)
+                student.amountPaid = student.amountPaid + int(paymentAmount)
+                student.amountPending = student.amountPending - int(paymentAmount)
+                student.save()
+                return success_response(message="Payment updated successfully")
+            else:
+                payment =  Payment(student = Student.objects.get(id=studentId),paymentAmount=paymentAmount,paymentDate=paymentDate,paymentRecevedBy=UserProfile.objects.get(id=paymentBy),paymentMethod=paymentMode)
+                payment.save()
+                student =  Student.objects.get(id=studentId)
+                student.amountPaid = student.amountPaid + int(paymentAmount)
+                student.amountPending = student.amountPending - int(paymentAmount)
+                student.save()
+                
+                return success_response(message="Payment added successfully")
+        except Exception as e:
+            return error_response(message=str(e))
         
 @login_required(login_url='signin/')
 def getAddOnServiceData(request):
     addOnServiceId = request.GET.get('serviceId', None)
-    if addOnServiceId:
-        addOnService = AddOnService.objects.get(id=addOnServiceId)
-        data = {
-            'id': addOnService.id,
-            'addOnServiceName': addOnService.serviceName,
-            'addOnServiceAmount': addOnService.serviceFee,
-            'mandetory': addOnService.mandetory,
-        }
-        return JsonResponse(data,safe=False)
-    else:
-        addOnServices = AddOnService.objects.all()
-        addOnServiceData = []
-        for i in addOnServices:
+
+    try:
+        if addOnServiceId:
+            addOnService = AddOnService.objects.filter(id=addOnServiceId).first()
+            if not addOnService:
+                return error_response(message="Add On Service not found")
             data = {
-                'id': i.id,
-                'addOnServiceName': i.serviceName,
-                'addOnServiceAmount': i.serviceFee,
-                'mandetory': i.mandetory,
+                'id': addOnService.id,
+                'addOnServiceName': addOnService.serviceName,
+                'addOnServiceAmount': addOnService.serviceFee,
+                'mandetory': addOnService.mandetory,
             }
-            addOnServiceData.append(data)
-        return JsonResponse(addOnServiceData,safe=False)
-    
+            return success_response(data=data, message="Add On Service data fetched successfully for a specific ID")
+        else:
+            addOnServices = AddOnService.objects.all()
+            addOnServiceData = []
+            for i in addOnServices:
+                data = {
+                    'id': i.id,
+                    'addOnServiceName': i.serviceName,
+                    'addOnServiceAmount': i.serviceFee,
+                    'mandetory': i.mandetory,
+                }
+                addOnServiceData.append(data)
+            return success_response(data=addOnServiceData, message="Add On Service data fetched successfully for all Add On Services")
+    except Exception as e:
+        return error_response(message=str(e))
 @csrf_exempt
 @login_required(login_url='signin/')
 def manageAddOnService(request):
@@ -1406,70 +1572,162 @@ def manageAddOnService(request):
             mandetory = True
         else:
             mandetory = False
-
-        if addOnServiceId:
-            try:
-                addOnService = AddOnService.objects.get(id=addOnServiceId)
+        try:
+            if addOnServiceId:
+                
+                addOnService = AddOnService.objects.filter(id=addOnServiceId).first()
+                if not addOnService:
+                    return error_response(message="Add On Service not found")
                 addOnService.serviceName = addOnServiceName
                 addOnService.serviceFee = addOnServiceAmount
                 addOnService.mandetory = mandetory
                 addOnService.save()
-                return JsonResponse({'success': 'Add On Service updated successfully'})
-            except Exception as e:
-                return JsonResponse({'error': 'Add On Service not updated'}, status=404)
-        else:
-            try:
+                return success_response(message="Add On Service updated successfully")
+            else:
                 addOnService = AddOnService(serviceName=addOnServiceName,serviceFee=addOnServiceAmount,mandetory=mandetory)
                 addOnService.save()
-            except Exception as e:
-                return JsonResponse({'error': 'Add On Service not added'}, status=404)
-            
-            return JsonResponse({'success': 'Add On Service added successfully'})
-    
+                return success_response(message="Add On Service added successfully")
+        except Exception as e:
+            return error_response(message=str(e))
 
     if request.method == 'DELETE':
         addOnServiceId = request.GET.get('serviceId', None)
         try:
-            if addOnServiceId:
-                addOnService = AddOnService.objects.get(id=addOnServiceId)
-                addOnService.delete()
-                return JsonResponse({'success': 'Add On Service deleted successfully'})
-            else:
-                return JsonResponse({'error': 'No Add On Service ID provided'}, status=400)
+            addOnService = AddOnService.objects.filter(id=addOnServiceId).first()
+            if not addOnService:
+                return error_response(message="Add On Service not found")
+            addOnService.delete()
+            return success_response(message="Add On Service deleted successfully")
+            
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return error_response(message=str(e))
         
 @login_required(login_url='signin/')
-def getNotificationData(request):
+@csrf_exempt
+def mark_bulk_attandance_inactive(request):
+    """
+    Mark bulk attendance as 'Leave' for all active students of an instructor.
+    Uses get_or_create to avoid unique constraint errors and logs per-student failures.
+    Returns counts of created vs skipped records.
+    """
+    if request.method != 'POST':
+        return error_response(message="Invalid request method", status=405)
 
-    notifications = Notification.objects.all()
-    notificationData = []
-    for i in notifications:
-        if i.notificationIsRead == False:
-    
-            data = {
-                'id': i.id,
-                'notificationTitle': i.notificationTitle,
-                'notificationTime': i.notificationTime.strftime("%I:%M %p"),
-                'notificationDate': i.notificationDate.strftime("%Y-%m-%d"),
-                'notificationBranch': i.notificationBranch.branchName,
-            }
-            notificationData.append(data)
-    return JsonResponse(notificationData,safe=False)
+    instructor_id = request.POST.get('instructorId') or request.POST.get('instructor_id')
+    date = request.POST.get('date',None)
+    if not instructor_id:
+        return error_response(message="Instructor ID not provided", status=400)
+
+    try:
+        students = Student.objects.filter(instructor=Instructor.objects.get(user__id=instructor_id), is_active=True,courceEndDate__gte=datetime.today().date())
+        if not students.exists():
+            return error_response(message="No active students found for the instructor", status=404)
+
+        user_profile = UserProfile.objects.get(user=request.user)
+        today = datetime.today().date()
+        created_count = 0
+        skipped_student_ids = []
+        errors = []
+        if not date:
+            date = datetime.today().date()
+        for student in students:
+            try:
+                # Create or get attendance
+                created = Attendance.objects.create(
+                    student=student,
+                    date=date,
+                    timeIn=None,
+                    timeOut=None,
+                    status='Leave',
+                    created_by=user_profile,
+                    reason='Marked as Leave Instructor On Leave',
+
+                )
+
+                if created:
+                    created_count += 1
+                else:
+                    skipped_student_ids.append(student.id)
+
+                # Update course end date
+                previous_date = student.courceEndDate
+                next_day = (previous_date or today) + timedelta(days=1)
+                if next_day.weekday() == 6:  # Skip Sunday
+                    next_day += timedelta(days=1)
+
+                student.courceEndDate = next_day
+                student.save()
+
+                # Create notification
+                previous_date_str = previous_date.strftime('%d-%m-%Y') if previous_date else ''
+                courceEndDate_str = student.courceEndDate.strftime('%d-%m-%Y')
+
+                Notification.objects.create(
+                    notificationTitle=(
+                        f"{student.user.user.first_name}'s Course End Date Changed "
+                        f"from {previous_date_str} to {courceEndDate_str}"
+                    ),
+                    notificationDate=today,
+                    notificationTime=datetime.today().time(),
+                    notificationBranch=student.Branch,
+                )
+
+            except Exception as e:
+                logger.exception("Error processing student %s: %s", student.id, e)
+                errors.append(f"student:{student.id}:{str(e)}")
+
+        return success_response(
+            data={'created': created_count, 'skipped': skipped_student_ids, 'errors': errors},
+            message="Bulk attendance processed"
+        )
+
+    except UserProfile.DoesNotExist:
+        return error_response(message="Current user profile not found", status=401)
+    except Exception as e:
+        logger.exception("Error processing bulk attendance for instructor %s: %s", instructor_id, e)
+        return error_response(message=str(e))
+
+@login_required(login_url='signin/')
+def getNotificationData(request):
+    try:
+        notifications = Notification.objects.all()
+        notificationData = []
+        for i in notifications:
+            if i.notificationIsRead == False:
+        
+                data = {
+                    'id': i.id,
+                    'notificationTitle': i.notificationTitle,
+                    'notificationTime': i.notificationTime.strftime("%I:%M %p"),
+                    'notificationDate': i.notificationDate.strftime("%Y-%m-%d"),
+                    'notificationBranch': i.notificationBranch.branchName,
+                }
+                notificationData.append(data)
+        return success_response(data=notificationData, message="Notification data fetched successfully for all notifications")
+    except Exception as e:
+        return error_response(message=str(e))
 
 @csrf_exempt
 @login_required(login_url='signin/')
 def manageNotification(request):
     if request.method == 'POST':
         notificationId = request.POST.get('notificationId',None)
-        if notificationId:
-            try:
-                notification = Notification.objects.get(id=notificationId)
+        try:
+            if notificationId == 'all':
+                notifications = Notification.objects.filter(notificationIsRead=False)
+                for notification in notifications:
+                    notification.notificationIsRead = True
+                    notification.save()
+                return success_response(message="All notifications marked as read")
+            else:
+                notification = Notification.objects.filter(id=notificationId).first()
+                if not notification:
+                    return error_response(message="Notification not found")
                 notification.notificationIsRead = True
                 notification.save()
-                return JsonResponse({'success': 'Notification updated successfully'})
-            except Exception as e:
-                return JsonResponse({'error': 'Notification not updated'}, status=404)
+                return success_response(message="Notification marked as read")
+        except Exception as e:
+            return error_response(message=str(e))
 
             
 
@@ -1478,11 +1736,11 @@ def manageNotification(request):
     if request.method == 'DELETE':
         notificationId = request.GET.get('notificationId', None)
         try:
-            if notificationId:
-                notification = Notification.objects.get(id=notificationId)
-                notification.delete()
-                return JsonResponse({'success': 'Notification deleted successfully'})
-            else:
-                return JsonResponse({'error': 'No Notification ID provided'}, status=400)
+    
+            notification = Notification.objects.filter(id=notificationId).first()
+            if not notification:
+                return error_response(message="Notification not found")
+            notification.delete()
+            return success_response(message="Notification deleted successfully")
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return error_response(message=str(e))

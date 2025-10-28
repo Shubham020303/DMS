@@ -183,6 +183,10 @@
 				fetch("/getBranchAdminData/")
 					.then(response => response.json())
 					.then(data => {
+						if (data.status !== "success") {
+							document.getElementById("branchIncharge").innerHTML = `<option disabled selected>No Instructors Available</option>`;
+							return;
+						}
 						document.getElementById("branchIncharge").innerHTML += data.map(instructor => `<option value="${instructor.id}">${instructor.name}</option>`).join('');
 					})
 
@@ -494,7 +498,12 @@
 				],
 				server: {
 					url: '/getBranchData/',
-					then: data => data.map(branch => [branch.id, branch.branchName, branch.branchAddress, branch.branchPhoneNo, branch.branchEmail, branch.branchIncharge])
+					then: data => {
+						if (data.status !== "success") {
+							return [];
+						}
+						return data["data"].map(branch => [branch.id, branch.branchName, branch.branchAddress, branch.branchPhoneNo, branch.branchEmail, branch.branchIncharge])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -521,14 +530,18 @@
 				fetch(apiUrl)
 					.then(response => response.json())
 					.then(data => {
-						console.log(data);
+						if (data.status !== "success") {
+							console.error("Error fetching branch data");
+							return;
+						}
+						console.log(data["data"]);
 						document.getElementById("branch-model-heading").innerText = headingText;
 						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
-						document.getElementById("branchName").value = data.branchName || "No Data Found";
-                              document.getElementById("branchPhoneNo").value = data.branchPhoneNo || "No Data Found";
-                              document.getElementById("branchEmail").value = data.branchEmail || "No Data Found";
-                              document.getElementById("branchIncharge").value = data.branchInchargeId || "No Data Found";
-                              document.getElementById("branchAddress").value = data.branchAddress || "No Data Found";
+						document.getElementById("branchName").value = data["data"].branchName || "No Data Found";
+                              document.getElementById("branchPhoneNo").value = data["data"].branchPhoneNo || "No Data Found";
+                              document.getElementById("branchEmail").value = data["data"].branchEmail || "No Data Found";
+                              document.getElementById("branchIncharge").value = data["data"].branchInchargeId || "No Data Found";
+                              document.getElementById("branchAddress").value = data["data"].branchAddress || "No Data Found";
 						isMakeInputReadOnly ? makeInputReadOnly() : makeInputEditable();
 					});
 			}

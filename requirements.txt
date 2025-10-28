@@ -12,3 +12,6 @@ redis
 channels
 channels-redis
 # Add other dependencies below as needed
+# logging is built-in, but you can add python-json-logger for structured logs if needed
+python-json-logger
+django-extensions

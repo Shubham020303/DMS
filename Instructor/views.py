@@ -4,6 +4,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 import datetime
+from django.views.decorators.csrf import csrf_exempt
+from utils.response import success_response, error_response,validation_error_response
 from AdminPanel.models import UserProfile, Branch, Slot, Cource, Student, Attendance, Complain, CourceContent,DLInfo,Instructor
 # Create your views here.
 
@@ -25,6 +27,28 @@ def instructor_signin(request):
     next_url = request.GET.get('next', '')
     return render(request, 'instructor/signin.html', {'next': next_url})
 
+
+@login_required(login_url='signin/')
+@csrf_exempt
+def change_password(request):
+    if request.method == 'POST':
+        try:
+
+            if request.user.is_anonymous:
+                return error_response(message="User is not authenticated", status=401)
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+
+            if not request.user.check_password(current_password):
+                return error_response(message="Current password is incorrect", status=400)
+
+            request.user.set_password(new_password)
+            request.user.save()
+            return success_response(message="Password changed successfully")
+        except Exception as e:
+            return error_response(message=str(e))
+
+    return  error_response(message="Invalid request method", status=405)
 
 @login_required(login_url='instructor_signin/')
 def getIndexData(request):
@@ -48,7 +72,7 @@ def getIndexData(request):
     instuctor = Instructor.objects.filter(user__user=request.user).first()
     studentList = Student.objects.filter(instructor = instuctor)
     todayDate = datetime.date.today()
-    attendanceTaken = Attendance.objects.filter(student__in=studentList,date=todayDate).exists()
+    # attendanceTaken = Attendance.objects.filter(student__in=studentList,date=todayDate).exists()
     studentList = [{"id":s.id,"name":s.user.user.first_name,
                     "cource":s.cource.courceName,
                     "phone":s.user.phoneNo,"slot":f"{s.slot.slotStart}-{s.slot.slotEnd} ",

@@ -111,9 +111,22 @@
 						<tr>
 							
 							<td>{{ attendance.date|date:"d/m/Y" }}</td>
-							<td>{{ attendance.timeIn|date:"h:i A" }}</td>
-							<td>{{ attendance.timeOut|date:"h:i A" }}</td>
-							<td>{{ attendance.totalTime }}m</td>
+							{% if attendance.timeIn %}
+								<td>{{ attendance.timeIn|date:"h:i A" }}</td>
+							{% else %}
+								<td>N/A</td>
+							{% endif %}
+							{% if attendance.timeOut %}
+								<td>{{ attendance.timeOut|date:"h:i A" }}</td>
+							{% else %}
+								<td>N/A</td>
+							{% endif %}
+
+							{% if attendance.totalTime is not None %}
+								<td>{{ attendance.totalTime }} mins</td>
+							{% else %}
+								<td>N/A</td>
+							{% endif %}
 							<td>
 								{% if attendance.status == 'Present' %}
 								<span class="text-green-600">{{ attendance.status }}</span>

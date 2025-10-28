@@ -574,7 +574,13 @@
 				],
 				server: {
 					url: '/getComplainData/',
-					then: data => data.map(complain => [complain.id, complain.complainDate, complain.complainName, complain.complainFrom, complain.complainFor, complain.complainBranch, complain.complainStatus])
+					then: data => {
+						if (data.status !== "success") {
+							console.error("Error fetching complain data");
+							return [];
+						}
+						return data["data"].map(complain => [complain.id, complain.complainDate, complain.complainName, complain.complainFrom, complain.complainFor, complain.complainBranch, complain.complainStatus])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -601,16 +607,20 @@
 				fetch(apiUrl)
 					.then(response => response.json())
 					.then(data => {
-						console.log(data);
+						if (data.status !== "success") {
+							console.error("Error fetching complain data");
+							return;
+						}
+						console.log(data["data"]);
 						// document.getElementById("complain-model-heading").innerText = headingText;
 						// document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
-						document.getElementById("complain-title").innerText = data.complainName || "No Data Found";
-						document.getElementById("complain-from").innerText = data.complainFrom || "No Data Found";
-						document.getElementById("complain-for").innerText = data.complainFor || "No Data Found";
-						document.getElementById("complain-desc").innerText = data.complainDescription || "No Data Found";
+						document.getElementById("complain-title").innerText = data["data"].complainName || "No Data Found";
+						document.getElementById("complain-from").innerText = data["data"].complainFrom || "No Data Found";
+						document.getElementById("complain-for").innerText = data["data"].complainFor || "No Data Found";
+						document.getElementById("complain-desc").innerText = data["data"].complainDescription || "No Data Found";
 						// document.getElementById("resolve-complain-btn").innerHTML = data.complainStatus ? "<p>Resolved</p>" : "<p>Resolve</p>";
-						document.getElementById("resolve-complain-btn").style.display = data.complainStatus ? "none" : "block";
-						document.getElementById("resolve-complain-btn").setAttribute("data-id", data.id);
+						document.getElementById("resolve-complain-btn").style.display = data["data"].complainStatus ? "none" : "block";
+						document.getElementById("resolve-complain-btn").setAttribute("data-id", data["data"].id);
 					});
 			}
 

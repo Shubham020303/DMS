@@ -4,8 +4,10 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
+    path('getcurrentUserData/', views.getcurrentUserData, name='getcurrentUserData/'),
     path('signin/', views.signin, name='signin/'),
     path('signout/', views.signout, name='signout/'),
+    path('change-password/', views.change_password, name='change-password/'),
     path('', views.index, name='index/'),
     path('getUserProfileData/', views.getUserProfileData, name='getUserProfileData/'),
     path('getReamainingPaymentData/', views.getReamainingPaymentData, name='getReamainingPaymentData/'),
@@ -21,7 +23,6 @@ urlpatterns = [
     path('manage-branch/', views.manage_branch, name='manage-branch/'),
     path('getVehicleData/', views.getVehicleData, name='getVehicleData/'),
     path('manage-vehicle/', views.manage_vehicle, name='manage-vehicle/'),
-    
     path('getCourseData/', views.getCourseData, name='getCourseData/'),
     path('manage-course/', views.manage_course, name='manage-course/'),
     path('getComplainData/', views.getComplainData, name='getComplainData/'),
@@ -32,6 +33,7 @@ urlpatterns = [
     path('manage-slots/', views.manageSlots, name='manage-slots/'),
     path('manage-attendance/', views.manageAttendance, name='manage-attendance/'),
     path('getAttendanceData/', views.getAttendanceData, name='getAttendanceData/'),
+    path('markBulkAttendance/', views.mark_bulk_attandance_inactive, name='mark_bulk_attandance_inactive/'),
     path('manage-DlInfo/', views.manageDlInfo, name='manage-DlInfo/'),
     path('getDlInfoData/', views.getDlInfoData, name='getDlInfoData/'),
     path('getPaymentData/', views.getPaymentData, name='getPaymentData/'),

@@ -118,6 +118,28 @@
 					</div>
                     </div>
 				<div id="wrapper" class="w-full"></div>
+				<div class="mt-6 flex items-end gap-4">
+					<div class="flex flex-col gap-2 w-[280px]">
+						<label for="instructorSelect" class="block font-semibold">Instructor</label>
+						<select id="instructorSelect" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+							<option disabled selected value="">Select Instructor</option>
+						</select>
+					</div>
+
+					<div class="flex flex-col gap-2 w-[280px]">
+						<label for="dateForLeave" class="block font-semibold">Date</label>
+						<input type="date" name="dateForLeave" id="dateForLeave" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+					</div>
+
+					<button id="mark-instructor-leave" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer">
+						<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+							<path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+						</svg>
+						<span>Mark On Leave</span>
+					</button>
+
+					<div id="instructor-leave-msg" class="text-sm text-gray-600"></div>
+				</div>
 			</div>
 		</section>
 		<section class="fixed top-0 left-0 w-full h-full bg-black/80 flex justify-center items-center scale-0 opacity-0 z-50 transition-all duration-300 p-4" id="add-attendance-modal">
@@ -298,20 +320,93 @@
 				fetch("/getStudentData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("studentName").innerHTML += data.map(student => `<option value="${student.id}">${student.name}</option>`).join('');
+						if (data.status !== 'success') {
+							console.error('Error fetching student data:', data.message);
+							return;
+						}
+						document.getElementById("studentName").innerHTML += data["data"].map(student => `<option value="${student.id}">${student.name}</option>`).join('');
 					})
 
 				fetch("/getVehicleData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("vehicle").innerHTML += data.map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
+						if (data.status !== 'success') {
+							console.error('Error fetching student data:', data.message);
+							return;
+						}
+						document.getElementById("vehicle").innerHTML += data["data"].map(vehicle => `<option value="${vehicle.vehicalName}">${vehicle.vehicalName}</option>`).join('');
 					})
 
 				fetch("/getBranchData/")
 					.then(response => response.json())
 					.then(data => {
-						document.getElementById("branch").innerHTML += data.map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
+						if (data.status !== 'success') {
+							console.error('Error fetching student data:', data.message);
+							return;
+						}
+						document.getElementById("branch").innerHTML += data["data"].map(branch => `<option value="${branch.branchName}">${branch.branchName}</option>`).join('');
 					})
+
+				const select = document.getElementById('instructorSelect');
+				const dateInput = document.getElementById('dateForLeave');
+				const btn = document.getElementById('mark-instructor-leave');
+				const msg = document.getElementById('instructor-leave-msg');
+
+				// Fetch instructor list
+				fetch('/getInstructorData/')
+					.then(r => r.json())
+					.then(data => {
+						if (data.status !== 'success') return console.error('Error fetching instructors', data);
+						select.innerHTML += data.data.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+					})
+					.catch(err => console.error('Instructor fetch error', err));
+
+				// click handler
+				btn.addEventListener('click', () => {
+					const instructorId = select.value;
+					const selectedDate = dateInput.value;
+					if (!instructorId && !selectedDate) {
+						msg.textContent = 'Please select an instructor and date.';
+						msg.classList.add('text-red-500');
+						return;
+					} else if (!instructorId) {
+						msg.textContent = 'Please select an instructor.';
+						msg.classList.add('text-red-500');
+						return;
+					} else if (!selectedDate) {
+						msg.textContent = 'Please select a date.';
+						msg.classList.add('text-red-500');
+						return;
+					}
+					msg.textContent = 'Marking...';
+					msg.classList.remove('text-red-500');
+
+					// Send instructorId as FormData
+					const formData = new FormData();
+					formData.append('instructorId', instructorId);
+					formData.append('date', selectedDate);
+
+					fetch('/markBulkAttendance/', {
+						method: 'POST',
+						body: formData
+					})
+						.then(res => res.json())
+						.then(resp => {
+							if (resp.status === 'success') {
+								msg.textContent = resp.message || 'Instructor marked as on leave.';
+								msg.classList.remove('text-red-500');
+								msg.classList.add('text-green-600');
+							} else {
+								msg.textContent = resp.message || 'Failed to mark leave.';
+								msg.classList.add('text-red-500');
+							}
+						})
+						.catch(err => {
+							console.error('Mark leave error', err);
+							msg.textContent = 'Network error.';
+							msg.classList.add('text-red-500');
+						});
+				});
 
 				initializeDateInputs();
 			})
@@ -703,6 +798,10 @@
 									fetch("/getAttendanceData/?studentId=" + row.cells[1].data)
 									.then(response => response.json())
 									.then(data => {
+										if (data.status !== 'success') {
+											console.error('Error fetching attendance data:', data.message);
+											return;
+										}
 										// Define column headers
 										let headers = ["SR No.", "Name", "Date", "In Time", "Out Time", "Total Time", "Status"];
 
@@ -716,7 +815,7 @@
 										}
 										
 										// Format data for Excel
-										let formattedData = data.map((row, index) => [
+										let formattedData = data["data"].map((row, index) => [
 											index + 1,
 											row.student,
 											row.date,
@@ -767,7 +866,15 @@
 				],
 				server: {
 					url: '/getAttendanceData/',
-					then: data => data.map(attendance => [attendance.id, attendance.studentId, attendance.student, attendance.courceName, attendance.startDate, attendance.endDate, attendance.attened_session, attendance.total_session])
+					then: data => {
+						if (data.status !== 'success') {
+							document.querySelector(".gridjs-tbody").innerHTML = `
+							<tr class="gridjs-tr"><td role="alert" colspan="5" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
+							`;
+							return [];
+						}
+						return data['data'].map(attendance => [attendance.id, attendance.studentId, attendance.student, attendance.courceName, attendance.startDate, attendance.endDate, attendance.attened_session, attendance.total_session])
+					}
 				},
 				className: {
 					th: '!bg-black !text-white',
@@ -816,13 +923,13 @@
 					server: {
 						url: finalAPI,
 						then: data => {
-							if (data.length === 0) {
+							if (data.status !== 'success') {
 								document.querySelector(".gridjs-tbody").innerHTML = `
 								<tr class="gridjs-tr"><td role="alert" colspan="5" class="gridjs-td gridjs-message gridjs-error">No Data Found</td></tr>
 								`;
 								return [];
 							}
-							return data.map(attendance => [
+							return data['data'].map(attendance => [
 								attendance.id,
 								attendance.studentId,
 								attendance.student, 
@@ -901,9 +1008,13 @@
 					fetch(`/getAttendanceData/?studentId=${studentId}`)
 						.then(response => response.json())
 						.then(data => {
+							if (data.status !== 'success') {
+								console.error('Error fetching attendance data:', data.message);
+								return;
+							}
 							console.log(data);
 
-							document.getElementById("view-attendance-name").innerText = data[0].student;
+							document.getElementById("view-attendance-name").innerText = data["data"][0].student;
 
 							// Calendar state
 							let currentDate = new Date();
@@ -914,7 +1025,7 @@
 							// // Format: YYYY-MM-DD: status (present, absent, late)
 							const attendanceData = {};
 
-							data.map(attendance => {
+							data["data"].map(attendance => {
 								attendanceData[attendance.date] = {
 									status: attendance.status,
 									inTime: attendance.timeIn || 'N/A',
