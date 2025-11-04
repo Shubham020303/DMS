@@ -159,7 +159,7 @@ class Cource(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
-    applicationNo = models.CharField(max_length=10)
+    applicationNo = models.CharField(max_length=100,null=True,blank=True)
     dob = models.DateField()
     address = models.TextField()
     gender = models.CharField(max_length=10)

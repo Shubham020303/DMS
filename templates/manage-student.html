@@ -455,7 +455,6 @@
 							</div>
 						</div>
 
-
 						<!-- Course Info - Spans 1 column -->
 						<div class="bg-gray-50 p-6 rounded-xl">
 							<h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -519,20 +518,20 @@
 						</h2>
 						<div class="grid grid-cols-2 gap-4">
 							<div>
-							<p class="text-gray-500 text-sm">License Number</p>
-							<p id="view-license-no" class="font-medium">DL123456789</p>
+								<p class="text-gray-500 text-sm">License Number</p>
+								<p id="view-license-no" class="font-medium">DL123456789</p>
 							</div>
 							<div>
-							<p class="text-gray-500 text-sm">License Type</p>
-							<p id="view-license-type" class="font-medium">Learning License</p>
+								<p class="text-gray-500 text-sm">License Type</p>
+								<p id="view-license-type" class="font-medium">Learning License</p>
 							</div>
 							<div>
-							<p class="text-gray-500 text-sm">Issue Date</p>
-							<p id="view-license-issue" class="font-medium">01/01/2024</p>
+								<p class="text-gray-500 text-sm">Issue Date</p>
+								<p id="view-license-issue" class="font-medium">01/01/2024</p>
 							</div>
 							<div>
-							<p class="text-gray-500 text-sm">Expiry Date</p>
-							<p id="view-license-expiry" class="font-medium">01/01/2025</p>
+								<p class="text-gray-500 text-sm">Expiry Date</p>
+								<p id="view-license-expiry" class="font-medium">01/01/2025</p>
 							</div>
 						</div>
 					</div>
@@ -547,24 +546,24 @@
 						</h2>
 						<div class="grid grid-cols-2 gap-4">
 							<div>
-							<p class="text-gray-500 text-sm">Total Amount</p>
-							<p id="view-total-amount" class="font-medium">₹10,000</p>
+								<p class="text-gray-500 text-sm">Total Amount</p>
+								<p id="view-total-amount" class="font-medium">₹10,000</p>
 							</div>
 							<div>
-							<p class="text-gray-500 text-sm">Payment Due Date</p>
-							<p id="view-payment-due-date" class="font-medium">01/02/2024</p>
+								<p class="text-gray-500 text-sm">Payment Due Date</p>
+								<p id="view-payment-due-date" class="font-medium">01/02/2024</p>
 							</div>
 							<div>
-							<p class="text-gray-500 text-sm">Payment Received</p>
-							<p id="view-payment-received" class="font-medium">₹5,000</p>
+								<p class="text-gray-500 text-sm">Payment Received</p>
+								<p id="view-payment-received" class="font-medium">₹5,000</p>
 							</div>
 							<div>
-							<p class="text-gray-500 text-sm">Payment Due</p>
-							<p id="view-payment-due" class="font-medium">₹5,000</p>
+								<p class="text-gray-500 text-sm">Payment Due</p>
+								<p id="view-payment-due" class="font-medium">₹5,000</p>
 							</div>
 							<div class="col-span-2">
-							<p class="text-gray-500 text-sm">Payment Received By</p>
-							<p id="view-payment-received-by" class="font-medium">John Doe</p>
+								<p class="text-gray-500 text-sm">Payment Received By</p>
+								<p id="view-payment-received-by" class="font-medium">John Doe</p>
 							</div>
 						</div>
 					</div>
@@ -585,9 +584,11 @@
 
 				<div class="mt-8 flex justify-center gap-4">
 					<!-- Fuel Efficient Certificate Button -->
-					<button class="px-6 py-3 bg-indigo-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-indigo-700 transition-colors" 
-							onclick="generateCertificate(this.getAttribute('data-id'))" 
-							id="fuel-certificate-btn">
+					<button 
+						class="px-6 py-3 bg-indigo-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-indigo-700 transition-colors" 
+						onclick="generateCertificate(this.getAttribute('data-id'))" 
+						id="fuel-certificate-btn"
+					>
 						<svg viewBox="0 0 32 32" width="16" height="16">
 							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="25" y1="28" x2="7" y2="28"/>
 							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="16" y1="23" x2="16" y2="4"/>
@@ -597,15 +598,34 @@
 					</button>
 
 					<!-- Course Completion Certificate Button -->
-					<button class="px-6 py-3 bg-green-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-green-700 transition-colors" 
-							onclick="generateCompletionCertificate(this.getAttribute('data-id'))" 
-							id="completion-certificate-btn">
+					<button 
+						class="px-6 py-3 bg-green-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-green-700 transition-colors" 
+						onclick="generateCompletionCertificate(this.getAttribute('data-id'))" 
+						id="completion-certificate-btn"
+					>
 						<svg viewBox="0 0 32 32" width="16" height="16">
 							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="25" y1="28" x2="7" y2="28"/>
 							<line fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" x1="16" y1="23" x2="16" y2="4"/>
 							<polyline fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" points="9,16 16,23 23,16"/>
 						</svg>
 						<span>Download Form 15</span>
+					</button>
+
+					<!-- Reset Password Button -->
+					<button 
+						class="px-6 py-3 bg-red-600 text-white rounded-lg cursor-pointer flex items-center gap-2 hover:bg-red-700 transition-colors" 
+						onclick="resetPassword(this.getAttribute('data-dob'), this.getAttribute('data-phone'))"
+						id="reset-pwd-btn"
+					>
+						<svg fill="#FFFFFF" width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+							<g id="Change_password">
+								<path d="M464.4326,147.54a9.8985,9.8985,0,0,0-17.56,9.1406,214.2638,214.2638,0,0,1-38.7686,251.42c-83.8564,83.8476-220.3154,83.874-304.207-.0088a9.8957,9.8957,0,0,0-16.8926,7.0049v56.9a9.8965,9.8965,0,0,0,19.793,0v-34.55A234.9509,234.9509,0,0,0,464.4326,147.54Z"/>
+								<path d="M103.8965,103.9022c83.8828-83.874,220.3418-83.8652,304.207-.0088a9.8906,9.8906,0,0,0,16.8926-6.9961v-56.9a9.8965,9.8965,0,0,0-19.793,0v34.55C313.0234-1.3556,176.0547,3.7509,89.9043,89.9012A233.9561,233.9561,0,0,0,47.5674,364.454a9.8985,9.8985,0,0,0,17.56-9.1406A214.2485,214.2485,0,0,1,103.8965,103.9022Z"/>
+								<path d="M126.4009,254.5555v109.44a27.08,27.08,0,0,0,27,27H358.5991a27.077,27.077,0,0,0,27-27v-109.44a27.0777,27.0777,0,0,0-27-27H153.4009A27.0805,27.0805,0,0,0,126.4009,254.5555ZM328,288.13a21.1465,21.1465,0,1,1-21.1465,21.1464A21.1667,21.1667,0,0,1,328,288.13Zm-72,0a21.1465,21.1465,0,1,1-21.1465,21.1464A21.1667,21.1667,0,0,1,256,288.13Zm-72,0a21.1465,21.1465,0,1,1-21.1465,21.1464A21.1667,21.1667,0,0,1,184,288.13Z"/>
+								<path d="M343.6533,207.756V171.7538a87.6533,87.6533,0,0,0-175.3066,0V207.756H188.14V171.7538a67.86,67.86,0,0,1,135.7208,0V207.756Z"/>
+							</g>
+						</svg>
+						<span>Reset Password</span>
 					</button>
 				</div>
 			</div>
@@ -1122,7 +1142,7 @@
 				document.getElementById("paymentDueDate").setAttribute("min", document.getElementById("courseStartDate").value);
 			});
 
-			function generatePDFBrowser() {
+			function generatePDFBrowser(receiptNo) {
 				// Get form data (assuming these variables are available)
 				const studentName = document.getElementById("studentName").value;
 				const studentEmail = document.getElementById("studentEmail").value;
@@ -1130,7 +1150,8 @@
 				const phone = document.getElementById("phone").value;
 				const bloodGroup = document.getElementById("bloodGroup").value;
 				const dob = formatDate(document.getElementById("dob").value);
-				const applicationNo = document.getElementById("applicationNo").value;
+				const applicationNo = receiptNo;
+				// const applicationNo = document.getElementById("applicationNo").value;
 				const address = document.getElementById("address").value;
 				const studentCourse = document.getElementById("studentCourse").options[document.getElementById("studentCourse").selectedIndex].text;
 				const coursePrice = document.getElementById("studentCourse").options[document.getElementById("studentCourse").selectedIndex].getAttribute('data-fee') || "0";
@@ -1821,7 +1842,7 @@
 							document.getElementById("update-student-message").innerText = "Student details added successfully."
 							document.getElementById("update-student-heading").innerText = "New Enrollment"
 
-							generatePDFBrowser()
+							generatePDFBrowser(data["data"].receiptNo)
 						} else if (data.status === "error") {
 							console.error("Error:", data.message);
 							document.getElementById('add-student-modal').classList.remove('scale-100', 'opacity-100');
@@ -1872,7 +1893,7 @@
 			const studentGrid = new gridjs.Grid({
 				search: true,
 				pagination: {
-					limit: 5,
+					limit: 10,
 					summary: false
 				},
 				sort: true,
@@ -1899,11 +1920,17 @@
 						name: "",
 						formatter: (cell, row) => {
 							cell = cell !== null ? 
-								`<img src="${cell}" class="w-10 h-10 rounded-full object-cover" alt="">` : 
-								`<svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-									<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-									<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-								</svg>`;
+								`<img 
+									src="${cell}" 
+									class="w-10 h-10 rounded-full object-cover" 
+									alt=""
+									onerror="this.onerror=null;this.src='../static/images/DefaultUserImg.svg';"
+								>` : 
+								`<img 
+									src="../static/images/DefaultUserImg.svg" 
+									class="w-10 h-10 rounded-full object-cover" 
+									alt=""
+								>`;
 							return gridjs.html(cell);
 						},
 						width: '7%'
@@ -2020,6 +2047,8 @@
 								alert("Error fetching student data.");
 								return;
 							}
+							document.getElementById("reset-pwd-btn").setAttribute("data-dob", data["data"].dob || "");
+							document.getElementById("reset-pwd-btn").setAttribute("data-phone", data["data"].phone || "");
 							// Basic Info
 							document.getElementById("view-student-image").src = data["data"].profilePic || "https://dummyimage.com/1290x1080/141414/ffffff&text=No+Image+Found";
 							document.getElementById("view-student-name").innerText = data["data"].name || "No Data Found";
@@ -2240,6 +2269,31 @@
 				});
 			}
 
+			function resetPassword(dob, phone) {
+				let formData = new FormData();
+				formData.append("dob", dob);
+				formData.append("phoneNo", phone);
+				fetch(`/resetPassword/`, {
+					method: "POST",
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.status === "success") {
+						alert(data.message);
+						// window.location.reload();
+					} else {
+						alert(data.message);
+						// window.location.reload();
+					}
+				})
+				.catch(error => {
+					console.error("Error:", error);
+					alert(error);
+					// window.location.reload();
+				});
+			}
+
 			function generateCompletionCertificate(studentId) {
 				// Fetch both student and attendance data
 				Promise.all([
@@ -2357,9 +2411,9 @@
 								<div class="subtitle">IDEA DRIVING SCHOOL</div>
 								</div>
 								
-								<div class="student-info">
+								<div class="student-info">	
 								<p><strong>Student Name:</strong> ${studentData.name}</p>
-								<p><strong>Registration Number:</strong> ${studentData.applicationNo}</p>
+								<p><strong>Registration Number:</strong> ${studentData.receiptNo}</p>
 								<p><strong>Course:</strong> ${studentData.cource}</p>
 								<p><strong>Duration:</strong> ${formatDate(studentData.startDate)} to ${formatDate(studentData.endDate)}</p>
 								<p><strong>Branch:</strong> ${studentData.branch}</p>
@@ -2472,7 +2526,7 @@
 						document.getElementById("student-model-heading").innerText = headingText;
 						document.getElementById("btns-container").style.display = isBtnsVisible ? "flex" : "none";
 						document.getElementById("studentName").value = data["data"].name || "No Data Found";
-						document.getElementById("studentEmail").value = data["data"].email || "No Data Found";
+						document.getElementById("studentEmail").value = data["data"].email || "";
 						document.getElementById("branch").value = data["data"].branch || "No Data Found";
 						document.getElementById("phone").value = data["data"].phone || "No Data Found";
 						document.getElementById("bloodGroup").value = data["data"].bloodGroup || "No Data Found";
@@ -2945,7 +2999,7 @@
 				const phone = student.phone;
 				const bloodGroup = student.bloodGroup;
 				const dob = formatDate(student.dob);
-				const applicationNo = student.applicationNo;
+				const applicationNo = student.receiptNo;
 				const address = student.address;
 				const studentCourse = student.cource;
 				const branch = student.branch;
@@ -2957,6 +3011,7 @@
 				const paymentDue = student.paymentDue;
 				const paymentReceivedBy = student.paymentRecievedByName;
 				const grandTotal = student.totalAmount;
+				const courseFee = student.courseFee;
 
 				// Calculate add-on services
 				let addOnServices = [];
@@ -2967,7 +3022,7 @@
 					addOnServices.push({name: serviceName, fee: serviceFee});
 					addOnTotal += serviceFee;
 				});
-				const courseFee = grandTotal - addOnTotal;
+				// const courseFee = grandTotal - addOnTotal;
 
 				// Create HTML content matching jsPDF layout
 				const htmlContent = `

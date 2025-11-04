@@ -63,6 +63,7 @@ def student_signin(request):
             return render(request, 'student/signin.html', {'error': 'You are not authorized to access this page.', 'next': next_url})
         # Compare password with DOB in ddmmyyyy format
         dob_str = student.dob.strftime('%d%m%Y') if student.dob else ''
+        
         user = authenticate(username=mobile, password=password)
         if not user:
             return render(request, 'student/signin.html', {'error': 'Invalid mobile number or password', 'next': next_url})

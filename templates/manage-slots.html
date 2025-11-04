@@ -21,6 +21,10 @@
 			::-webkit-scrollbar-thumb:hover {
 				background: #555;
 			}
+			.gridjs-search{
+				min-width: 250px;
+				max-width: 250px;
+			}
 			input.gridjs-input{
 				box-shadow: 0 0 0 1px #141414;
 			}
@@ -71,7 +75,7 @@
 
 			.date-input-wrapper {
 				position: absolute !important;
-				right: 310px !important;
+				right: 300px !important;
 				top: 8px !important;
 				z-index: 50;
 			}
@@ -127,23 +131,23 @@
                }
 
 			function handleDateChange(event) {
-    const selectedDate = event.target.value;
-    const container = document.getElementById('daily-time-slots');
-    showLoader();
-    
-    // Initialize new grid with the selected date
-    initializeDailyTimeSlotsGrid(selectedDate).then(grid => {
-        // Clear previous grid if exists
-        if (currentGrid) {
-            currentGrid.destroy();
-        }
-        // Store and render new grid
-        currentGrid = grid;
-        container.innerHTML = '';
-        currentGrid.render(container);
-        hideLoader();
-    });
-}
+				const selectedDate = event.target.value;
+				const container = document.getElementById('daily-time-slots');
+				showLoader();
+				
+				// Initialize new grid with the selected date
+				initializeDailyTimeSlotsGrid(selectedDate).then(grid => {
+					// Clear previous grid if exists
+					if (currentGrid) {
+						currentGrid.destroy();
+					}
+					// Store and render new grid
+					currentGrid = grid;
+					container.innerHTML = '';
+					currentGrid.render(container);
+					hideLoader();
+				});
+			}
 
 			document.querySelector('input[type="date"]').addEventListener('change', handleDateChange);
 
@@ -189,7 +193,9 @@
 									slotMap.get(slot.slotTime).vehicleData[vehicle.vehicleName] = {
 										student: slot.student,
 										branch: slot.branch,
-										attendanceStatus: slot.attendanceStatus
+										attendanceStatus: slot.attendanceStatus,
+										prebookedStudent: slot.prebookedStudent,
+										prebookStartDate: slot.prebookStartDate,
 									};
 								});
 							});
@@ -220,6 +226,11 @@
 												cellStyle = 'color: green;';
 												cellContent = `${vehicleInfo.student} (${vehicleInfo.attendanceStatus})`;
 											}
+										}
+
+										if (vehicleInfo.prebookedStudent && vehicleInfo.prebookStartDate) {
+											cellStyle += 'background-color: yellow; padding: 10px;'; // Light yellow background
+											cellContent += `<br><small>${vehicleInfo.prebookedStudent} - ${vehicleInfo.prebookStartDate}</small>`;
 										}
 
 										row.push(gridjs.html(

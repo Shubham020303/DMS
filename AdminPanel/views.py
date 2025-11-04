@@ -65,6 +65,32 @@ def change_password(request):
 
     return  error_response(message="Invalid request method", status=405)
 
+@csrf_exempt
+@login_required(login_url='signin/')
+def reset_password(request):
+    if request.method == 'POST':
+        try:
+            userid = request.POST.get('userId',None)
+            phone =  request.POST.get('phoneNo')
+            dob = request.POST.get('dob')
+            dob_obj = datetime.strptime(dob, '%Y-%m-%d')
+            dob_str  = dob_obj.strftime('%d%m%Y')
+
+            if userid:
+                user = User.objects.filter(id=userid).first()
+            else:
+                user = User.objects.filter(username = phone).first()
+            print(user)
+            if not user:
+                return error_response(message="User does not exist", status=404)
+            # For simplicity, we are resetting the password to 'defaultpassword123'
+            user.set_password(dob_str)
+            user.save()
+            return success_response(message="Password has been reset to 'Default Password'.")
+        except Exception as e:
+            return error_response(message=str(e))
+
+
 @login_required(login_url='signin/')
 def getReamainingPaymentData(request):
     try:
@@ -121,13 +147,18 @@ def getSlotWiseData(request):
                 for slot in slots:
                     if slot.is_active == True:
                         student = Student.objects.filter(cource__vehicle=i,slot=slot,student_staus=True,booking_Type = 'Normal',courceEndDate__gte=today)
+                        if slot.slotPreBooked:
+                            prebookstudent = Student.objects.filter(cource__vehicle=i,slot=slot,student_staus=True,booking_Type = 'Pre-Booking',courceEndDate__gte=today).first()
+
                         if student.exists():
                             attandance = Attendance.objects.filter(student=student.first(),date=date).first()
                         slot_data = {
                             'slotTime': f'{slot.slotStart} - {slot.slotEnd}',
                             'branch': slot.slotBranch.branchName,
                             'student': student.first().user.user.first_name if student.exists() else None,
-                            "attendanceStatus": attandance.status if student.exists() and attandance else "NotMarked"
+                            "attendanceStatus": attandance.status if student.exists() and attandance else "NotMarked",
+                            "prebookedStudent": prebookstudent.user.user.first_name if slot.slotPreBooked and prebookstudent else None,
+                            "prebookStartDate" : prebookstudent.courceEnrollDate if slot.slotPreBooked and prebookstudent else None,
                         }
                         temp_slot_data.append(slot_data)
                     tempData['slots'] = temp_slot_data
@@ -328,7 +359,7 @@ def manage_instructor(request):
 
             try:
                 newuser = User.objects.create_user(
-                    username=email,
+                    username=phone,
                     email=email,
                     password=dob,
                     first_name=name
@@ -402,6 +433,7 @@ def getStudentData(request):
                 return error_response(message="Student not found", status=404)
             dlinfo = DLInfo.objects.filter(dlUser=student.user).first()
             data = {
+                    'receiptNo': str(student.id) + '-' +str(datetime.today().month) + str(datetime.today().year),
                     'id': student.id,
                     'name': student.user.user.first_name,
                     'email': student.user.user.email,
@@ -422,7 +454,8 @@ def getStudentData(request):
                     'slotId': student.slot.id,
                     'startDate': student.courceEnrollDate,
                     'endDate': student.courceEndDate,
-                    'totalAmount': int(student.amountPending) + int(student.amountPaid),
+                    'courseFee': student.cource.courceFee,
+                    'totalAmount': student.cource.courceFee + sum([addOnService.serviceFee for addOnService in student.addOnService.all()]),
                     'paymentReceived': student.amountPaid,
                     'paymentDue': student.amountPending,
                     'paymentDueDate': student.paymentDueDate,
@@ -469,13 +502,15 @@ def getStudentData(request):
     except Exception as e:
         return error_response(message=str(e))
         
+
+
 @csrf_exempt
 @login_required(login_url='signin/')
 def manage_student(request):
     if request.method == 'POST':
         id = request.POST.get('studentId')
         name = request.POST.get('studentName')
-        email = request.POST.get('studentEmail')
+        email = request.POST.get('studentEmail',None)
         dob = request.POST.get('dob')
         applicationNo = request.POST.get('applicationNo')
         address = request.POST.get('address')
@@ -494,11 +529,11 @@ def manage_student(request):
         slot = request.POST.get('studentSlot')
         startDate = request.POST.get('courseStartDate')
         endDate = request.POST.get('courseEndDate')
-        paymentRecieved = request.POST.get('paymentReceived')
-        paymentDue = request.POST.get('paymentDue')
+        paymentRecieved = request.POST.get('paymentReceived',None)
+        paymentDue = request.POST.get('paymentDue',None)
         paymentDueDate = request.POST.get('paymentDueDate',None)
         addOnService = request.POST.get('addOnService',None)
-        paymentRecievedBy = request.POST.get('paymentRecievedBy')
+        paymentRecievedBy = request.POST.get('paymentRecievedBy',None)
         if addOnService:
             addOnService = map(int, addOnService.split(','))
             addOnService = list(addOnService)
@@ -515,7 +550,8 @@ def manage_student(request):
             if Student.objects.filter(id=id).exists():
                 student = Student.objects.get(id=id)
                 student.user.user.first_name = name
-                student.user.user.email = email
+                if email and email != '':
+                    student.user.user.email = email
                 student.user.user.save()
                 student.user.phoneNo = phone
                 student.user.bloodGroup = bloodGroup
@@ -550,15 +586,21 @@ def manage_student(request):
                 student.gender = gender
                 student.courceEnrollDate = startDate
                 student.courceEndDate = endDate
-                student.amountPaid = paymentRecieved
-                student.amountPending = paymentDue
-                student.paymentDueDate = paymentDueDate
-                student.addOnService.clear()
-                for addOnServiceId in addOnService:
-                    student.addOnService.add(AddOnService.objects.get(id=addOnServiceId))
+                if paymentRecieved:
+                    student.amountPaid = paymentRecieved
+                if paymentDue:
+                    student.amountPending = paymentDue
+                if paymentDueDate:
+                    student.paymentDueDate = paymentDueDate
+                # student.addOnService.clear()
+                if addOnService:
+                    student.addOnService.clear()
+                    for addOnServiceId in addOnService:
+                        student.addOnService.add(AddOnService.objects.get(id=addOnServiceId))
                 student.save()
-                stundetHistory = StudentCouseHistory(student=student,cource=cource,instructor=instructor,startDate=startDate,endDate=endDate)
-                stundetHistory.save()
+                if slot:
+                    stundetHistory = StudentCouseHistory(student=student,cource=Cource.objects.get(id=cource),instructor=Instructor.objects.get(user_id=instructor),courceEnrollDate=startDate,courceCompletionDate=endDate,created_by = request.user.userprofile)
+                    stundetHistory.save()
 
                 
                 return success_response(message="Student updated successfully")
@@ -622,7 +664,8 @@ def manage_student(request):
                     
                     stundetHistory = StudentCouseHistory(student=student,cource=cource,instructor=instructor,courceEnrollDate=startDate,courceCompletionDate=endDate,created_by=userprofile)
                     stundetHistory.save()
-                    return success_response(message="Student created successfully")
+                    
+                    return success_response(data={'receiptNo':str(student.id) + '-' +str(datetime.today().month) + str(datetime.today().year)},message="Student created successfully")
                 except Exception as e:
                     print(e)
                     if newuser:
