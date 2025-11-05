@@ -2,45 +2,45 @@ from django.contrib import admin
 from .models import (DLInfo,Instructor,Vehicle,Cource,Student,Attendance,Branch,UserProfile,Slot,Complain,CourceContent,Payment,AddOnService,Notification,StudentCouseHistory)
 # Register your models here.
 class slotAdmin(admin.ModelAdmin):
-    list_display = ['slotStart','slotEnd','slotBranch','vehicle']
+    list_display = ['slotStart','slotEnd','slotBranch','vehicle','created_at']
     list_filter = ['slotBranch','vehicle']
     search_fields = ['slotBranch']
     list_per_page = 10
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user','phoneNo','is_instructor','is_student','is_branchAdmin','is_superAdmin','is_active']
+    list_display = ['user','phoneNo','is_instructor','is_student','is_branchAdmin','is_superAdmin','is_active','created_at']
     search_fields = ['user__username','phoneNo']
     list_per_page = 10
 
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ['vehicleName','vehicleType','vehicleNo','vehicleBranch','is_active']
+    list_display = ['vehicleName','vehicleType','vehicleNo','vehicleBranch','is_active','created_at']
     search_fields = ['vehicleName','vehicleType','vehicleNo']
     list_per_page = 10
 
 class CourceAdmin(admin.ModelAdmin):
-    list_display = ['courceName','vehicle','courceFee','courceDuration','is_active']
+    list_display = ['courceName','vehicle','courceFee','courceDuration','is_active','created_at']
     search_fields = ['courceName','vehicle__vehicleName']
     list_per_page = 10
 
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ['user','cource','instructor','dob','amountPending','is_active']
+    list_display = ['user','cource','instructor','dob','amountPending','is_active','created_at']
     search_fields = ['user__user__username','cource__courceName','instructor__user__user__username']
     list_filter = ['cource','instructor']
     list_per_page = 10
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['student','paymentDate','paymentAmount','paymentMethod','paymentRecevedBy']
+    list_display = ['student','paymentDate','paymentAmount','paymentMethod','paymentRecevedBy','created_at']
     search_fields = ['student__user__user__username','paymentMethod','paymentBranch__branchName']
     list_per_page = 10
 
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ['notificationTitle','notificationDate','notificationBranch','notificationIsRead']
+    list_display = ['notificationTitle','notificationDate','notificationBranch','notificationIsRead','created_at']
     search_fields = ['notificationTitle','notificationBranch']
     list_per_page = 10
 
 
 class InstructorAdmin(admin.ModelAdmin):
-    list_display = ['user','dob','instructorBranch','is_active']
+    list_display = ['user','dob','instructorBranch','is_active','created_at']
     search_fields = ['user__user__username','instructorBranch__branchName']
     list_per_page = 10
 
@@ -50,7 +50,7 @@ class DlInfoAdmin(admin.ModelAdmin):
     list_per_page = 10
 
 class BranchAdmin(admin.ModelAdmin):
-    list_display = ['branchName','branchPhoneNo','branchEmail','branchIncharge','is_active']
+    list_display = ['branchName','branchPhoneNo','branchEmail','branchIncharge','is_active','created_at']
     search_fields = ['branchName','branchIncharge__user__username']
     list_per_page = 10
 
@@ -61,21 +61,21 @@ class ComplainAdmin(admin.ModelAdmin):
     list_per_page = 10
 
 class CourceContentAdmin(admin.ModelAdmin):
-    list_display = ['contentDescription','contentVideo','contentFile']
+    list_display = ['contentDescription','contentVideo','contentFile',]
     search_fields = ['contentDescription']
     list_per_page = 10
 
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ['student','date','timeIn','timeOut','status']
+    list_display = ['student','date','timeIn','timeOut','status','created_at']
     search_fields = ['student__user__user__username','date','status']
     list_per_page = 10
 
 class AddOnServiceAdmin(admin.ModelAdmin):
-    list_display = ['serviceName','serviceFee','mandetory','is_active']
+    list_display = ['serviceName','serviceFee','mandetory','is_active','created_at']
     search_fields = ['serviceName']
     list_per_page = 10
 class  StudentCouseHistoryAdmin(admin.ModelAdmin):
-    list_display = ['student','cource','instructor','courceEnrollDate','courceCompletionDate']
+    list_display = ['student','cource','instructor','courceEnrollDate','courceCompletionDate','created_at']
     search_fields = ['student__user__user__username','cource__courceName','instructor__user__user__username']
     list_filter = ['cource','instructor']
     list_per_page = 10

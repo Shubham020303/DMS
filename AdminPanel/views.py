@@ -1536,6 +1536,9 @@ def getPaymentData(request):
         return success_response(data=paymentData, message="Payment data fetched successfully for all payments")
     except Exception as e:
         return error_response(message=str(e))
+    
+
+@csrf_exempt
 @login_required(login_url='signin/')
 def managePayment(request):
     if request.method == 'POST':
@@ -1545,6 +1548,7 @@ def managePayment(request):
         paymentBy = request.POST.get('paymentReceivedBy')
         paymentMode = request.POST.get('paymentMethod')
         studentId = request.POST.get('studentId')
+        student = request.POST.get('studentName')
 
         try:
             if paymentId:
@@ -1562,6 +1566,11 @@ def managePayment(request):
                 student.save()
                 return success_response(message="Payment updated successfully")
             else:
+                student = Student.objects.filter(id=studentId).first()
+                if not student:
+                    return error_response(message="Student not found", status=404)
+                
+                print("Student",student)
                 payment =  Payment(student = Student.objects.get(id=studentId),paymentAmount=paymentAmount,paymentDate=paymentDate,paymentRecevedBy=UserProfile.objects.get(id=paymentBy),paymentMethod=paymentMode)
                 payment.save()
                 student =  Student.objects.get(id=studentId)

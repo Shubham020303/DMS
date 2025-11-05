@@ -9,7 +9,8 @@ const handleAPIRequest = async (url, method = 'GET', data = null) => {
         };
 
         if (data) {
-            options.body = JSON.stringify(data);
+            options.body = data;
+            // options.body = JSON.stringify(data);
         }
 
         const response = await fetch(url, options);
@@ -30,8 +31,8 @@ const handleAPIRequest = async (url, method = 'GET', data = null) => {
 const paymentAPI = {
     getPayments: () => handleAPIRequest('/getPaymentData/'),
     addPayment: (data) => handleAPIRequest('/manage-payment/', 'POST', data),
-    updatePayment: (id, data) => handleAPIRequest(`/manage-payment/${id}/`, 'PUT', data),
-    deletePayment: (id) => handleAPIRequest(`/manage-payment/${id}/`, 'DELETE'),
+    updatePayment: (id, data) => handleAPIRequest(`/manage-payment/`, 'POST', data),
+    deletePayment: (id) => handleAPIRequest(`/manage-payment/`, 'DELETE'),
 };
 
 // Student Leave APIs

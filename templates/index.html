@@ -270,13 +270,13 @@
 						<div class="flex flex-col gap-2 w-full md:w-1/2">
 							<label for="paymentReceivedBy" class="block font-semibold">Payment Receiver</label>
 							<select name="paymentReceivedBy" id="paymentReceivedBy" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-								<option disabled selected>Select Person</option>
+								<option disabled selected value="">Select Person</option>
 							</select>
 						</div>
 						<div class="flex flex-col gap-2 w-full md:w-1/2">
 							<label for="paymentMethod" class="block font-semibold">Payment Method</label>
 							<select name="paymentMethod" id="paymentMethod" class="block w-full rounded-lg bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-								<option disabled selected>Select Method</option>
+								<option disabled selected value="">Select Method</option>
 								<option value="Cash">Cash</option>
 								<option value="Online">Online</option>
 							</select>
@@ -343,6 +343,16 @@
 		// 		}
 		// 	}
 		// });
+
+		document.getElementById("close-update-payment-btn").addEventListener("click", () => {
+			document.getElementById("updated-payment-modal").classList.remove('scale-100', 'opacity-100');
+			document.getElementById("updated-payment-modal").classList.add('scale-0', 'opacity-0');
+		})
+
+		document.getElementById("close-update-payment-modal").addEventListener("click", () => {
+			document.getElementById("updated-payment-modal").classList.remove('scale-100', 'opacity-100');
+			document.getElementById("updated-payment-modal").classList.add('scale-0', 'opacity-0');
+		})
 
 		document.addEventListener('DOMContentLoaded', () => {
 			// fetch("/getVehicleData/")
@@ -581,26 +591,27 @@
 		// })
 
 		document.getElementById("add-payment-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const isUpdate = document.getElementById('add-payment-btn').innerText === "Update";
+			e.preventDefault();
+			const formData = new FormData(e.target);
+			const isUpdate = document.getElementById('add-payment-btn').innerText === "Update";
 
-        try {
-            const data = Object.fromEntries(formData.entries());
-            const response = isUpdate ? 
-                await paymentAPI.updatePayment(data.studentId, data) :
-                await paymentAPI.addPayment(data);
-
-            // Show success modal
-            showPaymentModal(true, response.message);
-            // Refresh payment grids
-            paymentGrid.forceRender();
-            receivedPaymentGrid.forceRender();
-
-        } catch (error) {
-            showPaymentModal(false, error.message);
-        }
-    });
+			fetch("/manage-payment/", {
+					method: "POST", // Change to PUT if updating
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.status === "success") {
+						showPaymentModal(true, data.message);
+						paymentGrid.forceRender();
+						receivedPaymentGrid.forceRender();
+					} else {
+						showPaymentModal(false, data.message);
+					}
+				}).catch(error => {
+					showPaymentModal(false, error);
+				})
+		});
 
 		// Update notification handling
 		function markNotificationAsRead(notificationId) {
@@ -712,6 +723,13 @@
 											document.getElementById("studentName").value = data["data"].name;
 											document.getElementById("paymentDue").value = data["data"].paymentDue;
 											document.getElementById("paymentDue").setAttribute("data-original", data["data"].paymentDue);
+
+											document.getElementById("paymentReceived").addEventListener("input", () => {												
+												if (parseInt(document.getElementById("paymentReceived").value) > parseInt(document.getElementById("paymentDue").value)) {
+													document.getElementById("paymentReceived").value = document.getElementById("paymentDue").value
+													alert("Payment received can't be more than payment due")
+												}
+											})
 										} else {
 											console.error("API Error:", data);
 											document.getElementById("update-payment-modal").classList.remove('scale-100', 'opacity-100');
